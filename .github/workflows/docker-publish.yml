@@ -35,8 +35,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ steps.repo.outputs.name }}
-            ghcr.io/fccview/degoog
-            fccview/degoog
           tags: |
             type=ref,event=branch,suffix=-amd64
             type=ref,event=tag,suffix=-amd64
@@ -85,8 +83,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ steps.repo.outputs.name }}
-            ghcr.io/fccview/degoog
-            fccview/degoog
           tags: |
             type=ref,event=branch,suffix=-arm64
             type=ref,event=tag,suffix=-arm64
@@ -128,8 +124,6 @@ jobs:
         with:
           images: |
             ghcr.io/${{ steps.repo.outputs.name }}
-            ghcr.io/fccview/degoog
-            fccview/degoog
           tags: |
             type=ref,event=branch
             type=ref,event=tag
