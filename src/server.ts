@@ -4,6 +4,7 @@ import * as cache from "./cache";
 import { search } from "./search";
 import type { EngineConfig, SearchType, TimeFilter } from "./types";
 import { getEngineRegistry, getDefaultEngineConfig, initPlugins } from "./engines/registry";
+import { matchBangCommand, initCommandPlugins, getCommandRegistry } from "./commands/registry";
 
 const app = new Hono();
 
@@ -166,6 +167,32 @@ app.get("/api/lucky", async (c) => {
   return c.json({ error: "No results found" }, 404);
 });
 
+app.get("/api/commands", (c) => {
+  return c.json(getCommandRegistry());
+});
+
+app.get("/api/command", async (c) => {
+  const q = c.req.query("q");
+  if (!q) {
+    return c.json({ error: "Missing query parameter 'q'" }, 400);
+  }
+  const match = matchBangCommand(q);
+  if (!match) {
+    return c.json({ error: "Unknown command" }, 404);
+  }
+  const forwarded = c.req.header("x-forwarded-for");
+  const realIp = c.req.header("x-real-ip");
+  const bunIp = c.env?.requestIP?.(c.req.raw)?.address;
+  const clientIp = forwarded ? forwarded.split(",")[0].trim() : realIp || bunIp || undefined;
+  const result = await match.command.execute(match.args, { clientIp });
+  return c.json({
+    type: "command",
+    trigger: match.command.trigger,
+    title: result.title,
+    html: result.html,
+  });
+});
+
 app.post("/api/cache/clear", (c) => {
   cache.clear();
   return c.json({ ok: true });
@@ -173,7 +200,7 @@ app.post("/api/cache/clear", (c) => {
 
 const port = Number(process.env.PORT) || 4444;
 
-initPlugins().then(() => {
+Promise.all([initPlugins(), initCommandPlugins()]).then(() => {
   Bun.serve({
     port,
     fetch: app.fetch,

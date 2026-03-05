@@ -52,7 +52,7 @@ export function initAutocomplete(input, dropdown, performSearch) {
   input.addEventListener("input", () => {
     clearTimeout(acTimeout);
     const q = input.value.trim();
-    if (!q) {
+    if (!q || q.startsWith("!")) {
       dropdown.innerHTML = "";
       dropdown.style.display = "none";
       dropdown.parentElement.classList.remove("ac-open");

@@ -50,3 +50,19 @@ export interface ScoredResult extends SearchResult {
 }
 
 export type EngineConfig = Record<string, boolean>;
+
+export interface CommandResult {
+  title: string;
+  html: string;
+}
+
+export interface BangCommand {
+  name: string;
+  description: string;
+  trigger: string;
+  execute(args: string, context?: CommandContext): Promise<CommandResult>;
+}
+
+export interface CommandContext {
+  clientIp?: string;
+}
