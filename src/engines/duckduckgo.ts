@@ -4,6 +4,7 @@ import { getRandomUserAgent } from "../user-agents";
 
 export class DuckDuckGoEngine implements SearchEngine {
   name = "DuckDuckGo";
+  bangShortcut = "ddg";
 
   async executeSearch(
     query: string,

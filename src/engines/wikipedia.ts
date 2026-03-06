@@ -2,6 +2,7 @@ import type { SearchEngine, SearchResult, TimeFilter } from "../types";
 
 export class WikipediaEngine implements SearchEngine {
   name = "Wikipedia";
+  bangShortcut = "w";
 
   async executeSearch(query: string, page?: number, _timeFilter?: TimeFilter): Promise<SearchResult[]> {
     const offset = ((page || 1) - 1) * 15;

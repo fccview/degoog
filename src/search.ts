@@ -7,7 +7,7 @@ import { GoogleVideosEngine } from "./engines/google-videos";
 import { BingNewsEngine } from "./engines/bing-news";
 
 const MAX_PAGE = 10;
-const API_PAGE_SIZE = 50;
+const ENGINE_TIMEOUT_MS = 10_000;
 
 const imageEngines: SearchEngine[] = [new GoogleImagesEngine(), new BingImagesEngine()];
 const videoEngines: SearchEngine[] = [new GoogleVideosEngine(), new BingVideosEngine()];
@@ -26,7 +26,7 @@ function normalizeUrl(url: string): string {
   }
 }
 
-function aggregateAndScore(allResults: SearchResult[][]): ScoredResult[] {
+export function aggregateAndScore(allResults: SearchResult[][]): ScoredResult[] {
   const urlMap = new Map<string, ScoredResult>();
 
   for (const engineResults of allResults) {
@@ -55,6 +55,42 @@ function aggregateAndScore(allResults: SearchResult[][]): ScoredResult[] {
           sources: [result.source],
         });
       }
+    }
+  }
+
+  const scored = Array.from(urlMap.values());
+  scored.sort((a, b) => b.score - a.score);
+  return scored;
+}
+
+export function mergeNewResults(existing: ScoredResult[], newResults: SearchResult[]): ScoredResult[] {
+  const urlMap = new Map<string, ScoredResult>();
+
+  for (const r of existing) {
+    urlMap.set(normalizeUrl(r.url), { ...r, sources: [...r.sources] });
+  }
+
+  for (let i = 0; i < newResults.length; i++) {
+    const r = newResults[i];
+    const normalized = normalizeUrl(r.url);
+    const positionScore = Math.max(10 - i, 1);
+
+    if (urlMap.has(normalized)) {
+      const existing = urlMap.get(normalized)!;
+      existing.score += positionScore + 5;
+      if (!existing.sources.includes(r.source)) {
+        existing.sources.push(r.source);
+      }
+      if (r.snippet.length > existing.snippet.length) {
+        existing.snippet = r.snippet;
+      }
+    } else {
+      urlMap.set(normalized, {
+        ...r,
+        url: normalized,
+        score: positionScore,
+        sources: [r.source],
+      });
     }
   }
 
@@ -119,6 +155,47 @@ async function fetchKnowledgePanel(query: string): Promise<KnowledgePanel | null
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Engine timeout")), ms)),
+  ]);
+}
+
+export function resolveEngine(engineName: string): SearchEngine | null {
+  const engineMap = getEngineMap();
+  if (engineMap[engineName]) return engineMap[engineName];
+  for (const engine of Object.values(engineMap)) {
+    if (engine.name === engineName) return engine;
+  }
+  for (const engine of [...imageEngines, ...videoEngines, ...newsEngines]) {
+    if (engine.name === engineName) return engine;
+  }
+  return null;
+}
+
+export async function searchSingleEngine(
+  engineName: string,
+  query: string,
+  page: number = 1,
+  timeFilter: TimeFilter = "any",
+): Promise<{ results: SearchResult[]; timing: EngineTiming }> {
+  const engine = resolveEngine(engineName);
+  if (!engine) {
+    return { results: [], timing: { name: engineName, time: 0, resultCount: 0 } };
+  }
+  const p = Math.max(1, Math.min(MAX_PAGE, Math.floor(page) || 1));
+  const t0 = performance.now();
+  try {
+    const results = await withTimeout(engine.executeSearch(query, p, timeFilter), ENGINE_TIMEOUT_MS);
+    const elapsed = Math.round(performance.now() - t0);
+    return { results, timing: { name: engine.name, time: elapsed, resultCount: results.length } };
+  } catch {
+    const elapsed = Math.round(performance.now() - t0);
+    return { results: [], timing: { name: engine.name, time: elapsed, resultCount: 0 } };
+  }
+}
+
 export async function search(query: string, config: EngineConfig, type: SearchType = "all", page: number = 1, timeFilter: TimeFilter = "any"): Promise<SearchResponse> {
   const start = performance.now();
   const p = Math.max(1, Math.min(MAX_PAGE, Math.floor(page) || 1));
@@ -134,7 +211,7 @@ export async function search(query: string, config: EngineConfig, type: SearchTy
   const settled = await Promise.allSettled(
     activeEngines.map(async (engine, i) => {
       engineStarts[i] = performance.now();
-      const results = await engine.executeSearch(query, p, timeFilter);
+      const results = await withTimeout(engine.executeSearch(query, p, timeFilter), ENGINE_TIMEOUT_MS);
       return results;
     })
   );

@@ -3,6 +3,7 @@ import { getRandomUserAgent } from "../user-agents";
 
 export class RedditEngine implements SearchEngine {
   name = "Reddit";
+  bangShortcut = "r";
 
   async executeSearch(
     query: string,

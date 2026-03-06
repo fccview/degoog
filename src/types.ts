@@ -9,6 +9,7 @@ export interface SearchResult {
 
 export interface SearchEngine {
   name: string;
+  bangShortcut?: string;
   executeSearch(
     query: string,
     page?: number,
@@ -54,15 +55,18 @@ export type EngineConfig = Record<string, boolean>;
 export interface CommandResult {
   title: string;
   html: string;
+  totalPages?: number;
 }
 
 export interface BangCommand {
   name: string;
   description: string;
   trigger: string;
+  aliases?: string[];
   execute(args: string, context?: CommandContext): Promise<CommandResult>;
 }
 
 export interface CommandContext {
   clientIp?: string;
+  page?: number;
 }

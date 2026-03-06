@@ -72,8 +72,9 @@ export function init() {
   const params = new URLSearchParams(window.location.search);
   const q = params.get("q");
   const type = params.get("type") || "all";
+  const page = parseInt(params.get("page"), 10) || 1;
   if (q) {
     searchInput.value = q;
-    performSearch(q, type);
+    performSearch(q, type, page);
   }
 }

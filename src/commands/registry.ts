@@ -4,6 +4,8 @@ import { uuidCommand } from "./builtins/uuid";
 import { ipCommand } from "./builtins/ip";
 import { speedtestCommand } from "./builtins/speedtest";
 import { jellyfinCommand } from "./builtins/jellyfin";
+import { meilisearchCommand } from "./builtins/meilisearch";
+import { getEngineMap as getSearchEngineMap } from "../engines/registry";
 
 interface CommandEntry {
   id: string;
@@ -20,6 +22,9 @@ const BUILTIN_COMMANDS: CommandEntry[] = [
   ...(process.env.DEGOOG_JELLYFIN_URL
     ? [{ id: "jellyfin", trigger: "jellyfin", displayName: "Jellyfin", instance: jellyfinCommand }]
     : []),
+  ...(process.env.DEGOOG_MEILI_URL && process.env.DEGOOG_MEILI_INDEXES
+    ? [{ id: "meilisearch", trigger: "meili", displayName: "Meilisearch", instance: meilisearchCommand }]
+    : []),
 ];
 
 interface PluginCommandEntry {
@@ -30,6 +35,17 @@ interface PluginCommandEntry {
 }
 
 let pluginCommands: PluginCommandEntry[] = [];
+let userAliases: Record<string, string> = {};
+
+function getEngineShortcuts(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const [id, engine] of Object.entries(getSearchEngineMap())) {
+    if (engine.bangShortcut) {
+      map.set(engine.bangShortcut, id);
+    }
+  }
+  return map;
+}
 
 function isBangCommand(val: unknown): val is BangCommand {
   return (
@@ -45,13 +61,24 @@ function isBangCommand(val: unknown): val is BangCommand {
 }
 
 export async function initCommandPlugins(): Promise<void> {
-  const { readdir } = await import("fs/promises");
+  const { readdir, readFile } = await import("fs/promises");
   const { join } = await import("path");
   const { pathToFileURL } = await import("url");
   const commandDir =
     process.env.DEGOOG_COMMANDS_DIR ?? join(process.cwd(), "data", "commands");
   const seen = new Set<string>(BUILTIN_COMMANDS.map((c) => c.trigger));
   pluginCommands = [];
+
+  try {
+    const aliasPath = process.env.DEGOOG_ALIASES_FILE ?? join(process.cwd(), "data", "aliases.json");
+    const raw = await readFile(aliasPath, "utf-8");
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+      userAliases = parsed as Record<string, string>;
+    }
+  } catch {
+    userAliases = {};
+  }
 
   try {
     const files = await readdir(commandDir);
@@ -87,33 +114,74 @@ export function getCommandMap(): Map<string, BangCommand> {
   const map = new Map<string, BangCommand>();
   for (const cmd of BUILTIN_COMMANDS) {
     map.set(cmd.trigger, cmd.instance);
+    for (const alias of cmd.instance.aliases ?? []) {
+      map.set(alias, cmd.instance);
+    }
   }
   for (const cmd of pluginCommands) {
     map.set(cmd.trigger, cmd.instance);
+    for (const alias of cmd.instance.aliases ?? []) {
+      map.set(alias, cmd.instance);
+    }
+  }
+  for (const [alias, cmd] of Object.entries(userAliases)) {
+    if (!map.has(alias)) {
+      const target = map.get(cmd);
+      if (target) map.set(alias, target);
+    }
   }
   return map;
 }
 
-export function getCommandRegistry(): { trigger: string; name: string; description: string }[] {
+export function getCommandRegistry(): { trigger: string; name: string; description: string; aliases: string[] }[] {
   const all = [...BUILTIN_COMMANDS, ...pluginCommands];
-  return all.map((c) => ({
-    trigger: c.instance.trigger,
-    name: c.instance.name,
-    description: c.instance.description,
-  }));
+  const registry = all.map((c) => {
+    const builtinAliases = c.instance.aliases ?? [];
+    const extraAliases = Object.entries(userAliases)
+      .filter(([, target]) => target === c.trigger)
+      .map(([alias]) => alias);
+    return {
+      trigger: c.instance.trigger,
+      name: c.instance.name,
+      description: c.instance.description,
+      aliases: [...builtinAliases, ...extraAliases],
+    };
+  });
+
+  for (const [shortcut, engineId] of getEngineShortcuts()) {
+    const engine = getSearchEngineMap()[engineId];
+    if (engine) {
+      registry.push({
+        trigger: shortcut,
+        name: `${engine.name} only`,
+        description: `Search only ${engine.name}`,
+        aliases: [],
+      });
+    }
+  }
+
+  return registry;
 }
 
-export function matchBangCommand(
-  query: string,
-): { command: BangCommand; args: string } | null {
+export type BangMatch =
+  | { type: "command"; command: BangCommand; args: string }
+  | { type: "engine"; engineId: string; query: string };
+
+export function matchBangCommand(query: string): BangMatch | null {
   const trimmed = query.trim();
   if (!trimmed.startsWith("!")) return null;
   const withoutBang = trimmed.slice(1);
   const spaceIdx = withoutBang.indexOf(" ");
   const trigger = spaceIdx === -1 ? withoutBang : withoutBang.slice(0, spaceIdx);
   const args = spaceIdx === -1 ? "" : withoutBang.slice(spaceIdx + 1);
+  const lowerTrigger = trigger.toLowerCase();
+
   const map = getCommandMap();
-  const command = map.get(trigger.toLowerCase());
-  if (!command) return null;
-  return { command, args };
+  const command = map.get(lowerTrigger);
+  if (command) return { type: "command", command, args };
+
+  const engineId = getEngineShortcuts().get(lowerTrigger);
+  if (engineId) return { type: "engine", engineId, query: args };
+
+  return null;
 }

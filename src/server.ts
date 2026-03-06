@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import * as cache from "./cache";
-import { search } from "./search";
+import { search, searchSingleEngine, mergeNewResults } from "./search";
 import type { EngineConfig, SearchType, TimeFilter } from "./types";
 import { getEngineRegistry, getDefaultEngineConfig, initPlugins } from "./engines/registry";
 import { matchBangCommand, initCommandPlugins, getCommandRegistry } from "./commands/registry";
@@ -79,8 +79,59 @@ app.get("/api/search", async (c) => {
   const cached = cache.get(key);
   if (cached) return c.json(cached);
   const response = await search(query, engines, searchType, page, timeFilter);
-  cache.set(key, response);
+
+  if (cache.hasFailedEngines(response)) {
+    cache.set(key, response, cache.SHORT_TTL_MS);
+  } else {
+    cache.set(key, response);
+  }
   return c.json(response);
+});
+
+app.get("/api/search/retry", async (c) => {
+  const query = c.req.query("q");
+  const engineName = c.req.query("engine");
+  if (!query || !engineName) {
+    return c.json({ error: "Missing 'q' or 'engine' parameter" }, 400);
+  }
+
+  const engines = parseEngineConfig(new URL(c.req.url).searchParams);
+  const searchType = (c.req.query("type") || "all") as SearchType;
+  const pageRaw = c.req.query("page");
+  const page = Math.max(1, Math.min(10, Math.floor(Number(pageRaw)) || 1));
+  const timeFilter = (c.req.query("time") || "any") as TimeFilter;
+
+  const { results: newResults, timing } = await searchSingleEngine(engineName, query, page, timeFilter);
+
+  const key = cacheKey(query, engines, searchType, page, timeFilter);
+  const cached = cache.get(key);
+
+  if (cached) {
+    const updatedTimings = cached.engineTimings.map((et) =>
+      et.name === engineName ? timing : et
+    );
+    const merged = newResults.length > 0
+      ? mergeNewResults(cached.results, newResults)
+      : cached.results;
+    const updated = {
+      ...cached,
+      results: merged,
+      engineTimings: updatedTimings,
+      atAGlance: merged.length > 0 && merged[0].snippet ? merged[0] : cached.atAGlance,
+    };
+    if (cache.hasFailedEngines(updated)) {
+      cache.set(key, updated, cache.SHORT_TTL_MS);
+    } else {
+      cache.set(key, updated);
+    }
+    return c.json(updated);
+  }
+
+  return c.json({
+    results: newResults.map((r, i) => ({ ...r, score: Math.max(10 - i, 1), sources: [r.source] })),
+    timing,
+    engineTimings: [timing],
+  });
 });
 
 async function getSuggestions(query: string): Promise<string[]> {
@@ -180,16 +231,42 @@ app.get("/api/command", async (c) => {
   if (!match) {
     return c.json({ error: "Unknown command" }, 404);
   }
+
+  if (match.type === "engine") {
+    if (!match.query.trim()) {
+      return c.json({ error: "Missing search query after engine shortcut" }, 400);
+    }
+    const timeFilter = (c.req.query("time") || "any") as TimeFilter;
+    const pageRaw = c.req.query("page");
+    const page = Math.max(1, Math.min(10, Math.floor(Number(pageRaw)) || 1));
+    const { results, timing } = await searchSingleEngine(match.engineId, match.query, page, timeFilter);
+    return c.json({
+      type: "engine",
+      engineId: match.engineId,
+      results: results.map((r, i) => ({ ...r, score: Math.max(10 - i, 1), sources: [r.source] })),
+      query: match.query,
+      totalTime: timing.time,
+      engineTimings: [timing],
+      relatedSearches: [],
+      knowledgePanel: null,
+      atAGlance: results.length > 0 && results[0].snippet ? { ...results[0], score: 10, sources: [results[0].source] } : null,
+    });
+  }
+
   const forwarded = c.req.header("x-forwarded-for");
   const realIp = c.req.header("x-real-ip");
   const bunIp = (c.env as { requestIP: (req: Request) => { address: string } }).requestIP(c.req.raw)?.address;
   const clientIp = forwarded ? forwarded.split(",")[0].trim() : realIp || bunIp || undefined;
-  const result = await match.command.execute(match.args, { clientIp });
+  const pageRaw = c.req.query("page");
+  const page = Math.max(1, Math.min(10, Math.floor(Number(pageRaw)) || 1));
+  const result = await match.command.execute(match.args, { clientIp, page });
   return c.json({
     type: "command",
     trigger: match.command.trigger,
     title: result.title,
     html: result.html,
+    page,
+    totalPages: result.totalPages ?? 1,
   });
 });
 

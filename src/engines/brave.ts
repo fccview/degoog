@@ -14,6 +14,7 @@ interface BraveApiResponse {
 
 export class BraveEngine implements SearchEngine {
   name = "Brave Search";
+  bangShortcut = "brave";
 
   async executeSearch(
     query: string,

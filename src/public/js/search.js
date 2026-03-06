@@ -11,11 +11,11 @@ import {
 } from "./render.js";
 import { hideAcDropdown } from "./autocomplete.js";
 
-export async function performSearch(query, type) {
+export async function performSearch(query, type, page) {
   if (!query.trim()) return;
 
   if (query.trim().startsWith("!")) {
-    return performBangCommand(query, type);
+    return performBangCommand(query, type, page || 1);
   }
 
   type = type || state.currentType || "all";
@@ -72,7 +72,7 @@ export async function performSearch(query, type) {
   }
 }
 
-async function performBangCommand(query, type) {
+async function performBangCommand(query, type, page = 1) {
   showResults();
   closeMediaPreview();
   hideAcDropdown(document.getElementById("ac-dropdown-home"));
@@ -85,11 +85,16 @@ async function performBangCommand(query, type) {
   document.getElementById("results-sidebar").innerHTML = "";
   document.title = `${query} - degoog`;
 
+  state.currentBangQuery = query;
+
   const urlParams = new URLSearchParams({ q: query });
+  if (page > 1) urlParams.set("page", String(page));
   history.pushState(null, "", `/search?${urlParams.toString()}`);
 
   try {
-    const res = await fetch(`/api/command?q=${encodeURIComponent(query)}`);
+    const apiParams = new URLSearchParams({ q: query });
+    if (page > 1) apiParams.set("page", String(page));
+    const res = await fetch(`/api/command?${apiParams.toString()}`);
     if (!res.ok) throw new Error("not found");
     const data = await res.json();
     if (data.html === "__DETECT_CLIENT_IP__") {
@@ -109,8 +114,20 @@ async function performBangCommand(query, type) {
       runSpeedtest();
       return;
     }
+    if (data.type === "engine") {
+      state.currentResults = data.results;
+      state.currentData = data;
+      document.getElementById("results-meta").textContent =
+        `About ${data.results.length} results (${(data.totalTime / 1000).toFixed(2)} seconds)`;
+      renderAtAGlance(data.atAGlance);
+      renderResults(data.results);
+      return;
+    }
     document.getElementById("results-meta").textContent = data.title;
     document.getElementById("results-list").innerHTML = data.html;
+    if (data.totalPages > 1) {
+      renderBangPagination(data.totalPages, data.page, query);
+    }
   } catch {
     document.getElementById("results-meta").textContent = "";
     document.getElementById("results-list").innerHTML = '<div class="no-results">Unknown command. Type <strong>!help</strong> for available commands.</div>';
@@ -211,6 +228,81 @@ export async function goToPage(pageNum) {
   } catch {
     document.getElementById("results-list").innerHTML = '<div class="no-results">Search failed. Please try again.</div>';
   }
+}
+
+export async function retryEngine(engineName) {
+  if (!state.currentQuery || !state.currentData) return;
+
+  const engines = await getEngines();
+  const params = new URLSearchParams({ q: state.currentQuery, engine: engineName });
+  for (const [key, val] of Object.entries(engines)) {
+    params.set(key, String(val));
+  }
+  if (state.currentType && state.currentType !== "all") {
+    params.set("type", state.currentType);
+  }
+  if (state.currentPage > 1) {
+    params.set("page", String(state.currentPage));
+  }
+  if (state.currentTimeFilter && state.currentTimeFilter !== "any") {
+    params.set("time", state.currentTimeFilter);
+  }
+
+  try {
+    const res = await fetch(`/api/search/retry?${params.toString()}`);
+    const data = await res.json();
+
+    if (data.engineTimings) {
+      state.currentData.engineTimings = data.engineTimings;
+    }
+
+    if (data.results && data.results.length > state.currentResults.length) {
+      state.currentResults = data.results;
+      state.currentData.results = data.results;
+      if (data.atAGlance) state.currentData.atAGlance = data.atAGlance;
+
+      document.getElementById("results-meta").textContent =
+        `About ${data.results.length} results (${(state.currentData.totalTime / 1000).toFixed(2)} seconds)`;
+
+      if (state.currentType === "all") {
+        renderAtAGlance(state.currentData.atAGlance);
+      }
+      renderResults(data.results);
+    }
+
+    if (state.currentType === "all") {
+      renderSidebar(state.currentData, (q) => performSearch(q));
+    }
+  } catch {}
+}
+
+function renderBangPagination(totalPages, activePage, query) {
+  const container = document.getElementById("pagination");
+  let html = '<div class="pagination"><div class="pagination-pages">';
+  const maxVisible = 10;
+  let startPage = Math.max(1, activePage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  if (endPage - startPage < maxVisible - 1) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+  for (let i = startPage; i <= endPage; i++) {
+    if (i === activePage) {
+      html += `<span class="pagination-current">${i}</span>`;
+    } else {
+      html += `<a class="pagination-link" data-page="${i}">${i}</a>`;
+    }
+  }
+  html += '</div></div>';
+  container.innerHTML = html;
+  container.querySelectorAll("[data-page]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      const pageNum = parseInt(el.dataset.page, 10);
+      if (pageNum >= 1 && pageNum <= totalPages) {
+        performBangCommand(query, null, pageNum);
+      }
+    });
+  });
 }
 
 export async function performLucky(query) {

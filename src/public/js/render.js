@@ -170,10 +170,14 @@ export function renderSidebar(data, onRelatedSearch) {
     let statsContent = "";
     data.engineTimings.forEach((et) => {
       const barWidth = Math.min(100, (et.time / Math.max(...data.engineTimings.map(e => e.time))) * 100);
+      const statusClass = et.resultCount === 0 ? " engine-failed" : "";
       statsContent += `
-        <div class="engine-stat-row">
-          <div class="engine-stat-label">${escapeHtml(et.name)}</div>
-          <div class="engine-stat-meta">${et.resultCount} results · ${et.time}ms</div>
+        <div class="engine-stat-row${statusClass}">
+          <div class="engine-stat-info">
+            <div class="engine-stat-label">${escapeHtml(et.name)}</div>
+            <div class="engine-stat-meta">${et.resultCount} results · ${et.time}ms</div>
+          </div>
+          <a class="engine-retry-link" data-engine="${escapeHtml(et.name)}">retry</a>
         </div>`;
     });
     html += sidebarAccordion("Engine Performance", statsContent);
@@ -198,6 +202,22 @@ export function renderSidebar(data, onRelatedSearch) {
   if (window.innerWidth >= 768) {
     sidebar.querySelectorAll(".sidebar-accordion").forEach((el) => el.classList.add("open"));
   }
+
+  sidebar.querySelectorAll(".engine-retry-link").forEach((link) => {
+    link.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const engineName = link.dataset.engine;
+      link.classList.add("retrying");
+      link.textContent = "retrying...";
+      try {
+        const { retryEngine } = await import("./search.js");
+        await retryEngine(engineName);
+      } catch {}
+      link.classList.remove("retrying");
+      link.textContent = "retry";
+    });
+  });
 
   sidebar.querySelectorAll(".related-search-link").forEach((el) => {
     el.addEventListener("click", (e) => {

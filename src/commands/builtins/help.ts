@@ -8,10 +8,12 @@ export const helpCommand: BangCommand = {
   async execute(): Promise<CommandResult> {
     const commands = getCommandRegistry();
     const rows = commands
-      .map(
-        (c) =>
-          `<tr><td class="command-trigger">!${c.trigger}</td><td>${c.name}</td><td>${c.description}</td></tr>`,
-      )
+      .map((c) => {
+        const aliasStr = c.aliases.length > 0
+          ? ` <span class="command-aliases">(${c.aliases.map((a) => `!${a}`).join(", ")})</span>`
+          : "";
+        return `<tr><td class="command-trigger">!${c.trigger}${aliasStr}</td><td>${c.name}</td><td>${c.description}</td></tr>`;
+      })
       .join("");
     return {
       title: "Available Commands",

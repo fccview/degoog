@@ -11,4 +11,5 @@ export const state = {
   videoLastPage: 10,
   currentTimeFilter: "any",
   mediaLoading: false,
+  currentBangQuery: "",
 };

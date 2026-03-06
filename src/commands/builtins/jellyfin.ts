@@ -1,4 +1,4 @@
-import type { BangCommand, CommandResult } from "../../types";
+import type { BangCommand, CommandContext, CommandResult } from "../../types";
 
 const JELLYFIN_URL = process.env.DEGOOG_JELLYFIN_URL || "";
 const JELLYFIN_API_KEY = process.env.DEGOOG_JELLYFIN_API_KEY || "";
@@ -7,7 +7,8 @@ export const jellyfinCommand: BangCommand = {
   name: "Jellyfin",
   description: "Search your Jellyfin media library",
   trigger: "jellyfin",
-  async execute(args: string): Promise<CommandResult> {
+  aliases: ["jf"],
+  async execute(args: string, context?: CommandContext): Promise<CommandResult> {
     if (!args.trim()) {
       return {
         title: "Jellyfin Search",
@@ -16,13 +17,16 @@ export const jellyfinCommand: BangCommand = {
     }
     try {
       const term = args.trim();
+      const page = context?.page ?? 1;
+      const perPage = 25;
+      const startIndex = (page - 1) * perPage;
       const escHtml = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
       const [hintsRes, peopleRes] = await Promise.all([
-        fetch(`${JELLYFIN_URL}/Search/Hints?searchTerm=${encodeURIComponent(term)}&api_key=${JELLYFIN_API_KEY}&Limit=25&IncludeItemTypes=Movie,Series,Episode,Audio,MusicAlbum,MusicArtist`),
+        fetch(`${JELLYFIN_URL}/Search/Hints?searchTerm=${encodeURIComponent(term)}&api_key=${JELLYFIN_API_KEY}&Limit=${perPage}&StartIndex=${startIndex}&IncludeItemTypes=Movie,Series,Episode,Audio,MusicAlbum,MusicArtist`),
         fetch(`${JELLYFIN_URL}/Persons?searchTerm=${encodeURIComponent(term)}&api_key=${JELLYFIN_API_KEY}&Limit=5&Fields=Overview,PrimaryImageAspectRatio`),
       ]);
-      const hintsData = await hintsRes.json();
+      const hintsData = await hintsRes.json() as { SearchHints?: any[]; TotalRecordCount?: number };
       const peopleData = await peopleRes.json();
 
       const people = (peopleData.Items || []) as any[];
@@ -94,9 +98,13 @@ export const jellyfinCommand: BangCommand = {
           return `<div class="result-item"><div class="result-url-row">${thumbnail}<cite class="result-cite">${escHtml(JELLYFIN_URL)}</cite></div><a class="result-title" href="${escHtml(itemUrl)}" target="_blank">${name}${year}</a><p class="result-snippet">${overview}</p><div class="result-engines">${typeBadge}${jellyfinTag}${personInfo}</div></div>`;
         })
         .join("");
+      const totalHints = hintsData.TotalRecordCount ?? allItems.length;
+      const totalPages = Math.ceil(totalHints / perPage);
+      const pageInfo = totalPages > 1 ? ` — Page ${page} of ${totalPages}` : "";
       return {
-        title: `Jellyfin: ${term} — ${allItems.length} results`,
+        title: `Jellyfin: ${term} — ${totalHints} results${pageInfo}`,
         html: `<div class="command-result">${results}</div>`,
+        totalPages,
       };
     } catch {
       return {
