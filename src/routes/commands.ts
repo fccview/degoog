@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { matchBangCommand, getFilteredCommandRegistry } from "../commands/registry";
 import { searchSingleEngine } from "../search";
+import { getSettings } from "../plugin-settings";
 import type { SearchType, TimeFilter } from "../types";
 
 const router = new Hono();
@@ -15,6 +16,13 @@ router.get("/api/command", async (c) => {
 
   const match = matchBangCommand(q);
   if (!match) return c.json({ error: "Unknown command" }, 404);
+
+  if (match.type === "command") {
+    const settings = await getSettings(match.commandId);
+    if (settings["disabled"] === "true") {
+      return c.json({ error: "This plugin is disabled" }, 403);
+    }
+  }
 
   const page = Math.max(1, Math.min(10, Math.floor(Number(c.req.query("page"))) || 1));
   const timeFilter = (c.req.query("time") || "any") as TimeFilter;

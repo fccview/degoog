@@ -66,6 +66,7 @@ The plugin id is derived from the filename with a `plugin-` prefix (e.g. `my-plu
 2. The user fills in and saves the form. The values are stored in `data/plugin-settings.json` server-side.
 3. `configure(settings)` is called immediately after save, and also on every server restart if settings already exist.
 4. Implement `isConfigured()` to return `false` when required settings are missing — this hides the command from `!help` until it is ready.
+5. Users can fully disable any custom plugin using the toggle switch in Settings → Plugins. Disabled plugins are hidden from `!help` and return an error when invoked. The disabled state is stored as `"disabled": "true"` in `plugin-settings.json`.
 
 See [data/plugins/weather.js](data/plugins/weather.js) for a fully working drop-in weather plugin.
 
@@ -88,3 +89,5 @@ Optional: **`settingsSchema`**, **`configure(settings)`** (settings stored under
 See [data/plugins/imdb-slot.js](data/plugins/imdb-slot.js) for a fully working slot imdb plugin.
 
 Slot panels are rendered in three positions: above the results list, below the results list, and in the results sidebar. All positions are available by default.
+
+Slot plugins with a settings schema can be disabled via the toggle in Settings → Plugins, just like bang command plugins.

@@ -56,5 +56,6 @@ export const myCommand: BangCommand = {
 
 - The Configure button and modal are generated automatically in Settings → Plugins from the schema.
 - `isConfigured()` returning `false` hides the command from `!help` until configured.
+- Configurable built-in plugins and all custom plugins have a toggle switch in Settings → Plugins that allows users to fully disable them. Disabled plugins are hidden from `!help` and return an error when invoked.
 
 For external (non-built-in) plugins, see [/howto/plugins/README.md](/howto/plugins/README.md).

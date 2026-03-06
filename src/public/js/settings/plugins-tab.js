@@ -16,6 +16,7 @@ function isConfigured(plugin) {
 }
 
 function renderPluginCard(plugin) {
+  const isEnabled = plugin.settings["disabled"] !== "true";
   const trigger = plugin.settingsSchema.length === 0
     ? `<span class="ext-card-trigger">!${escapeHtml(plugin.id)}</span>`
     : "";
@@ -26,6 +27,13 @@ function renderPluginCard(plugin) {
   const badge = configured ? `<span class="ext-configured-badge"></span>` : "";
   const configureBtn = plugin.configurable
     ? `<button class="ext-card-configure" data-id="${escapeHtml(plugin.id)}" type="button">Configure</button>`
+    : "";
+  const canDisable = plugin.configurable || plugin.id.startsWith("plugin-") || plugin.id.startsWith("slot-");
+  const toggle = canDisable
+    ? `<label class="engine-toggle">
+        <input type="checkbox" class="plugin-toggle-input" data-id="${escapeHtml(plugin.id)}" ${isEnabled ? "checked" : ""}>
+        <span class="toggle-slider"></span>
+      </label>`
     : "";
 
   return `
@@ -39,6 +47,7 @@ function renderPluginCard(plugin) {
         <div class="ext-card-actions">
           ${badge}
           ${configureBtn}
+          ${toggle}
         </div>
       </div>
     </div>`;
@@ -70,6 +79,18 @@ export function initPluginsTab(allExtensions) {
   }
 
   container.innerHTML = html;
+
+  container.querySelectorAll(".plugin-toggle-input").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const id = input.dataset.id;
+      const disabled = !input.checked;
+      await fetch(`/api/extensions/${encodeURIComponent(id)}/settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ disabled: disabled ? "true" : "" }),
+      });
+    });
+  });
 
   container.querySelectorAll(".ext-card-configure").forEach((btn) => {
     btn.addEventListener("click", () => {

@@ -24,6 +24,7 @@ async function getSlotExtensionMeta(): Promise<ExtensionMeta[]> {
     const id = `slot-${slot.id}`;
     const raw = await getSettings(id);
     const settings = maskSecrets(raw, schema);
+    if (raw["disabled"]) settings["disabled"] = raw["disabled"];
     out.push({
       id,
       displayName: slot.name,
@@ -64,6 +65,7 @@ router.post("/api/extensions/:id/settings", async (c) => {
   }
 
   const schemaKeys = new Set(ext.settingsSchema.map((f) => f.key));
+  schemaKeys.add("disabled");
   const filtered: Record<string, string> = {};
   for (const [key, value] of Object.entries(body)) {
     if (schemaKeys.has(key) && typeof value === "string") {
@@ -96,7 +98,7 @@ router.post("/api/ai/glance", async (c) => {
   }
 
   const aiSettings = await getSettings(AI_SUMMARY_ID);
-  if (aiSettings["enabled"] !== "true") {
+  if (aiSettings["enabled"] !== "true" || aiSettings["disabled"] === "true") {
     return c.json({ summary: null });
   }
 

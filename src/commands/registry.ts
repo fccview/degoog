@@ -120,18 +120,18 @@ export function getCommandInstanceById(id: string): BangCommand | undefined {
   return [...BUILTIN_COMMANDS, ...pluginCommands].find((c) => c.id === id)?.instance;
 }
 
-export function getCommandMap(): Map<string, BangCommand> {
-  const map = new Map<string, BangCommand>();
+export function getCommandMap(): Map<string, { instance: BangCommand; id: string }> {
+  const map = new Map<string, { instance: BangCommand; id: string }>();
   for (const cmd of BUILTIN_COMMANDS) {
-    map.set(cmd.trigger, cmd.instance);
+    map.set(cmd.trigger, { instance: cmd.instance, id: cmd.id });
     for (const alias of cmd.instance.aliases ?? []) {
-      map.set(alias, cmd.instance);
+      map.set(alias, { instance: cmd.instance, id: cmd.id });
     }
   }
   for (const cmd of pluginCommands) {
-    map.set(cmd.trigger, cmd.instance);
+    map.set(cmd.trigger, { instance: cmd.instance, id: cmd.id });
     for (const alias of cmd.instance.aliases ?? []) {
-      map.set(alias, cmd.instance);
+      map.set(alias, { instance: cmd.instance, id: cmd.id });
     }
   }
   for (const [alias, cmd] of Object.entries(userAliases)) {
@@ -180,6 +180,8 @@ export async function getFilteredCommandRegistry(): Promise<{ trigger: string; n
   const configuredTriggers = new Set<string>();
   await Promise.all(
     all.map(async (entry) => {
+      const settings = await getSettings(entry.id);
+      if (settings["disabled"] === "true") return;
       const configured = entry.instance.isConfigured
         ? await entry.instance.isConfigured()
         : true;
@@ -200,8 +202,9 @@ export async function getPluginExtensionMeta(): Promise<ExtensionMeta[]> {
 
   for (const entry of all) {
     const schema = entry.instance.settingsSchema ?? [];
-    const rawSettings = schema.length > 0 ? await getSettings(entry.id) : {};
+    const rawSettings = (schema.length > 0 || entry.id.startsWith("plugin-")) ? await getSettings(entry.id) : {};
     const maskedSettings = maskSecrets(rawSettings, schema);
+    if (rawSettings["disabled"]) maskedSettings["disabled"] = rawSettings["disabled"];
     results.push({
       id: entry.id,
       displayName: entry.displayName,
@@ -215,6 +218,7 @@ export async function getPluginExtensionMeta(): Promise<ExtensionMeta[]> {
 
   const aiRawSettings = await getSettings(AI_SUMMARY_ID);
   const aiMaskedSettings = maskSecrets(aiRawSettings, aiSummarySettingsSchema);
+  if (aiRawSettings["disabled"]) aiMaskedSettings["disabled"] = aiRawSettings["disabled"];
   results.push({
     id: AI_SUMMARY_ID,
     displayName: "AI Summary",
@@ -229,7 +233,7 @@ export async function getPluginExtensionMeta(): Promise<ExtensionMeta[]> {
 }
 
 export type BangMatch =
-  | { type: "command"; command: BangCommand; args: string }
+  | { type: "command"; command: BangCommand; commandId: string; args: string }
   | { type: "engine"; engineId: string; query: string };
 
 export function matchBangCommand(query: string): BangMatch | null {
@@ -242,8 +246,8 @@ export function matchBangCommand(query: string): BangMatch | null {
   const lowerTrigger = trigger.toLowerCase();
 
   const map = getCommandMap();
-  const command = map.get(lowerTrigger);
-  if (command) return { type: "command", command, args };
+  const entry = map.get(lowerTrigger);
+  if (entry) return { type: "command", command: entry.instance, commandId: entry.id, args };
 
   const engineId = getEngineShortcuts().get(lowerTrigger);
   if (engineId) return { type: "engine", engineId, query: args };

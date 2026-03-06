@@ -3,6 +3,7 @@ import * as cache from "../cache";
 import { search, searchSingleEngine, mergeNewResults } from "../search";
 import { getEngineRegistry } from "../engines/registry";
 import { getSlotPlugins } from "../slots/registry";
+import { getSettings } from "../plugin-settings";
 import type {
   EngineConfig,
   SearchType,
@@ -41,6 +42,8 @@ async function runSlotPlugins(
   const panels: SlotPanelResult[] = [];
   for (const plugin of plugins) {
     try {
+      const slotSettings = await getSettings(`slot-${plugin.id}`);
+      if (slotSettings["disabled"] === "true") continue;
       const ok = await Promise.resolve(plugin.trigger(query.trim()));
       if (!ok) continue;
       const out = await plugin.execute(query, { clientIp });
