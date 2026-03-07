@@ -105,7 +105,7 @@ The plugin id is derived from the folder name with a `plugin-` prefix (e.g. `wea
 4. Implement `isConfigured()` to return `false` when required settings are missing — this hides the command from `!help` until it is ready.
 5. Users can fully disable any custom plugin using the toggle switch in Settings → Plugins. Disabled plugins are hidden from `!help` and return an error when invoked. The disabled state is stored as `"disabled": "true"` in `plugin-settings.json`.
 
-See [data/plugins/weather/](../../data/plugins/weather/) for a fully working drop-in weather plugin with separate template and styles.
+See [the official weather plugin](https://github.com/fccview/fccview-degoog-extensions/tree/main/plugins/weather) for a fully working drop-in weather plugin with separate template and styles.
 
 Bang commands appear in Settings with type **command**.
 

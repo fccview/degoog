@@ -48,6 +48,10 @@ services:
   </a>
 </p>
 
+## Store repositories
+
+Official fccview store: `https://github.com/fccview/fccview-degoog-extensions`
+
 ## Documentation
 
 - [Environment variables](howto/ENV_VARIABLES.md) — port, plugin dirs, settings password

@@ -41,4 +41,4 @@ Settings → Themes → choose a theme → **Apply**. The active theme id is sto
 
 ## Example
 
-**[/data/themes/zen](/data/themes/zen)** — `theme.json`, `style.css`, and optional `index.html` / `search.html` overrides. Uses the app’s CSS variables; supports light/dark via `[data-theme="light"]` and `[data-theme="dark"]`.
+**[official zen theme](https://github.com/fccview/fccview-degoog-extensions/tree/main/plugins/weather)** — `theme.json`, `style.css`, and optional `index.html` / `search.html` overrides. Uses the app’s CSS variables; supports light/dark via `[data-theme="light"]` and `[data-theme="dark"]`.
