@@ -225,6 +225,11 @@ textarea.ext-field-input {
   min-height: 80px;
 }
 
+select.ext-field-input.ext-field-select {
+  cursor: pointer;
+  appearance: auto;
+}
+
 .ext-field-desc {
   color: var(--text-secondary);
   font-size: $font-size-small;

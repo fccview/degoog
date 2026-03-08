@@ -188,8 +188,9 @@ function renderField(field, currentValue, ext) {
   }
 
   if (field.type === "select" && Array.isArray(field.options) && field.options.length > 0) {
+    const validValue = field.options.includes(currentValue) ? currentValue : field.options[0];
     const opts = field.options
-      .map((v) => `<option value="${escapeHtml(v)}"${currentValue === v ? " selected" : ""}>${escapeHtml(v.charAt(0).toUpperCase() + v.slice(1))}</option>`)
+      .map((v) => `<option value="${escapeHtml(v)}"${validValue === v ? " selected" : ""}>${escapeHtml(v.charAt(0).toUpperCase() + v.slice(1))}</option>`)
       .join("");
     return `
       <div class="ext-field" data-key="${escapeHtml(field.key)}" data-type="select">
@@ -277,8 +278,8 @@ export function openModal(ext) {
   });
 
   overlay.style.display = "flex";
-  const firstInput = bodyEl.querySelector("input, textarea");
-  if (firstInput) firstInput.focus();
+  const firstFocusable = bodyEl.querySelector("select, input, textarea");
+  if (firstFocusable) firstFocusable.focus();
 }
 
 export function closeModal() {
