@@ -44,6 +44,15 @@ export const aiSummarySettingsSchema: SettingField[] = [
     description:
       "Max seconds to wait for an AI response before falling back to the standard result.",
   },
+  {
+    key: "systemPrompt",
+    label: "Custom System Prompt",
+    type: "textarea",
+    placeholder:
+      "You are a helpful assistant that summarises web search results. Write a concise 2–3 sentence summary answering the query based on the provided snippets. Do not invent facts. Do not include citations.",
+    description:
+      "Override the default system prompt sent to the AI. Leave blank to use the default.",
+  },
 ];
 
 export interface AISummarySettings {
@@ -52,6 +61,7 @@ export interface AISummarySettings {
   model: string;
   apiKey: string;
   timeoutMs: number;
+  systemPrompt: string;
 }
 
 export async function getAISummarySettings(): Promise<AISummarySettings> {
@@ -64,6 +74,7 @@ export async function getAISummarySettings(): Promise<AISummarySettings> {
     model: asString(stored["model"]),
     apiKey: asString(stored["apiKey"]),
     timeoutMs: Math.max(5, timeoutSeconds) * 1000,
+    systemPrompt: asString(stored["systemPrompt"]),
   };
 }
 
@@ -84,6 +95,38 @@ function escapeHtml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+const DEFAULT_SYSTEM_PROMPT =
+  "You are a helpful assistant that summarises web search results. Write a concise 2–3 sentence summary answering the query based on the provided snippets. Do not invent facts. Do not include citations.";
+
+async function chatComplete(
+  settings: AISummarySettings,
+  messages: OpenAIMessage[],
+  maxTokens = 256,
+): Promise<string | null> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (settings.apiKey) headers["Authorization"] = `Bearer ${settings.apiKey}`;
+
+  try {
+    const res = await fetch(`${settings.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        model: settings.model,
+        messages,
+        max_tokens: maxTokens,
+      }),
+      signal: AbortSignal.timeout(settings.timeoutMs),
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as OpenAIChatResponse;
+    return data.choices?.[0]?.message?.content?.trim() ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateAISummary(
   query: string,
   results: { title: string; url: string; snippet: string }[],
@@ -99,8 +142,7 @@ export async function generateAISummary(
   const messages: OpenAIMessage[] = [
     {
       role: "system",
-      content:
-        "You are a helpful assistant that summarises web search results. Write a concise 2–3 sentence summary answering the query based on the provided snippets. Do not invent facts. Do not include citations.",
+      content: settings.systemPrompt || DEFAULT_SYSTEM_PROMPT,
     },
     {
       role: "user",
@@ -108,28 +150,15 @@ export async function generateAISummary(
     },
   ];
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (settings.apiKey) headers["Authorization"] = `Bearer ${settings.apiKey}`;
+  return chatComplete(settings, messages);
+}
 
-  try {
-    const res = await fetch(`${settings.baseUrl}/chat/completions`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        model: settings.model,
-        messages,
-        max_tokens: 256,
-      }),
-      signal: AbortSignal.timeout(settings.timeoutMs),
-    });
-    if (!res.ok) return null;
-    const data = (await res.json()) as OpenAIChatResponse;
-    return data.choices?.[0]?.message?.content?.trim() ?? null;
-  } catch {
-    return null;
-  }
+export async function chatFollowUp(
+  history: OpenAIMessage[],
+): Promise<string | null> {
+  const settings = await getAISummarySettings();
+  if (!settings.enabled || !settings.baseUrl || !settings.model) return null;
+  return chatComplete(settings, history, 512);
 }
 
 const aiSummarySlot: SlotPlugin = {
@@ -151,10 +180,18 @@ const aiSummarySlot: SlotPlugin = {
     return {
       html:
         '<div class="glance-box glance-ai">' +
+        '<div class="glance-ai-messages">' +
         '<div class="glance-snippet">' +
         escapeHtml(summary) +
         "</div>" +
+        "</div>" +
+        '<div class="glance-ai-footer">' +
         '<span class="glance-ai-badge">AI Summary</span>' +
+        '<button class="glance-ai-dive" type="button">Dive deeper</button>' +
+        "</div>" +
+        '<div class="glance-ai-chat" hidden>' +
+        '<textarea class="glance-ai-input" placeholder="Ask a follow-up\u2026" rows="1"></textarea>' +
+        "</div>" +
         "</div>",
     };
   },

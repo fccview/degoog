@@ -215,6 +215,26 @@ router.get("/api/search/retry", async (c) => {
   });
 });
 
+router.post("/api/ai-chat", async (c) => {
+  let body: { messages?: { role: string; content: string }[] };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid JSON" }, 400);
+  }
+  if (!Array.isArray(body.messages) || body.messages.length === 0) {
+    return c.json({ error: "Missing messages" }, 400);
+  }
+  const { chatFollowUp } = await import(
+    "../extensions/commands/builtins/ai-summary/index"
+  );
+  const reply = await chatFollowUp(
+    body.messages as { role: "system" | "user" | "assistant"; content: string }[],
+  );
+  if (!reply) return c.json({ error: "AI request failed" }, 502);
+  return c.json({ reply });
+});
+
 router.get("/api/lucky", async (c) => {
   const query = c.req.query("q");
   if (!query) return c.json({ error: "Missing query parameter 'q'" }, 400);

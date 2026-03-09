@@ -48,13 +48,23 @@
       <p>You can add other files and read them at runtime via <code>ctx.readFile("filename")</code> in <code>init(ctx)</code>.</p>
 
       <h3>Plugin context and init()</h3>
-      <p>If your plugin uses <code>template.html</code>, <code>style.css</code>, or <code>script.js</code>, the system loads them and passes a context to your optional <code>init(context)</code>:</p>
+      <p>The system calls your optional <code>init(ctx)</code> once at startup, before <code>configure()</code>. The context provides:</p>
       <pre><code>init(ctx) {
   // ctx.template — contents of template.html (or "")
   // ctx.dir      — absolute path to the plugin folder
-  // ctx.readFile — async: ctx.readFile("my-data.json") reads from the plugin folder
+  // ctx.readFile — async function to read any file from your plugin folder
 }</code></pre>
-      <p><code>init()</code> runs once at startup, before <code>configure()</code>.</p>
+      <p>Use <code>ctx.readFile</code> to load extra files beyond <code>template.html</code>. For example, a plugin with both a command template and a separate card template:</p>
+      <pre><code>let template = "";
+let cardTemplate = "";
+
+export default {
+  async init(ctx) {
+    template = ctx.template;               // loads template.html
+    cardTemplate = await ctx.readFile("card.html");  // loads card.html
+  },
+  // ...
+};</code></pre>
 
       <h2 id="bang-commands">Bang commands</h2>
       <p>Bang commands run when the user types <code>!trigger something</code> in the search bar. Export a single object (as <code>export default</code> or <code>export const command</code>) with:</p>
@@ -73,7 +83,7 @@
       <pre><code>{
   key: string,
   label: string,
-  type: "text" | "password" | "url" | "toggle" | "textarea",
+  type: "text" | "password" | "url" | "toggle" | "textarea" | "urllist",
   required?: boolean,
   placeholder?: string,
   description?: string,
@@ -121,10 +131,79 @@
       </ul>
       <p>For <code>custom</code>, the core dispatches a <code>search-bar-action</code> CustomEvent with <code>detail: { actionId, inputId, input }</code>. Your script can open a modal, file picker, or call your plugin route.</p>
 
+      <h3>Search bar action examples</h3>
+      <pre><code>// in index.js
+export const searchBarActions = [
+  { id: "open-docs", label: "Docs", type: "navigate", url: "https://docs.example.com" },
+  { id: "quick-note", label: "Note", type: "custom", icon: "https://example.com/icon.svg" },
+];</code></pre>
+      <pre><code>// in script.js — handle the custom action
+document.addEventListener("search-bar-action", function (e) {
+  if (e.detail.actionId === "quick-note") {
+    var query = e.detail.input; // current search bar text
+    fetch("/api/plugin/my-plugin/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: query }),
+    });
+  }
+});</code></pre>
+
       <h2>Plugin-registered routes</h2>
-      <p>Plugins can expose HTTP API under <code>/api/plugin/&lt;folderName&gt;/...</code>. Export <code>routes</code> — array of:</p>
+      <p>Plugins can expose HTTP endpoints under <code>/api/plugin/&lt;folderName&gt;/...</code>. Export <code>routes</code> — an array of route objects:</p>
       <pre><code>{ method: "get"|"post"|"put"|"delete"|"patch", path: string, handler(req) }</code></pre>
-      <p><code>path</code> is the segment after the plugin id (e.g. <code>"search"</code> → <code>/api/plugin/my-plugin/search</code>). <code>handler</code> receives the standard <code>Request</code> and returns <code>Response</code> or <code>Promise&lt;Response&gt;</code>. Use for custom APIs, callbacks, or serving HTML/JSON.</p>
+      <p><code>path</code> is the segment after the plugin id (e.g. <code>"search"</code> → <code>/api/plugin/my-plugin/search</code>). <code>handler</code> receives the standard <code>Request</code> and returns <code>Response</code> or <code>Promise&lt;Response&gt;</code>.</p>
+
+      <h3>Route examples</h3>
+      <p><strong>GET route returning JSON:</strong></p>
+      <pre><code>export const routes = [
+  {
+    method: "get",
+    path: "/status",
+    handler: async (req) => {
+      const url = new URL(req.url);
+      const id = url.searchParams.get("id") || "";
+      return new Response(
+        JSON.stringify({ ok: true, id }),
+        { headers: { "Content-Type": "application/json" } },
+      );
+    },
+  },
+];</code></pre>
+      <p>Accessible at <code>GET /api/plugin/my-plugin/status?id=123</code>.</p>
+
+      <p><strong>POST route with a request body:</strong></p>
+      <pre><code>{
+  method: "post",
+  path: "/save",
+  handler: async (req) => {
+    const body = await req.json();
+    // body is whatever the client sent
+    return new Response(JSON.stringify({ saved: true }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  },
+}</code></pre>
+
+      <p><strong>Server-Sent Events (streaming):</strong></p>
+      <pre><code>{
+  method: "get",
+  path: "/stream",
+  handler: async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        controller.enqueue(encoder.encode("event: msg\ndata: \"hello\"\n\n"));
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+    });
+  },
+}</code></pre>
+
+      <p>Routes are available as soon as the plugin is loaded. Your <code>script.js</code> can call them with <code>fetch("/api/plugin/my-plugin/...")</code>.</p>
 
       <h2>Request middleware</h2>
       <p>Middleware lets a plugin hook into specific request flows. Export <code>middleware</code> — object with <strong>id</strong>, <strong>name</strong>, and <strong>handle(req, context)</strong>. <code>context</code> can include <code>{ route: "settings-auth" }</code> etc. Return:</p>
@@ -134,6 +213,25 @@
         <li><code>null</code> — the core continues with default behaviour.</li>
       </ul>
       <p>The core uses middleware for the <strong>settings gate</strong> (who can open Settings). To select a plugin for the gate, use the “Use as settings gate” toggle in that plugin’s Configure in Settings → Plugins; that sets <code>middleware.settingsGate</code> in <code>plugin-settings.json</code> to <code>plugin:&lt;folderName&gt;</code>.</p>
+
+      <h3>Middleware example</h3>
+      <pre><code>export const middleware = {
+  id: “my-auth”,
+  name: “My Auth Gate”,
+  handle(req, context) {
+    if (context.route === “settings-auth”) {
+      return new Response(JSON.stringify({
+        required: true,
+        valid: false,
+        loginUrl: “/api/plugin/my-auth/login”,
+      }), { headers: { “Content-Type”: “application/json” } });
+    }
+    if (context.route === “settings-auth-callback”) {
+      return { redirect: “/settings” };
+    }
+    return null; // let the core handle it
+  },
+};</code></pre>
 
       <h2>Settings gate (login flow)</h2>
       <p>By default, Settings can be protected with a password (<code>DEGOOG_SETTINGS_PASSWORDS</code>). Alternatively, a <strong>middleware plugin</strong> can be the settings gate: when the user opens Settings, they are sent through your plugin’s flow (e.g. OIDC, magic link), then back to Settings with a session token.</p>
@@ -153,7 +251,7 @@
       <h3>How to verify it works</h3>
       <p>Clear the settings token: DevTools → Application → Session Storage → remove <code>degoog-settings-token</code>. Open Settings. You should be redirected to your plugin’s login, then back to the full Settings page.</p>
 
-      <h2>Example: minimal plugin with template</h2>
+      <h2>Example: minimal plugin</h2>
       <p>Folder: <code>data/plugins/greeting/</code> with <code>index.js</code>, <code>template.html</code>, <code>style.css</code>.</p>
       <p><strong>index.js</strong></p>
       <pre><code>let template = "";
@@ -182,6 +280,88 @@ export default {
   color: var(--text-primary);
   font-size: 1.5rem;
 }</code></pre>
+
+      <h2>Example: plugin with routes, settings, and client script</h2>
+      <p>A bookmarks plugin that stores links and shows them via a bang command. Folder: <code>data/plugins/bookmarks/</code>.</p>
+      <p><strong>index.js</strong></p>
+      <pre><code>let template = "";
+let items = [];
+
+const command = {
+  name: "Bookmarks",
+  description: "Save and search bookmarks",
+  trigger: "bm",
+
+  settingsSchema: [
+    { key: "maxResults", label: "Max results", type: "text", placeholder: "10" },
+  ],
+
+  init(ctx) {
+    template = ctx.template;
+  },
+
+  configure(settings) {
+    // settings.maxResults is a string
+  },
+
+  async execute(args) {
+    const q = args.trim().toLowerCase();
+    const filtered = q
+      ? items.filter((b) => b.title.toLowerCase().includes(q))
+      : items.slice(0, 20);
+    const html = filtered.length
+      ? filtered.map((b) => template
+          .replace(/\{\{(\w+)\}\}/g, (_, k) => ({ title: b.title, url: b.url })[k] || "")
+        ).join("")
+      : "&lt;p&gt;No bookmarks found.&lt;/p&gt;";
+    return { title: "Bookmarks", html };
+  },
+};
+
+const routes = [
+  {
+    method: "get",
+    path: "/list",
+    handler: async () => {
+      return new Response(JSON.stringify(items), {
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  },
+  {
+    method: "post",
+    path: "/add",
+    handler: async (req) => {
+      const body = await req.json();
+      items.push({ title: body.title, url: body.url });
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  },
+];
+
+export default command;
+export { routes };</code></pre>
+      <p><strong>template.html</strong></p>
+      <pre><code>&lt;div class="result-item"&gt;
+  &lt;a class="result-title" href="{{url}}" target="_blank"&gt;{{title}}&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+      <p><strong>script.js</strong> (client-side — adds a search bar action button)</p>
+      <pre><code>document.addEventListener("search-bar-action", function (e) {
+  if (e.detail.actionId !== "save-bookmark") return;
+  var input = e.detail.input;
+  if (!input) return;
+  fetch("/api/plugin/bookmarks/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: document.title, url: input }),
+  });
+});</code></pre>
+      <p>The search bar button is registered in <code>index.js</code> by also exporting <code>searchBarActions</code>:</p>
+      <pre><code>export const searchBarActions = [
+  { id: "save-bookmark", label: "Save", type: "custom" },
+];</code></pre>
     </main>
   </div>
 </body>
