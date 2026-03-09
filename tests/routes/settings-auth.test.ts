@@ -1,12 +1,5 @@
-import { describe, test, expect, beforeAll } from "bun:test";
+import { describe, test, expect } from "bun:test";
 import { getSettingsTokenFromRequest } from "../../src/routes/settings-auth";
-
-let settingsAuthRouter: { request: (req: Request | string) => Response | Promise<Response> };
-
-beforeAll(async () => {
-  const mod = await import("../../src/routes/settings-auth");
-  settingsAuthRouter = mod.default;
-});
 
 describe("routes/settings-auth", () => {
   test("getSettingsTokenFromRequest returns undefined when no cookie or header", () => {

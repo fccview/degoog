@@ -31,7 +31,6 @@ async function loadSlotsFromRoot(
   source: "plugin" | "builtin",
 ): Promise<void> {
   const { readdir, readFile, stat } = await import("fs/promises");
-  const { join } = await import("path");
   const { pathToFileURL } = await import("url");
   let entries: string[];
   try {
@@ -62,17 +61,25 @@ async function loadSlotsFromRoot(
       if (!slot || !isSlotPlugin(slot)) continue;
 
       const slotSettingsId = slot.settingsId ?? `slot-${slot.id}`;
-      const template = await readFile(join(entryPath, "template.html"), "utf-8").catch(() => "");
-      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(() => "");
+      const template = await readFile(
+        join(entryPath, "template.html"),
+        "utf-8",
+      ).catch(() => "");
+      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(
+        () => "",
+      );
       if (css) addPluginCss(slotSettingsId, css);
-      const hasScript = await stat(join(entryPath, "script.js")).catch(() => null);
+      const hasScript = await stat(join(entryPath, "script.js")).catch(
+        () => null,
+      );
       if (hasScript?.isFile()) registerPluginScript(entry, source);
 
       if (slot.init) {
         const ctx: PluginContext = {
           dir: entryPath,
           template,
-          readFile: (filename: string) => readFile(join(entryPath, filename), "utf-8"),
+          readFile: (filename: string) =>
+            readFile(join(entryPath, filename), "utf-8"),
         };
         await Promise.resolve(slot.init(ctx));
       }
@@ -80,7 +87,8 @@ async function loadSlotsFromRoot(
       if (slot.settingsSchema?.length && slot.configure) {
         try {
           const stored = await getSettings(slotSettingsId);
-          if (Object.keys(stored).length > 0) slot.configure(settingsAsStrings(stored));
+          if (Object.keys(stored).length > 0)
+            slot.configure(settingsAsStrings(stored));
         } catch (err) {
           debug("slots", `Failed to configure slot plugin: ${slot.id}`, err);
         }
@@ -93,7 +101,6 @@ async function loadSlotsFromRoot(
 }
 
 export async function initSlotPlugins(): Promise<void> {
-  const { join } = await import("path");
   const pluginDir =
     process.env.DEGOOG_PLUGINS_DIR ?? join(process.cwd(), "data", "plugins");
   slotPlugins = [];

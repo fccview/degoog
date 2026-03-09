@@ -2,6 +2,8 @@
 docker-compose.test.yml
 node_modules/
 src/public/style.css
+src/public/app.js
+src/public/settings-page.js
 data/
-# fccview-degoog-extensions
+fccview-degoog-extensions
 dist

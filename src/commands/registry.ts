@@ -1,7 +1,17 @@
 import { join } from "path";
-import type { BangCommand, ExtensionMeta, SettingField, SlotPanelPosition, PluginContext } from "../types";
+import type {
+  BangCommand,
+  ExtensionMeta,
+  SettingField,
+  PluginContext,
+} from "../types";
 import { getEngineMap as getSearchEngineMap } from "../engines/registry";
-import { getSettings, maskSecrets, settingsAsStrings, asString } from "../plugin-settings";
+import {
+  getSettings,
+  maskSecrets,
+  settingsAsStrings,
+  asString,
+} from "../plugin-settings";
 import { addPluginCss, registerPluginScript } from "../plugin-assets";
 import { debug } from "../logger";
 
@@ -79,24 +89,33 @@ async function loadCommandsFromRoot(
       if (!isBangCommand(instance)) continue;
       if (allCommands.some((c) => c.trigger === instance.trigger)) continue;
 
-      const template = await readFile(join(entryPath, "template.html"), "utf-8").catch(() => "");
-      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(() => "");
+      const template = await readFile(
+        join(entryPath, "template.html"),
+        "utf-8",
+      ).catch(() => "");
+      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(
+        () => "",
+      );
       if (css) addPluginCss(id, css);
-      const hasScript = await stat(join(entryPath, "script.js")).catch(() => null);
+      const hasScript = await stat(join(entryPath, "script.js")).catch(
+        () => null,
+      );
       if (hasScript?.isFile()) registerPluginScript(entry, source);
 
       if (instance.init) {
         const ctx: PluginContext = {
           dir: entryPath,
           template,
-          readFile: (filename: string) => readFile(join(entryPath, filename), "utf-8"),
+          readFile: (filename: string) =>
+            readFile(join(entryPath, filename), "utf-8"),
         };
         await Promise.resolve(instance.init(ctx));
       }
 
       if (instance.configure && instance.settingsSchema?.length) {
         const stored = await getSettings(id);
-        if (Object.keys(stored).length > 0) instance.configure(settingsAsStrings(stored));
+        if (Object.keys(stored).length > 0)
+          instance.configure(settingsAsStrings(stored));
       }
       allCommands.push({
         id,
@@ -117,10 +136,16 @@ export async function initPlugins(): Promise<void> {
   allCommands = [];
 
   try {
-    const aliasPath = process.env.DEGOOG_ALIASES_FILE ?? join(process.cwd(), "data", "aliases.json");
+    const aliasPath =
+      process.env.DEGOOG_ALIASES_FILE ??
+      join(process.cwd(), "data", "aliases.json");
     const raw = await readFile(aliasPath, "utf-8");
     const parsed = JSON.parse(raw);
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+    if (
+      typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+    ) {
       userAliases = parsed as Record<string, string>;
     }
   } catch (err) {
@@ -140,7 +165,10 @@ export function getCommandInstanceById(id: string): BangCommand | undefined {
   return allCommands.find((c) => c.id === id)?.instance;
 }
 
-export function getCommandMap(): Map<string, { instance: BangCommand; id: string }> {
+export function getCommandMap(): Map<
+  string,
+  { instance: BangCommand; id: string }
+> {
   const map = new Map<string, { instance: BangCommand; id: string }>();
   for (const cmd of allCommands) {
     map.set(cmd.trigger, { instance: cmd.instance, id: cmd.id });
@@ -180,7 +208,9 @@ export function getCommandRegistry(): CommandRegistryEntry[] {
       name: c.instance.name,
       description: c.instance.description,
       aliases: [...builtinAliases, ...extraAliases],
-      ...(phrases && phrases.length > 0 ? { naturalLanguagePhrases: phrases } : {}),
+      ...(phrases && phrases.length > 0
+        ? { naturalLanguagePhrases: phrases }
+        : {}),
     };
   });
 
@@ -199,7 +229,9 @@ export function getCommandRegistry(): CommandRegistryEntry[] {
   return registry;
 }
 
-export async function getFilteredCommandRegistry(): Promise<CommandRegistryEntry[]> {
+export async function getFilteredCommandRegistry(): Promise<
+  CommandRegistryEntry[]
+> {
   const full = getCommandRegistry();
   const all = allCommands;
 
@@ -222,9 +254,13 @@ export async function getFilteredCommandRegistry(): Promise<CommandRegistryEntry
   return full.filter((c) => configuredTriggers.has(c.trigger));
 }
 
-export type CommandApiEntry = CommandRegistryEntry & { naturalLanguage: boolean };
+export type CommandApiEntry = CommandRegistryEntry & {
+  naturalLanguage: boolean;
+};
 
-export async function getCommandsApiResponse(): Promise<{ commands: CommandApiEntry[] }> {
+export async function getCommandsApiResponse(): Promise<{
+  commands: CommandApiEntry[];
+}> {
   const full = await getFilteredCommandRegistry();
   const commands: CommandApiEntry[] = await Promise.all(
     full.map(async (entry) => {
@@ -241,7 +277,8 @@ const NATURAL_LANGUAGE_FIELD: SettingField = {
   key: "naturalLanguage",
   label: "Natural language",
   type: "toggle",
-  description: "When on, typing the trigger or phrase without ! runs the command and shows search results below.",
+  description:
+    "When on, typing the trigger or phrase without ! runs the command and shows search results below.",
 };
 
 function schemaWithNaturalLanguage(schema: SettingField[]): SettingField[] {
@@ -257,14 +294,20 @@ export async function getPluginExtensionMeta(): Promise<ExtensionMeta[]> {
     const baseSchema = entry.instance.settingsSchema ?? [];
     const schema = schemaWithNaturalLanguage(baseSchema);
     let rawSettings = await getSettings(entry.id);
-    if (entry.id.startsWith("plugin-") && baseSchema.some((f) => f.key === "useAsSettingsGate")) {
+    if (
+      entry.id.startsWith("plugin-") &&
+      baseSchema.some((f) => f.key === "useAsSettingsGate")
+    ) {
       const slug = entry.id.slice(7);
-      if (asString(middlewareSettings.settingsGate).trim() === `plugin:${slug}`) {
+      if (
+        asString(middlewareSettings.settingsGate).trim() === `plugin:${slug}`
+      ) {
         rawSettings = { ...rawSettings, useAsSettingsGate: "true" };
       }
     }
     const maskedSettings = maskSecrets(rawSettings, schema);
-    if (rawSettings["disabled"]) maskedSettings["disabled"] = rawSettings["disabled"];
+    if (rawSettings["disabled"])
+      maskedSettings["disabled"] = rawSettings["disabled"];
     results.push({
       id: entry.id,
       displayName: entry.displayName,
@@ -288,13 +331,20 @@ export function matchBangCommand(query: string): BangMatch | null {
   if (!trimmed.startsWith("!")) return null;
   const withoutBang = trimmed.slice(1);
   const spaceIdx = withoutBang.indexOf(" ");
-  const trigger = spaceIdx === -1 ? withoutBang : withoutBang.slice(0, spaceIdx);
+  const trigger =
+    spaceIdx === -1 ? withoutBang : withoutBang.slice(0, spaceIdx);
   const args = spaceIdx === -1 ? "" : withoutBang.slice(spaceIdx + 1);
   const lowerTrigger = trigger.toLowerCase();
 
   const map = getCommandMap();
   const entry = map.get(lowerTrigger);
-  if (entry) return { type: "command", command: entry.instance, commandId: entry.id, args };
+  if (entry)
+    return {
+      type: "command",
+      command: entry.instance,
+      commandId: entry.id,
+      args,
+    };
 
   const engineId = getEngineShortcuts().get(lowerTrigger);
   if (engineId) return { type: "engine", engineId, query: args };

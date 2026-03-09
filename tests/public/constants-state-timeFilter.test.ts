@@ -4,12 +4,11 @@ import {
   DB_VERSION,
   STORE_NAME,
   SETTINGS_KEY,
-  THEME_KEY,
   PER_PAGE,
   MAX_PAGE,
-} from "../../src/public/js/constants.js";
-import { state } from "../../src/public/js/state.js";
-import * as timeFilter from "../../src/public/js/timeFilter.js";
+} from "../../src/client/constants";
+import { state } from "../../src/client/state";
+import { initTimeFilter } from "../../src/client/modules/timeFilter";
 
 describe("public/constants", () => {
   test("DB_NAME is string", () => {
@@ -42,6 +41,6 @@ describe("public/state", () => {
 
 describe("public/timeFilter", () => {
   test("initTimeFilter is function", () => {
-    expect(typeof timeFilter.initTimeFilter).toBe("function");
+    expect(typeof initTimeFilter).toBe("function");
   });
 });

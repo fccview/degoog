@@ -1,4 +1,4 @@
-import type { PluginRoute, PluginRouteMethod } from "../types";
+import type { PluginRoute } from "../types";
 import { debug } from "../logger";
 
 const pluginRoutes = new Map<string, PluginRoute[]>();
@@ -60,7 +60,11 @@ export async function initPluginRoutes(): Promise<void> {
         }));
         pluginRoutes.set(entry, normalized);
       } catch (err) {
-        debug("plugin-routes", `Failed to load routes from plugin: ${entry}`, err);
+        debug(
+          "plugin-routes",
+          `Failed to load routes from plugin: ${entry}`,
+          err,
+        );
       }
     }
   } catch (err) {
@@ -81,7 +85,10 @@ export function findPluginRoute(
   if (!routes) return null;
   const normalized = path.replace(/^\/+/, "").replace(/\/+$/, "") || "";
   const want = normalized ? `/${normalized}` : "/";
-  return routes.find((r) => r.method === method.toLowerCase() && r.path === want) ?? null;
+  return (
+    routes.find((r) => r.method === method.toLowerCase() && r.path === want) ??
+    null
+  );
 }
 
 export async function reloadPluginRoutes(): Promise<void> {

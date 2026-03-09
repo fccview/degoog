@@ -1,5 +1,4 @@
-import { fetch as undiciFetch } from "undici";
-import { ProxyAgent } from "undici";
+import { fetch as undiciFetch, ProxyAgent } from "undici";
 import { getSettings } from "./plugin-settings";
 import { debug } from "./logger";
 

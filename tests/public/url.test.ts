@@ -1,10 +1,6 @@
 import { describe, test, expect } from "bun:test";
-import {
-  buildSearchUrl,
-  proxyImageUrl,
-  faviconUrl,
-} from "../../src/public/js/url.js";
-import { state } from "../../src/public/js/state.js";
+import { buildSearchUrl, proxyImageUrl, faviconUrl } from "../../src/client/utils/url";
+import { state } from "../../src/client/state";
 
 describe("public/url", () => {
   test("proxyImageUrl returns empty for empty url", () => {

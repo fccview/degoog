@@ -36,6 +36,16 @@ function pluginAssetsPlaceholder(): string {
   return parts.join("\n  ");
 }
 
+async function buildPage(filename: string): Promise<string> {
+  const html = await Bun.file(`src/public/${filename}`).text();
+  const themeAttrs = await getActiveThemeDataAttrs();
+  return html
+    .replaceAll("__APP_VERSION__", pkg.version)
+    .replace("__THEME_CSS__", themeCssPlaceholder())
+    .replace("__THEME_ATTRS__", themeAttrs)
+    .replace("__PLUGIN_ASSETS__", pluginAssetsPlaceholder());
+}
+
 router.get("/", async (c) => {
   const q = c.req.query("q");
   if (q?.trim()) {
@@ -46,45 +56,20 @@ router.get("/", async (c) => {
   if (override) {
     return c.html(override.replaceAll("__APP_VERSION__", pkg.version));
   }
-  const html = await Bun.file("src/public/index.html").text();
-  const themeAttrs = await getActiveThemeDataAttrs();
-  const out = html
-    .replaceAll("__APP_VERSION__", pkg.version)
-    .replace("__THEME_CSS__", themeCssPlaceholder())
-    .replace("__THEME_ATTRS__", themeAttrs)
-    .replace("__PLUGIN_ASSETS__", pluginAssetsPlaceholder());
-  return c.html(out);
+  return c.html(await buildPage("index.html"));
 });
 
 router.get("/search", async (c) => {
   const override = await getThemeHtml("search");
   if (override) return c.html(override.replaceAll("__APP_VERSION__", pkg.version));
-  const html = await Bun.file("src/public/search.html").text();
-  const themeAttrs = await getActiveThemeDataAttrs();
-  const out = html
-    .replaceAll("__APP_VERSION__", pkg.version)
-    .replace("__THEME_CSS__", themeCssPlaceholder())
-    .replace("__THEME_ATTRS__", themeAttrs)
-    .replace("__PLUGIN_ASSETS__", pluginAssetsPlaceholder());
-  return c.html(out);
+  return c.html(await buildPage("search.html"));
 });
+
 router.get("/settings", async (c) => {
   if (await shouldServeSettingsGate(c)) {
-    const html = await Bun.file("src/public/settings-gate.html").text();
-    const themeAttrs = await getActiveThemeDataAttrs();
-    const out = html
-      .replaceAll("__APP_VERSION__", pkg.version)
-      .replace("__THEME_CSS__", themeCssPlaceholder())
-      .replace("__THEME_ATTRS__", themeAttrs);
-    return c.html(out);
+    return c.html(await buildPage("settings-gate.html"));
   }
-  const html = await Bun.file("src/public/settings.html").text();
-  const themeAttrs = await getActiveThemeDataAttrs();
-  const out = html
-    .replaceAll("__APP_VERSION__", pkg.version)
-    .replace("__THEME_CSS__", themeCssPlaceholder())
-    .replace("__THEME_ATTRS__", themeAttrs);
-  return c.html(out);
+  return c.html(await buildPage("settings.html"));
 });
 
 router.get("/api/engines", (c) => {

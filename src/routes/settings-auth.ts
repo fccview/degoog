@@ -1,5 +1,4 @@
-import { Hono } from "hono";
-import type { Context } from "hono";
+import { Hono, type Context } from "hono";
 import { getSettings, setSettings, asString } from "../plugin-settings";
 import { getMiddleware } from "../middleware/registry";
 
@@ -16,7 +15,9 @@ const SETTINGS_GATE_KEY = "settingsGate";
 function getTokenFromCookie(c: Context): string | undefined {
   const raw = c.req.header("cookie");
   if (!raw) return undefined;
-  const match = raw.split(";").find((s) => s.trim().startsWith(COOKIE_NAME + "="));
+  const match = raw
+    .split(";")
+    .find((s) => s.trim().startsWith(COOKIE_NAME + "="));
   if (!match) return undefined;
   const value = match.split("=")[1]?.trim();
   return value || undefined;

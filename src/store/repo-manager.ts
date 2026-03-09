@@ -3,12 +3,12 @@ import { join, resolve, dirname, relative } from "path";
 import { createHash } from "crypto";
 import { removeSettings } from "../plugin-settings";
 import { reloadCommands } from "../commands/registry";
-import { initSlotPlugins, reloadSlotPlugins } from "../slots/registry";
+import { reloadSlotPlugins } from "../slots/registry";
 import { reloadSearchBarActions } from "../search-bar/registry";
 import { reloadPluginRoutes } from "../plugin-routes/registry";
 import { reloadMiddlewareRegistry } from "../middleware/registry";
-import { initThemes, reloadThemes } from "../themes/registry";
-import { initEngines, reloadEngines } from "../engines/registry";
+import { reloadThemes } from "../themes/registry";
+import { reloadEngines } from "../engines/registry";
 import type {
   RepoInfo,
   ReposData,
@@ -19,7 +19,8 @@ import type {
 } from "./types";
 
 const CLONE_TIMEOUT_MS = 60_000;
-const OFFICIAL_REPO_URL = "https://github.com/fccview/fccview-degoog-extensions.git";
+const OFFICIAL_REPO_URL =
+  "https://github.com/fccview/fccview-degoog-extensions.git";
 
 function getDataDir(): string {
   return process.env.DEGOOG_DATA_DIR ?? join(process.cwd(), "data");
@@ -36,12 +37,17 @@ function getStoreDir(): string {
 function normalizeRepoUrl(url: string): string {
   const trimmed = url.trim();
   if (trimmed.endsWith(".git")) return trimmed;
-  return trimmed + (trimmed.includes("?") || trimmed.includes("#") ? "" : ".git");
+  return (
+    trimmed + (trimmed.includes("?") || trimmed.includes("#") ? "" : ".git")
+  );
 }
 
 function slugFromUrl(url: string): string {
   const normalized = normalizeRepoUrl(url);
-  const hash = createHash("sha256").update(normalized).digest("hex").slice(0, 8);
+  const hash = createHash("sha256")
+    .update(normalized)
+    .digest("hex")
+    .slice(0, 8);
   let repoName = "repo";
   try {
     const u = new URL(normalized.replace(/\.git$/, ""));
@@ -59,7 +65,9 @@ function isValidGitUrl(url: string): boolean {
   if (!trimmed) return false;
   try {
     const u = new URL(trimmed.replace(/\.git$/, ""));
-    return u.protocol === "http:" || u.protocol === "https:" || u.protocol === "ssh:";
+    return (
+      u.protocol === "http:" || u.protocol === "https:" || u.protocol === "ssh:"
+    );
   } catch {
     return false;
   }
@@ -97,13 +105,11 @@ function getRepoByUrl(data: ReposData, url: string): RepoInfo | undefined {
   return data.repos.find((r) => normalizeRepoUrl(r.url) === normalized);
 }
 
-function getRepoBySlug(data: ReposData, slug: string): RepoInfo | undefined {
-  return data.repos.find((r) => r.localPath === slug);
-}
-
 export async function addRepo(url: string): Promise<RepoInfo> {
   if (!isValidGitUrl(url)) {
-    throw new Error("Invalid git URL. Use http(s) or ssh URL ending in .git or without.");
+    throw new Error(
+      "Invalid git URL. Use http(s) or ssh URL ending in .git or without.",
+    );
   }
   const normalized = normalizeRepoUrl(url);
   const data = await readReposData();
@@ -136,7 +142,7 @@ export async function addRepo(url: string): Promise<RepoInfo> {
   try {
     const raw = await readFile(pkgPath, "utf-8");
     pkg = JSON.parse(raw) as RepoPackageJson;
-  } catch (e) {
+  } catch {
     await rm(dest, { recursive: true, force: true });
     throw new Error("Repository has no valid package.json in the root.");
   }
@@ -162,14 +168,20 @@ export async function removeRepo(url: string): Promise<void> {
   if (normalizeRepoUrl(repo.url) === normalizeRepoUrl(OFFICIAL_REPO_URL)) {
     throw new Error("The official extensions repository cannot be removed.");
   }
-  const installedFromRepo = data.installed.filter((i) => normalizeRepoUrl(i.repoUrl) === normalizeRepoUrl(url));
+  const installedFromRepo = data.installed.filter(
+    (i) => normalizeRepoUrl(i.repoUrl) === normalizeRepoUrl(url),
+  );
   if (installedFromRepo.length > 0) {
-    const list = installedFromRepo.map((i) => `${i.type} ${i.installedAs}`).join(", ");
+    const list = installedFromRepo
+      .map((i) => `${i.type} ${i.installedAs}`)
+      .join(", ");
     throw new Error(`Uninstall these items first: ${list}`);
   }
   const dest = join(getStoreDir(), repo.localPath);
   await rm(dest, { recursive: true, force: true }).catch(() => {});
-  data.repos = data.repos.filter((r) => normalizeRepoUrl(r.url) !== normalizeRepoUrl(url));
+  data.repos = data.repos.filter(
+    (r) => normalizeRepoUrl(r.url) !== normalizeRepoUrl(url),
+  );
   await writeReposData(data);
 }
 
@@ -204,7 +216,9 @@ export async function refreshRepo(url?: string): Promise<void> {
   await writeReposData(data);
 }
 
-export async function refreshAllRepos(): Promise<{ url: string; error: string | null }[]> {
+export async function refreshAllRepos(): Promise<
+  { url: string; error: string | null }[]
+> {
   const data = await readReposData();
   const results: { url: string; error: string | null }[] = [];
   for (const repo of data.repos) {
@@ -244,10 +258,15 @@ export async function listRepoItems(repoUrl?: string): Promise<StoreItem[]> {
   const data = await readReposData();
   const repos = repoUrl ? [getRepoByUrl(data, repoUrl)] : data.repos;
   const installedSet = new Set(
-    data.installed.map((i) => `${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}`),
+    data.installed.map(
+      (i) => `${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}`,
+    ),
   );
   const installedMap = new Map(
-    data.installed.map((i) => [`${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}`, i]),
+    data.installed.map((i) => [
+      `${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}`,
+      i,
+    ]),
   );
   const items: StoreItem[] = [];
   const storeDir = getStoreDir();
@@ -262,11 +281,19 @@ export async function listRepoItems(repoUrl?: string): Promise<StoreItem[]> {
     } catch {
       continue;
     }
-    const topAuthor = typeof pkg.author === "string" ? { name: pkg.author, url: undefined, avatar: undefined } : null;
+    const topAuthor =
+      typeof pkg.author === "string"
+        ? { name: pkg.author, url: undefined, avatar: undefined }
+        : null;
 
     const push = async (
       type: "plugin" | "theme" | "engine",
-      entries: Array<{ path: string; name: string; description?: string; version?: string }>,
+      entries: Array<{
+        path: string;
+        name: string;
+        description?: string;
+        version?: string;
+      }>,
     ) => {
       for (const ent of entries) {
         const itemPath = ent.path.replace(/\/$/, "");
@@ -291,7 +318,9 @@ export async function listRepoItems(repoUrl?: string): Promise<StoreItem[]> {
           name: ent.name || folderName,
           description: ent.description ?? "",
           version: ent.version ?? "0.0.0",
-          author: author ? { name: author.name, url: author.url, avatar: author.avatar } : topAuthor,
+          author: author
+            ? { name: author.name, url: author.url, avatar: author.avatar }
+            : topAuthor,
           screenshots,
           installed: installedSet.has(key),
           installedVersion: inst?.version,
@@ -309,8 +338,10 @@ export async function listRepoItems(repoUrl?: string): Promise<StoreItem[]> {
 
 function getDestDir(type: "plugin" | "theme" | "engine"): string {
   const dataDir = getDataDir();
-  if (type === "plugin") return process.env.DEGOOG_PLUGINS_DIR ?? join(dataDir, "plugins");
-  if (type === "theme") return process.env.DEGOOG_THEMES_DIR ?? join(dataDir, "themes");
+  if (type === "plugin")
+    return process.env.DEGOOG_PLUGINS_DIR ?? join(dataDir, "plugins");
+  if (type === "theme")
+    return process.env.DEGOOG_THEMES_DIR ?? join(dataDir, "themes");
   return process.env.DEGOOG_ENGINES_DIR ?? join(dataDir, "engines");
 }
 
@@ -324,7 +355,8 @@ async function copyItemDir(
   await mkdir(destDir, { recursive: true });
   const entries = await readdir(srcDir, { withFileTypes: true });
   for (const e of entries) {
-    if (exclude.some((x) => e.name === x || e.name.startsWith(x + "/"))) continue;
+    if (exclude.some((x) => e.name === x || e.name.startsWith(x + "/")))
+      continue;
     const src = join(srcDir, e.name);
     const dest = join(destDir, e.name);
     if (e.isDirectory()) {
@@ -346,7 +378,11 @@ export async function installItem(
   if (!repo) throw new Error("Repository not found.");
   const normalizedPath = itemPath.replace(/\/$/, "");
   const key = `${normalizeRepoUrl(repoUrl)}::${type}::${normalizedPath}`;
-  if (data.installed.some((i) => `${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}` === key)) {
+  if (
+    data.installed.some(
+      (i) => `${normalizeRepoUrl(i.repoUrl)}::${i.type}::${i.itemPath}` === key,
+    )
+  ) {
     throw new Error("Item is already installed.");
   }
   const storeDir = getStoreDir();
@@ -358,8 +394,15 @@ export async function installItem(
   }
   const pkgPath = join(storeDir, repo.localPath, "package.json");
   const pkg = JSON.parse(await readFile(pkgPath, "utf-8")) as RepoPackageJson;
-  const entries = type === "plugin" ? pkg.plugins : type === "theme" ? pkg.themes : pkg.engines;
-  const manifest = entries?.find((e) => e.path.replace(/\/$/, "") === normalizedPath);
+  const entries =
+    type === "plugin"
+      ? pkg.plugins
+      : type === "theme"
+        ? pkg.themes
+        : pkg.engines;
+  const manifest = entries?.find(
+    (e) => e.path.replace(/\/$/, "") === normalizedPath,
+  );
   if (!manifest) throw new Error("Item not listed in package.json.");
   const folderName = normalizedPath.split("/").pop() ?? normalizedPath;
   const destBase = getDestDir(type);
@@ -367,7 +410,9 @@ export async function installItem(
   const destDir = join(destBase, folderName);
   try {
     await stat(destDir);
-    throw new Error(`A ${type} named "${folderName}" already exists. Remove it first.`);
+    throw new Error(
+      `A ${type} named "${folderName}" already exists. Remove it first.`,
+    );
   } catch (e) {
     if (e instanceof Error && e.message.includes("already exists")) throw e;
   }
@@ -382,18 +427,7 @@ export async function installItem(
     version,
   });
   await writeReposData(data);
-
-  if (type === "plugin") {
-    await reloadSlotPlugins();
-    await reloadCommands();
-    await reloadSearchBarActions();
-    await reloadPluginRoutes();
-    await reloadMiddlewareRegistry();
-  } else if (type === "theme") {
-    await reloadThemes();
-  } else {
-    await reloadEngines();
-  }
+  await reloadAfterAction(type);
 }
 
 export async function uninstallItem(
@@ -403,9 +437,11 @@ export async function uninstallItem(
 ): Promise<void> {
   const data = await readReposData();
   const normalizedPath = itemPath.replace(/\/$/, "");
-  const key = `${normalizeRepoUrl(repoUrl)}::${type}::${normalizedPath}`;
   const inst = data.installed.find(
-    (i) => normalizeRepoUrl(i.repoUrl) === normalizeRepoUrl(repoUrl) && i.type === type && i.itemPath === normalizedPath,
+    (i) =>
+      normalizeRepoUrl(i.repoUrl) === normalizeRepoUrl(repoUrl) &&
+      i.type === type &&
+      i.itemPath === normalizedPath,
   );
   if (!inst) throw new Error("Item is not installed.");
   const destBase = getDestDir(type);
@@ -426,7 +462,12 @@ export async function uninstallItem(
 
   data.installed = data.installed.filter((i) => i !== inst);
   await writeReposData(data);
+  await reloadAfterAction(type);
+}
 
+async function reloadAfterAction(
+  type: "plugin" | "theme" | "engine",
+): Promise<void> {
   if (type === "plugin") {
     await reloadSlotPlugins();
     await reloadCommands();
@@ -543,7 +584,11 @@ export function getRepoSlugFromUrl(url: string): string {
   return slugFromUrl(url);
 }
 
-export function resolveScreenshotPath(repoSlug: string, itemPath: string, filename: string): string | null {
+export function resolveScreenshotPath(
+  repoSlug: string,
+  itemPath: string,
+  filename: string,
+): string | null {
   const storeDir = getStoreDir();
   const repoBase = resolve(storeDir, repoSlug);
   const normalized = filename.replace(/[^a-zA-Z0-9._-]/g, "");

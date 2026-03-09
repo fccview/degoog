@@ -145,7 +145,7 @@ async function fetchKnowledgePanel(
     if (
       !page ||
       page.pageid === undefined ||
-      (page as any).missing !== undefined ||
+      (page as Record<string, unknown>).missing !== undefined ||
       !page.extract
     )
       return null;
@@ -288,8 +288,12 @@ export async function search(
 
   if (type === "all" && p === 1) {
     [relatedSearches, knowledgePanel] = await Promise.all([
-      withTimeout(fetchRelatedSearches(query), ENGINE_TIMEOUT_MS).catch(() => []),
-      withTimeout(fetchKnowledgePanel(query), ENGINE_TIMEOUT_MS).catch(() => null),
+      withTimeout(fetchRelatedSearches(query), ENGINE_TIMEOUT_MS).catch(
+        () => [],
+      ),
+      withTimeout(fetchKnowledgePanel(query), ENGINE_TIMEOUT_MS).catch(
+        () => null,
+      ),
     ]);
   }
 

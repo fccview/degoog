@@ -4,6 +4,7 @@ import { search, searchSingleEngine, mergeNewResults } from "../search";
 import { getEngineRegistry } from "../engines/registry";
 import { getSlotPlugins } from "../slots/registry";
 import { getSettings } from "../plugin-settings";
+import { getClientIp } from "../utils/request";
 import type {
   EngineConfig,
   SearchType,
@@ -96,9 +97,7 @@ router.get("/api/search", async (c) => {
   }
 
   if (searchType === "all") {
-    const clientIp =
-      c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
-      c.req.header("x-real-ip");
+    const clientIp = getClientIp(c);
     const slotPanels = await runSlotPlugins(
       query.trim(),
       clientIp ?? undefined,
@@ -114,9 +113,7 @@ router.get("/api/search", async (c) => {
 router.get("/api/slots", async (c) => {
   const query = c.req.query("q");
   if (!query || !query.trim()) return c.json({ panels: [] });
-  const clientIp =
-    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
-    c.req.header("x-real-ip");
+  const clientIp = getClientIp(c);
   const panels = await runSlotPlugins(query.trim(), clientIp, undefined, {
     excludePosition: "at-a-glance",
   });
@@ -133,10 +130,10 @@ router.post("/api/slots/glance", async (c) => {
   if (!body.query || !Array.isArray(body.results)) {
     return c.json({ error: "Missing query or results" }, 400);
   }
-  const clientIp =
-    c.req.header("x-forwarded-for")?.split(",")[0]?.trim() ??
-    c.req.header("x-real-ip");
-  const glancePlugins = getSlotPlugins().filter((p) => p.position === "at-a-glance");
+  const clientIp = getClientIp(c);
+  const glancePlugins = getSlotPlugins().filter(
+    (p) => p.position === "at-a-glance",
+  );
   const panels: SlotPanelResult[] = [];
   for (const plugin of glancePlugins) {
     try {
