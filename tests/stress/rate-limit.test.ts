@@ -1,21 +1,15 @@
-import { describe, test, expect, beforeAll, mock } from "bun:test";
+import { describe, test, expect, mock } from "bun:test";
 import { clearRateLimitState } from "../../src/server/utils/rate-limit";
 
-let rateLimitRouter: {
-  request: (req: Request | string) => Response | Promise<Response>;
-};
-
-beforeAll(async () => {
-  const mod = await import("../../src/server/routes/rate-limit");
-  rateLimitRouter = mod.default;
-});
+const PLUGIN_SETTINGS_PATH = "../../src/server/utils/plugin-settings";
 
 describe("routes/rate-limit", () => {
   test("GET /api/rate-limit/test when rate limit disabled returns 200 with rateLimitEnabled false", async () => {
-    mock.module("../../src/server/plugin-settings", () => ({
+    mock.module(PLUGIN_SETTINGS_PATH, () => ({
       getSettings: async () => ({}) as Record<string, string>,
     }));
-    const res = await rateLimitRouter.request(
+    const { default: router } = await import("../../src/server/routes/rate-limit");
+    const res = await router.request(
       "http://localhost/api/rate-limit/test",
     );
     expect(res.status).toBe(200);
@@ -24,7 +18,7 @@ describe("routes/rate-limit", () => {
   });
 
   test("GET /api/rate-limit/test when rate limit enabled returns 200 then 429 after burst exceeded", async () => {
-    mock.module("../../src/server/plugin-settings", () => ({
+    mock.module(PLUGIN_SETTINGS_PATH, () => ({
       getSettings: async () =>
         ({
           rateLimitEnabled: "true",
@@ -35,19 +29,20 @@ describe("routes/rate-limit", () => {
         }) as Record<string, string>,
     }));
     clearRateLimitState();
+    const { default: router } = await import("../../src/server/routes/rate-limit");
     const baseUrl = "http://localhost/api/rate-limit/test";
     const req = (url: string) =>
       new Request(url, {
         headers: { "x-forwarded-for": "192.168.99.1" },
       });
-    const r1 = await rateLimitRouter.request(req(baseUrl));
+    const r1 = await router.request(req(baseUrl));
     expect(r1.status).toBe(200);
     expect(((await r1.json()) as { allowed?: boolean }).allowed).toBe(true);
-    const r2 = await rateLimitRouter.request(req(baseUrl));
+    const r2 = await router.request(req(baseUrl));
     expect(r2.status).toBe(200);
-    const r3 = await rateLimitRouter.request(req(baseUrl));
+    const r3 = await router.request(req(baseUrl));
     expect(r3.status).toBe(200);
-    const r4 = await rateLimitRouter.request(req(baseUrl));
+    const r4 = await router.request(req(baseUrl));
     expect(r4.status).toBe(429);
     expect(r4.headers.get("Retry-After")).toBeTruthy();
     const body429 = (await r4.json()) as {
