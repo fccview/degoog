@@ -7,6 +7,12 @@ export interface SearchResult {
   duration?: string;
 }
 
+export enum ExtensionStoreType {
+  Plugin = "plugin",
+  Theme = "theme",
+  Engine = "engine",
+}
+
 export interface SettingField {
   key: string;
   label: string;
@@ -22,7 +28,7 @@ export interface ExtensionMeta {
   id: string;
   displayName: string;
   description: string;
-  type: "plugin" | "engine" | "command" | "theme";
+  type: ExtensionStoreType | "command";
   configurable: boolean;
   settingsSchema: SettingField[];
   settings: Record<string, string | string[]>;
@@ -73,11 +79,16 @@ export interface KnowledgePanel {
   facts?: Record<string, string>;
 }
 
-export type SlotPanelPosition =
-  | "above-results"
-  | "below-results"
-  | "sidebar"
-  | "at-a-glance";
+export enum SlotPanelPosition {
+  AboveResults = "above-results",
+  BelowResults = "below-results",
+  AboveSidebar = "above-sidebar",
+  BelowSidebar = "below-sidebar",
+  KnowledgePanel = "knowledge-panel",
+  AtAGlance = "at-a-glance",
+}
+
+export const SLOT_POSITION_SETTING_KEY = "slotPosition";
 
 export interface SlotPanelResult {
   id: string;
@@ -101,6 +112,7 @@ export interface SearchResponse {
 export interface SlotPluginContext {
   clientIp?: string;
   results?: ScoredResult[];
+  fetch?: (url: string, init?: RequestInit) => Promise<Response>;
 }
 
 export interface SlotPlugin {
@@ -108,6 +120,7 @@ export interface SlotPlugin {
   name: string;
   description: string;
   position: SlotPanelPosition;
+  slotPositions?: SlotPanelPosition[];
   settingsId?: string;
   trigger: (query: string) => boolean | Promise<boolean>;
   execute(

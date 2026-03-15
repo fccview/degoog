@@ -1,17 +1,13 @@
 import { join } from "path";
-import type {
-  BangCommand,
-  ExtensionMeta,
-  SettingField,
-  PluginContext,
-} from "../../types";
+import type { BangCommand, ExtensionMeta, SettingField } from "../../types";
 import { getEngineMap as getSearchEngineMap } from "../engines/registry";
 import {
   getSettings,
+  isDisabled,
   maskSecrets,
   asString,
 } from "../../utils/plugin-settings";
-import { addPluginCss, registerPluginScript } from "../../utils/plugin-assets";
+import { loadPluginAssets, initPlugin } from "../../utils/plugin-assets";
 import { debug } from "../../utils/logger";
 
 interface CommandEntry {
@@ -60,7 +56,7 @@ async function loadCommandsFromRoot(
   idPrefix: string,
   source: "plugin" | "builtin",
 ): Promise<void> {
-  const { readdir, readFile, stat } = await import("fs/promises");
+  const { readdir, stat } = await import("fs/promises");
   const { pathToFileURL } = await import("url");
   let entries: string[];
   try {
@@ -95,32 +91,9 @@ async function loadCommandsFromRoot(
       if (!isBangCommand(instance)) continue;
       if (allCommands.some((c) => c.trigger === instance.trigger)) continue;
 
-      const template = await readFile(
-        join(entryPath, "template.html"),
-        "utf-8",
-      ).catch(() => "");
-      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(
-        () => "",
-      );
-      if (css) addPluginCss(id, css);
-      const hasScript = await stat(join(entryPath, "script.js")).catch(
-        () => null,
-      );
-      if (hasScript?.isFile()) registerPluginScript(entry, source, id);
-
-      if (instance.init) {
-        const ctx: PluginContext = {
-          dir: entryPath,
-          template,
-          readFile: (filename: string) =>
-            readFile(join(entryPath, filename), "utf-8"),
-        };
-        await Promise.resolve(instance.init(ctx));
-      }
-
-      if (instance.configure && instance.settingsSchema?.length) {
-        const stored = await getSettings(id);
-        if (Object.keys(stored).length > 0) instance.configure(stored);
+      if (!(await isDisabled(id))) {
+        const template = await loadPluginAssets(entryPath, entry, id, source);
+        await initPlugin(instance, entryPath, id, template);
       }
       allCommands.push({
         id,
@@ -245,8 +218,7 @@ export async function getFilteredCommandRegistry(): Promise<
   const configuredTriggers = new Set<string>();
   await Promise.all(
     all.map(async (entry) => {
-      const settings = await getSettings(entry.id);
-      if (settings["disabled"] === "true") return;
+      if (await isDisabled(entry.id)) return;
       const configured = entry.instance.isConfigured
         ? await entry.instance.isConfigured()
         : true;
@@ -288,8 +260,14 @@ const NATURAL_LANGUAGE_FIELD: SettingField = {
     "When on, typing the trigger or phrase without ! runs the command and shows search results below.",
 };
 
-function schemaWithNaturalLanguage(schema: SettingField[]): SettingField[] {
+function schemaWithNaturalLanguage(
+  schema: SettingField[],
+  naturalLanguagePhrases: string[] | undefined,
+): SettingField[] {
   if (schema.some((f) => f.key === "naturalLanguage")) return schema;
+  const hasPhrases =
+    Array.isArray(naturalLanguagePhrases) && naturalLanguagePhrases.length > 0;
+  if (!hasPhrases) return schema;
   return [...schema, NATURAL_LANGUAGE_FIELD];
 }
 
@@ -299,7 +277,10 @@ export async function getPluginExtensionMeta(): Promise<ExtensionMeta[]> {
 
   for (const entry of allCommands) {
     const baseSchema = entry.instance.settingsSchema ?? [];
-    const schema = schemaWithNaturalLanguage(baseSchema);
+    const schema = schemaWithNaturalLanguage(
+      baseSchema,
+      entry.instance.naturalLanguagePhrases,
+    );
     let rawSettings = await getSettings(entry.id);
     if (
       entry.id.startsWith("plugin-") &&

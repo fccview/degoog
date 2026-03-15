@@ -1,155 +1,317 @@
-<!DOCTYPE html>
-<html lang="en"__THEME_ATTRS__>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="degoog is an alternative search engine aggregator.">
-  <link rel="icon" href="/public/favicon/favicon.ico?v=__APP_VERSION__" type="image/x-icon">
-  <link rel="manifest" href="/public/favicon/site.webmanifest?v=__APP_VERSION__">
-  <link rel="search" type="application/opensearchdescription+xml" title="degoog" href="/opensearch.xml">
-  <title>degoog</title>
-  <script>
-    (function(){var t=localStorage.getItem("theme");var r=document.documentElement;if(t==="light")r.setAttribute("data-theme","light");else if(t==="dark")r.setAttribute("data-theme","dark");else{var m=window.matchMedia("(prefers-color-scheme: dark)");r.setAttribute("data-theme",m.matches?"dark":"light");}})();
-  </script>
-  <link rel="stylesheet" href="/public/style.css?v=__APP_VERSION__">
-  __THEME_CSS__
-  __PLUGIN_ASSETS__
-</head>
-<body class="has-results">
-  <div id="app">
-    <header class="header" id="header" style="display:none">
-      <div class="header-right">
-        <a href="/settings" class="header-link" id="nav-settings-top" title="Settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </a>
-      </div>
-    </header>
+<!doctype html>
+<html lang="en" __THEME_ATTRS__>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="degoog is an alternative search engine aggregator."
+    />
+    <link
+      rel="icon"
+      href="/public/favicon/favicon.ico?v=__APP_VERSION__"
+      type="image/x-icon"
+    />
+    <link
+      rel="manifest"
+      href="/public/favicon/site.webmanifest?v=__APP_VERSION__"
+    />
+    <link
+      rel="search"
+      type="application/opensearchdescription+xml"
+      title="degoog"
+      href="/opensearch.xml"
+    />
+    <title>degoog</title>
+    <script>
+      (function () {
+        var t = localStorage.getItem("theme");
+        var r = document.documentElement;
+        if (t === "light") r.setAttribute("data-theme", "light");
+        else if (t === "dark") r.setAttribute("data-theme", "dark");
+        else {
+          var m = window.matchMedia("(prefers-color-scheme: dark)");
+          r.setAttribute("data-theme", m.matches ? "dark" : "light");
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="/public/style.css?v=__APP_VERSION__" />
+    __THEME_CSS__ __PLUGIN_ASSETS__
+  </head>
 
-    <main class="main" id="main-home" style="display:none">
-      <div class="logo-container">
-        <h1 class="logo">
-          <span class="logo-d">d</span><span class="logo-e">e</span><span class="logo-g1">g</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span>
-        </h1>
-      </div>
-      <div class="search-container">
-        <form action="/search" method="get" id="search-form-home" class="search-form">
-          <div class="search-bar" id="search-bar-home">
-            <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="2">
-              <circle cx="11" cy="11" r="8"/>
-              <path d="M21 21l-4.35-4.35"/>
+  <body class="has-results">
+    <div id="app">
+      <header class="header" id="header" style="display: none">
+        <div class="header-right">
+          <a
+            href="/settings"
+            class="header-link"
+            id="nav-settings-top"
+            title="Settings"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"
+              />
+              <circle cx="12" cy="12" r="3" />
             </svg>
-            <input type="text" class="search-input" id="search-input" name="q" autocomplete="off" autofocus placeholder="">
-            <div class="ac-dropdown" id="ac-dropdown-home"></div>
-            <div id="search-bar-actions-home" class="search-bar-actions"></div>
+          </a>
+        </div>
+      </header>
+
+      <main class="main" id="main-home" style="display: none">
+        <div class="logo-container">
+          <h1 class="logo">
+            <span class="logo-d">d</span><span class="logo-e">e</span
+            ><span class="logo-g1">g</span><span class="logo-o1">o</span
+            ><span class="logo-o2">o</span><span class="logo-g2">g</span>
+          </h1>
+        </div>
+        <div class="search-container">
+          <form
+            action="/search"
+            method="get"
+            id="search-form-home"
+            class="search-form"
+          >
+            <div class="search-bar" id="search-bar-home">
+              <svg
+                class="search-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#9aa0a6"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <path d="M21 21l-4.35-4.35" />
+              </svg>
+              <input
+                type="text"
+                class="search-input"
+                id="search-input"
+                name="q"
+                autocomplete="off"
+                autofocus
+                placeholder=""
+              />
+              <div class="ac-dropdown" id="ac-dropdown-home"></div>
+              <div
+                id="search-bar-actions-home"
+                class="search-bar-actions"
+              ></div>
+            </div>
+            <div class="button-row">
+              <button type="submit" class="search-btn" id="btn-search">
+                degoog Search
+              </button>
+              <button type="button" class="search-btn lucky-btn" id="btn-lucky">
+                <span class="lucky-default">I'm Feeling Lucky</span>
+                <div class="lucky-slot">
+                  <div class="lucky-slot-inner" id="lucky-slot-inner">
+                    <span>I'm Feeling Lucky</span>
+                    <span class="lucky-alt">I'm Feeling Curious</span>
+                    <span class="lucky-alt">I'm Feeling Adventurous</span>
+                    <span class="lucky-alt">I'm Feeling Playful</span>
+                    <span class="lucky-alt">I'm Feeling Stellar</span>
+                    <span class="lucky-alt">I'm Feeling Trendy</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+        <div id="home-news-feed" class="home-news-feed"></div>
+      </main>
+
+      <div class="results-page" id="results-page">
+        <div class="results-header">
+          <a href="/" class="results-logo">
+            <span class="logo-d">d</span><span class="logo-e">e</span
+            ><span class="logo-g1">g</span><span class="logo-o1">o</span
+            ><span class="logo-o2">o</span><span class="logo-g2">g</span>
+          </a>
+          <div class="results-search-bar" id="results-search-bar">
+            <svg
+              class="search-icon"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9aa0a6"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              class="search-input"
+              id="results-search-input"
+              autocomplete="off"
+            />
+            <div class="ac-dropdown" id="ac-dropdown-results"></div>
+            <div
+              id="search-bar-actions-results"
+              class="search-bar-actions"
+            ></div>
+            <button class="search-submit-btn" id="results-search-btn">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="#4285f4"
+                stroke="none"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"
+                  fill="none"
+                  stroke="#4285f4"
+                  stroke-width="2"
+                />
+                <path d="M21 21l-4.35-4.35" stroke="#4285f4" stroke-width="2" />
+              </svg>
+            </button>
           </div>
-          <div class="button-row">
-            <button type="submit" class="search-btn" id="btn-search">degoog Search</button>
-            <button type="button" class="search-btn lucky-btn" id="btn-lucky">
-            <span class="lucky-default">I'm Feeling Lucky</span>
-            <div class="lucky-slot">
-              <div class="lucky-slot-inner" id="lucky-slot-inner">
-                <span>I'm Feeling Lucky</span>
-                <span class="lucky-alt">I'm Feeling Curious</span>
-                <span class="lucky-alt">I'm Feeling Adventurous</span>
-                <span class="lucky-alt">I'm Feeling Playful</span>
-                <span class="lucky-alt">I'm Feeling Stellar</span>
-                <span class="lucky-alt">I'm Feeling Trendy</span>
+          <a
+            href="/settings"
+            class="header-link settings-gear"
+            id="nav-settings-results"
+            title="Settings"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </a>
+        </div>
+        <div class="results-tabs" id="results-tabs">
+          <div class="results-tab active" data-type="all">All</div>
+          <div class="results-tab" data-type="images">Images</div>
+          <div class="results-tab" data-type="videos">Videos</div>
+          <div class="results-tab" data-type="news">News</div>
+          <div class="tools-wrap" id="tools-bar">
+            <button class="tools-toggle" id="tools-toggle" type="button">
+              Any time
+            </button>
+            <div
+              class="tools-dropdown"
+              id="tools-dropdown"
+              style="display: none"
+            >
+              <div class="tools-section">
+                <button class="tools-option active" data-time="any">
+                  Any time
+                </button>
+                <button class="tools-option" data-time="hour">Hour</button>
+                <button class="tools-option" data-time="day">24 hours</button>
+                <button class="tools-option" data-time="week">Week</button>
+                <button class="tools-option" data-time="month">Month</button>
+                <button class="tools-option" data-time="year">Year</button>
               </div>
             </div>
-            </button>
           </div>
-        </form>
-      </div>
-      <div id="home-news-feed" class="home-news-feed"></div>
-    </main>
-
-    <div class="results-page" id="results-page">
-      <div class="results-header">
-        <a href="/" class="results-logo">
-          <span class="logo-d">d</span><span class="logo-e">e</span><span class="logo-g1">g</span><span class="logo-o1">o</span><span class="logo-o2">o</span><span class="logo-g2">g</span>
-        </a>
-        <div class="results-search-bar" id="results-search-bar">
-          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa0a6" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <input type="text" class="search-input" id="results-search-input" autocomplete="off">
-          <div class="ac-dropdown" id="ac-dropdown-results"></div>
-          <div id="search-bar-actions-results" class="search-bar-actions"></div>
-          <button class="search-submit-btn" id="results-search-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#4285f4" stroke="none">
-              <circle cx="11" cy="11" r="8" fill="none" stroke="#4285f4" stroke-width="2"/>
-              <path d="M21 21l-4.35-4.35" stroke="#4285f4" stroke-width="2"/>
-            </svg>
-          </button>
         </div>
-        <a href="/settings" class="header-link settings-gear" id="nav-settings-results" title="Settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </a>
-      </div>
-      <div class="results-tabs" id="results-tabs">
-        <div class="results-tab active" data-type="all">
-          All
-        </div>
-        <div class="results-tab" data-type="images">
-          Images
-        </div>
-        <div class="results-tab" data-type="videos">
-          Videos
-        </div>
-        <div class="results-tab" data-type="news">
-          News
-        </div>
-        <div class="tools-wrap" id="tools-bar">
-          <button class="tools-toggle" id="tools-toggle" type="button">Any time</button>
-          <div class="tools-dropdown" id="tools-dropdown" style="display:none">
-            <div class="tools-section">
-              <button class="tools-option active" data-time="any">Any time</button>
-              <button class="tools-option" data-time="hour">Hour</button>
-              <button class="tools-option" data-time="day">24 hours</button>
-              <button class="tools-option" data-time="week">Week</button>
-              <button class="tools-option" data-time="month">Month</button>
-              <button class="tools-option" data-time="year">Year</button>
+        <div class="results-meta" id="results-meta"></div>
+        <div class="results-layout">
+          <div class="results-main">
+            <div id="at-a-glance"></div>
+            <div
+              id="slot-above-results"
+              class="results-slot results-slot--above"
+              data-position="above-results"
+            ></div>
+            <div id="results-list"></div>
+            <div id="pagination"></div>
+            <div
+              id="slot-below-results"
+              class="results-slot results-slot--below"
+              data-position="below-results"
+            ></div>
+          </div>
+          <aside class="results-sidebar">
+            <div
+              id="slot-above-sidebar"
+              class="results-slot results-slot--above-sidebar"
+              data-position="above-sidebar"
+            ></div>
+            <div id="results-sidebar"></div>
+            <div
+              id="slot-below-sidebar"
+              class="results-slot results-slot--below-sidebar"
+              data-position="below-sidebar"
+            ></div>
+          </aside>
+          <div class="media-preview-panel" id="media-preview-panel">
+            <button class="media-preview-close" id="media-preview-close">
+              &times;
+            </button>
+            <div class="media-preview-img-wrap">
+              <button
+                class="media-preview-nav media-preview-prev"
+                id="media-preview-prev"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>
+              </button>
+              <img
+                class="media-preview-img"
+                id="media-preview-img"
+                src=""
+                alt=""
+              />
+              <button
+                class="media-preview-nav media-preview-next"
+                id="media-preview-next"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="9 6 15 12 9 18" />
+                </svg>
+              </button>
             </div>
+            <div class="media-preview-info" id="media-preview-info"></div>
           </div>
-        </div>
-      </div>
-      <div class="results-meta" id="results-meta"></div>
-      <div class="results-layout">
-        <div class="results-main">
-          <div id="at-a-glance"></div>
-          <div id="slot-above-results" class="results-slot results-slot--above" data-position="above-results"></div>
-          <div id="results-list"></div>
-          <div id="pagination"></div>
-          <div id="slot-below-results" class="results-slot results-slot--below" data-position="below-results"></div>
-        </div>
-        <aside class="results-sidebar">
-          <div id="results-sidebar"></div>
-          <div id="slot-sidebar" class="results-slot results-slot--sidebar" data-position="sidebar"></div>
-        </aside>
-        <div class="media-preview-panel" id="media-preview-panel">
-          <button class="media-preview-close" id="media-preview-close">&times;</button>
-          <div class="media-preview-img-wrap">
-            <button class="media-preview-nav media-preview-prev" id="media-preview-prev">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <img class="media-preview-img" id="media-preview-img" src="" alt="">
-            <button class="media-preview-nav media-preview-next" id="media-preview-next">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 6 15 12 9 18"/></svg>
-            </button>
-          </div>
-          <div class="media-preview-info" id="media-preview-info"></div>
         </div>
       </div>
     </div>
-
-  </div>
-  <script type="module" src="/public/app.js?v=__APP_VERSION__"></script>
-</body>
+    <script type="module" src="/public/app.js?v=__APP_VERSION__"></script>
+  </body>
 </html>

@@ -32,11 +32,20 @@ export interface KnowledgePanel {
   url: string;
 }
 
+export enum SlotPanelPosition {
+  AboveResults = "above-results",
+  BelowResults = "below-results",
+  AboveSidebar = "above-sidebar",
+  BelowSidebar = "below-sidebar",
+  KnowledgePanel = "knowledge-panel",
+  AtAGlance = "at-a-glance",
+}
+
 export interface SlotPanel {
   id: string;
   title?: string;
   html: string;
-  position: "above-results" | "below-results" | "sidebar" | "at-a-glance";
+  position: SlotPanelPosition;
 }
 
 export interface SearchResponse {

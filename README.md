@@ -54,7 +54,12 @@ Some amazing people around the web decided to make their degoog instances availa
 
 ## Store repositories
 
-Official fccview store: `https://github.com/fccview/fccview-degoog-extensions`
+Aside from the official store these are third party repositories, they have been vetted once before adding them to the readme but I will not personally keep an eye on all of them, it's your responsibility to make sure what you install on your instance. I love open source and I'll obviously try to add these for as long as it's manageable to do so, eventually I may need a system for it, but for now they're comfy in the readme.
+
+| name                 | url                                                    |
+| :------------------- | :----------------------------------------------------- |
+| official store       | `https://github.com/fccview/fccview-degoog-extensions` |
+| Subatomic1618 addons | `https://codeberg.org/Subatomic1618/degoog-addons.git` |
 
 ## Documentation
 

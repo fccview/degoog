@@ -25,6 +25,8 @@ interface StoreItem {
   version: string;
   type: "plugin" | "theme" | "engine";
   installed: boolean;
+  installedVersion?: string;
+  updateAvailable?: boolean;
   screenshots: string[];
   author?: { name: string; url?: string };
   pluginType?: string;
@@ -76,53 +78,80 @@ function engineTypeLabel(t: string): string {
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
+const _renderRepoDetail = (
+  repo: RepoInfo,
+  getToken: () => string | null,
+  statusByUrl: Record<string, number>,
+): string => {
+  const err = repo.error
+    ? `<span class="store-repo-error">${escapeHtml(repo.error)}</span>`
+    : "";
+  const isOfficial =
+    _normalizeRepoUrl(repo.url) === _normalizeRepoUrl(OFFICIAL_REPO_URL);
+  const removeBtn = isOfficial
+    ? ""
+    : `<button class="btn btn--danger store-btn-remove" type="button" data-url="${escapeHtml(repo.url)}">Remove</button>`;
+  const normUrl = _normalizeRepoUrl(repo.url);
+  const behind = statusByUrl[normUrl] ?? statusByUrl[repo.url] ?? 0;
+  const updatesNote =
+    behind > 0
+      ? `<span class="store-repo-updates-note" title="Refresh to get latest">${escapeHtml(String(behind))} update${behind !== 1 ? "s" : ""} available</span>`
+      : "";
+  const imgSrc = repoImageSrc(repo, getToken);
+  const imgHtml = imgSrc
+    ? `<img src="${escapeHtml(imgSrc)}" alt="" class="store-repo-img" loading="lazy">`
+    : '<div class="store-repo-img store-repo-img-placeholder"></div>';
+  return `
+    <div class="store-repo-detail" data-url="${escapeHtml(repo.url)}">
+      <div class="store-repo-detail-media">${imgHtml}</div>
+      <div class="store-repo-detail-body">
+        <div class="store-repo-name">${escapeHtml(repo.name || repo.url)}</div>
+        <a href="${escapeHtml(repo.url.replace(/\.git$/, ""))}" target="_blank" rel="noopener" class="store-repo-url">${escapeHtml(repo.url)}</a>
+        <div class="store-repo-meta">
+          ${escapeHtml(_formatRelativeTime(repo.lastFetched))}
+          ${err}
+          ${updatesNote}
+        </div>
+        <div class="store-repo-actions">
+          <button class="btn store-btn-refresh" type="button" data-url="${escapeHtml(repo.url)}">Refresh</button>
+          ${removeBtn}
+        </div>
+      </div>
+    </div>`;
+};
+
 const _renderRepoList = (
   repos: RepoInfo[],
   getToken: () => string | null,
   statusByUrl: Record<string, number>,
+  selectedUrl: string | null,
 ): string => {
   if (!repos.length) {
     return '<p class="store-empty">No repositories added. Add a git repository URL to browse its plugins, themes, and engines.</p>';
   }
-  let html = '<div class="store-repo-list">';
+  const selected = selectedUrl
+    ? repos.find((r) => r.url === selectedUrl)
+    : null;
+  let html = "";
+  html += '<div class="store-repo-list">';
   for (const repo of repos) {
-    const err = repo.error
-      ? `<span class="store-repo-error">${escapeHtml(repo.error)}</span>`
-      : "";
-    const isOfficial =
-      _normalizeRepoUrl(repo.url) === _normalizeRepoUrl(OFFICIAL_REPO_URL);
-    const removeBtn = isOfficial
-      ? ""
-      : `<button class="btn btn--danger store-btn-remove" type="button" data-url="${escapeHtml(repo.url)}">Remove</button>`;
+    const imgSrc = repoImageSrc(repo, getToken);
+    const active = repo.url === selectedUrl ? " store-repo-item--active" : "";
     const normUrl = _normalizeRepoUrl(repo.url);
     const behind = statusByUrl[normUrl] ?? statusByUrl[repo.url] ?? 0;
-    const updatesNote =
-      behind > 0
-        ? `<span class="store-repo-updates-note" title="Refresh to get latest">${escapeHtml(String(behind))} update${behind !== 1 ? "s" : ""} available</span>`
-        : "";
-    const imgSrc = repoImageSrc(repo, getToken);
+    const dot = behind > 0 ? '<span class="store-repo-update-dot"></span>' : "";
     const imgHtml = imgSrc
-      ? `<img src="${escapeHtml(imgSrc)}" alt="" class="store-repo-img" loading="lazy">`
+      ? `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(repo.name || "")}" class="store-repo-img" loading="lazy">`
       : '<div class="store-repo-img store-repo-img-placeholder"></div>';
     html += `
-      <div class="store-repo-item" data-url="${escapeHtml(repo.url)}">
-        <div class="store-repo-item-media">${imgHtml}</div>
-        <div class="store-repo-item-body">
-          <div class="store-repo-name">${escapeHtml(repo.name || repo.url)}</div>
-          <a href="${escapeHtml(repo.url.replace(/\.git$/, ""))}" target="_blank" rel="noopener" class="store-repo-url">${escapeHtml(repo.url)}</a>
-          <div class="store-repo-meta">
-            ${escapeHtml(_formatRelativeTime(repo.lastFetched))}
-            ${err}
-            ${updatesNote}
-          </div>
-          <div class="store-repo-actions">
-            <button class="btn store-btn-refresh" type="button" data-url="${escapeHtml(repo.url)}">Refresh</button>
-            ${removeBtn}
-          </div>
-        </div>
+      <div class="store-repo-item${active}" data-url="${escapeHtml(repo.url)}" role="button" tabindex="0" title="${escapeHtml(repo.name || repo.url)}">
+        <div class="store-repo-item-media">${imgHtml}${dot}</div>
       </div>`;
   }
   html += "</div>";
+  if (selected) {
+    html += _renderRepoDetail(selected, getToken, statusByUrl);
+  }
   return html;
 };
 
@@ -134,12 +163,12 @@ const _renderItemCard = (
   const token = getToken();
   const firstUrl = item.screenshots.length
     ? screenshotUrl(
-        item.repoSlug,
-        item.type,
-        itemSlug,
-        item.screenshots[0],
-        token,
-      )
+      item.repoSlug,
+      item.type,
+      itemSlug,
+      item.screenshots[0],
+      token,
+    )
     : "";
   const thumb = item.screenshots.length
     ? `<img src="${firstUrl}" alt="" class="store-card-thumb" loading="lazy">`
@@ -172,7 +201,9 @@ const _renderItemCard = (
         ? engineTypeLabel(item.engineType)
         : "";
   const btn = item.installed
-    ? `<span class="ext-configured-badge"></span><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
+    ? item.updateAvailable
+      ? `<span class="ext-configured-badge"></span><button class="btn btn--primary store-btn-update" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Update</button><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
+      : `<span class="ext-configured-badge"></span><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
     : `<button class="btn btn--primary store-btn-install" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Install</button>`;
   return `
     <div class="store-card" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}" data-plugin-type="${escapeHtml(item.pluginType || "")}" data-engine-type="${escapeHtml(item.engineType || "")}">
@@ -182,7 +213,7 @@ const _renderItemCard = (
           <div class="store-card-name">${escapeHtml(item.name)}</div>
           <div class="store-card-meta">by ${author || "—"} · ${escapeHtml(item.repoName)}</div>
           <div class="store-card-desc">${escapeHtml(item.description || "")}</div>
-          <div class="store-card-version">v${escapeHtml(item.version)}</div>
+          <div class="store-card-version">${item.updateAvailable ? `<span class="store-card-version-old">v${escapeHtml(item.installedVersion || "?")}</span> → ` : ""}v${escapeHtml(item.version)}</div>
         </div>
         <div class="store-card-footer">
           <span class="store-type-badge store-type-${item.type}">${typeLabel}</span>
@@ -250,6 +281,7 @@ export async function initStoreTab(
   let repos: RepoInfo[] = [];
   let items: StoreItem[] = [];
   let repoStatusByUrl: Record<string, number> = {};
+  let selectedRepoUrl: string | null = null;
   let typeFilter = "all";
   let subtypeFilter = "all";
   let searchQuery = "";
@@ -302,8 +334,19 @@ export async function initStoreTab(
     const listEl = repoSection?.querySelector<HTMLElement>(
       ".store-repo-list-wrap",
     );
-    if (listEl)
-      listEl.innerHTML = _renderRepoList(repos, getToken, repoStatusByUrl);
+    if (listEl) {
+      listEl.innerHTML = _renderRepoList(repos, getToken, repoStatusByUrl, selectedRepoUrl);
+      listEl
+        .querySelectorAll<HTMLElement>(".store-repo-item")
+        .forEach((el) => {
+          el.addEventListener("click", () => {
+            const url = el.dataset.url;
+            if (!url) return;
+            selectedRepoUrl = selectedRepoUrl === url ? null : url;
+            render();
+          });
+        });
+    }
 
     const catalogSection = container.querySelector<HTMLElement>(
       ".store-catalog-section",
@@ -410,6 +453,24 @@ export async function initStoreTab(
         .forEach((btn) => {
           btn.addEventListener("click", () => void handleUninstall(btn));
         });
+      grid
+        .querySelectorAll<HTMLButtonElement>(".store-btn-update")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => void handleUpdate(btn));
+        });
+    }
+
+    const updateAllBtn = container.querySelector<HTMLButtonElement>(
+      ".store-btn-update-all",
+    );
+    const updatableCount = items.filter((i) => i.updateAvailable).length;
+    if (updateAllBtn) {
+      if (updatableCount > 0) {
+        updateAllBtn.style.display = "";
+        updateAllBtn.textContent = `Update all (${updatableCount})`;
+      } else {
+        updateAllBtn.style.display = "none";
+      }
     }
   }
 
@@ -530,11 +591,55 @@ export async function initStoreTab(
     }
   }
 
+  async function handleUpdate(btn: HTMLButtonElement): Promise<void> {
+    const { repoUrl, itemPath, type } = btn.dataset;
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/store/update", {
+        method: "POST",
+        headers: jsonHeaders(getToken),
+        body: JSON.stringify({ repoUrl, itemPath, type }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) alert(data.error || "Update failed");
+      else await loadItems().then(() => render());
+    } catch {
+      alert("Network error");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function handleUpdateAll(): Promise<void> {
+    const btn = container.querySelector<HTMLButtonElement>(
+      ".store-btn-update-all",
+    );
+    if (btn) btn.disabled = true;
+    try {
+      const res = await fetch("/api/store/update-all", {
+        method: "POST",
+        headers: jsonHeaders(getToken),
+      });
+      const data = (await res.json()) as { error?: string; updated?: number };
+      if (!res.ok) alert(data.error || "Update failed");
+      else await loadItems().then(() => render());
+    } catch {
+      alert("Network error");
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
   container.innerHTML = `
     <section class="store-repos-section settings-section">
       <div class="store-repos-header">
         <h2 class="settings-section-heading">Repositories</h2>
-        <button class="btn btn--primary store-btn-add" type="button">Add repository</button>
+        <div class="header-actions">
+          <div class="store-repos-actions">
+            <button class="btn store-btn-refresh-all" type="button">Refresh all</button>
+          </div>
+          <button class="btn btn--primary store-btn-add" type="button">Add repository</button>
+        </div>
       </div>
       <div class="store-add-repo-wrap" style="display:none">
         <input type="text" class="store-input-url" placeholder="https://github.com/user/repo.git">
@@ -543,12 +648,12 @@ export async function initStoreTab(
       </div>
       <p class="settings-desc">Add a git repository URL to browse and install plugins, themes, and engines. Set <code>repo-image</code> in the repo’s package.json to show an image next to the URL.</p>
       <div class="store-repo-list-wrap"></div>
-      <div class="store-repos-actions">
-        <button class="btn store-btn-refresh-all" type="button">Refresh all</button>
-      </div>
     </section>
     <section class="store-catalog-section settings-section">
-      <h2 class="settings-section-heading">Catalog</h2>
+      <div class="store-catalog-header">
+        <h2 class="settings-section-heading">Catalog</h2>
+        <button class="btn btn--primary store-btn-update-all" type="button" style="display:none">Update all</button>
+      </div>
       <div class="store-catalog-search-wrap">
         <input type="text" class="store-search-input" placeholder="Search name, description, repo, author…" id="store-search-input">
       </div>
@@ -629,6 +734,10 @@ export async function initStoreTab(
     }
   });
 
+  container
+    .querySelector<HTMLButtonElement>(".store-btn-update-all")
+    ?.addEventListener("click", () => void handleUpdateAll());
+
   const searchInput = container.querySelector<HTMLInputElement>(
     "#store-search-input",
   );
@@ -639,7 +748,17 @@ export async function initStoreTab(
 
   try {
     await refreshAndRender();
-    void loadReposStatus().then(() => render());
+    void (async () => {
+      await fetch("/api/store/repos/refresh", {
+        method: "POST",
+        headers: jsonHeaders(getToken),
+        body: JSON.stringify({}),
+      }).catch(() => { });
+      await loadRepos();
+      await loadItems();
+      await loadReposStatus();
+      render();
+    })();
   } catch {
     const wrap = container.querySelector<HTMLElement>(".store-repo-list-wrap");
     if (wrap)

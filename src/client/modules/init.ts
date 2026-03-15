@@ -104,7 +104,11 @@ export function init(): void {
   if (q) {
     if (searchInput) searchInput.value = q;
     if (type.startsWith("tab:")) {
-      void performTabSearch(q, type.slice(4), page);
+      void (async () => {
+        const { getPluginTabIds } = await import("./tabs/tabs");
+        await getPluginTabIds();
+        performTabSearch(q, type.slice(4), page);
+      })();
     } else {
       void performSearch(q, type, page);
     }

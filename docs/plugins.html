@@ -267,8 +267,10 @@
           </li>
           <li>
             <strong>position</strong> — <code>"above-results"</code>,
-            <code>"below-results"</code>, <code>"sidebar"</code>, or
-            <code>"at-a-glance"</code>.
+            <code>"below-results"</code>, <code>"above-sidebar"</code>,
+            <code>"below-sidebar"</code>, <code>"knowledge-panel"</code>, or
+            <code>"at-a-glance"</code>. (Use above-sidebar or below-sidebar
+            instead of the removed <code>"sidebar"</code>.)
           </li>
           <li>
             <strong>trigger(query)</strong> — Return true (or a Promise that
@@ -288,6 +290,28 @@
           <code>settingsSchema</code>, <code>configure(settings)</code>,
           <code>init(ctx)</code>. Multiple slots can match the same query; all
           are shown.
+        </p>
+        <p>
+          Optional: <strong>slotPositions</strong> — Array of position values
+          (e.g. <code>["knowledge-panel", "above-sidebar", "below-sidebar"]</code>).
+          If present and non-empty, the app adds a <strong>Position</strong>
+          dropdown in the plugin settings; the user can choose which of these
+          positions the slot uses. If empty or omitted, the slot uses the
+          fixed <code>position</code> only.
+        </p>
+        <h3>Sidebar positions</h3>
+        <p>
+          <code>"above-sidebar"</code> — Renders at the top of the sidebar,
+          before the main sidebar content. <code>"below-sidebar"</code> —
+          Renders at the bottom of the sidebar, after engine timings and
+          related searches.
+        </p>
+        <h3>Knowledge panel slot</h3>
+        <p>
+          <code>position: "knowledge-panel"</code> replaces only the first block in
+          the sidebar (the Wikipedia/knowledge panel). Engine Performance and
+          People also search for stay as-is. When a plugin returns content for
+          this position, it is shown instead of the knowledge panel.
         </p>
         <h3 id="at-a-glance-slot">At a glance slot</h3>
         <p>
@@ -345,9 +369,11 @@
         </ul>
         <p>
           <strong>Slot API:</strong> <code>GET /api/slots?q=&lt;query&gt;</code>
-          returns panels for above-results, below-results, sidebar.
-          <code>POST /api/slots/glance</code> with body
-          <code>{ query, results }</code> returns only at-a-glance panels.
+          returns panels for above-results, below-results, above-sidebar,
+          below-sidebar, knowledge-panel. <code>POST /api/slots/glance</code> with
+          body <code>{ query, results }</code> returns only at-a-glance panels.
+          Slots also run for custom tabs (e.g. weeb): the client fetches panels
+          after a tab-search and renders them in the same positions.
         </p>
 
         <h2 id="search-result-tabs">Search result tabs</h2>

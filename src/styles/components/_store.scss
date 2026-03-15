@@ -14,55 +14,66 @@
 
 .store-repo-list {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 0 0 16px;
   padding: 0;
   list-style: none;
 }
 
 .store-repo-item {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--bg-light);
-  border-radius: 8px;
-  padding: 12px;
-  transition: background $transition-fast;
-
-  &:hover {
-    background: var(--bg-hover);
-  }
-
-  @media (min-width: 480px) {
-    flex-direction: row;
-    align-items: center;
-    padding: 14px 16px;
-  }
+  cursor: pointer;
+  position: relative;
 }
 
 .store-repo-item-media {
   flex-shrink: 0;
+  position: relative;
 }
 
+
 .store-repo-img {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 8px;
-  display: block;
+  width: 70px;
+  height: 70px;
+  border-radius: 0.5em;
+  padding: 0.25em;
+  background: var(--bg-hover);
 }
 
 .store-repo-img-placeholder {
-  width: 56px;
-  height: 56px;
-  min-width: 56px;
-  min-height: 56px;
+  width: 70px;
+  height: 70px;
+  min-width: 70px;
+  min-height: 70px;
+  border-radius: 0.5em;
+  padding: 0.25em;
   background: var(--bg-hover);
-  border-radius: 8px;
 }
 
-.store-repo-item-body {
+.store-repo-update-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: $primary;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+}
+
+.store-repo-detail {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--bg-light);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.store-repo-detail-body {
   flex: 1;
   min-width: 0;
 }
@@ -153,8 +164,18 @@
   }
 }
 
-.store-repos-actions {
-  margin-top: 12px;
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.store-catalog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .store-catalog-search-wrap {
@@ -343,6 +364,11 @@
   font-size: 11px;
   color: var(--text-muted, var(--text-secondary));
   margin-top: 2px;
+}
+
+.store-card-version-old {
+  text-decoration: line-through;
+  opacity: 0.6;
 }
 
 .store-card-footer {

@@ -1,9 +1,11 @@
 import { join } from "path";
-import type { SlotPlugin, SlotPanelPosition, PluginContext } from "../../types";
-import { getSettings } from "../../utils/plugin-settings";
+import { SlotPanelPosition, type SlotPlugin } from "../../types";
 import {
-  addPluginCss,
-  registerPluginScript,
+  isDisabled,
+} from "../../utils/plugin-settings";
+import {
+  loadPluginAssets,
+  initPlugin,
   registerPluginSettingsId,
 } from "../../utils/plugin-assets";
 import { debug } from "../../utils/logger";
@@ -19,21 +21,27 @@ const builtinsDir = join(
 );
 
 function isSlotPlugin(val: unknown): val is SlotPlugin {
+  if (typeof val !== "object" || val === null) return false;
+  const slot = val as SlotPlugin;
+  const validPositions = new Set(Object.values(SlotPanelPosition));
+  const positionOk =
+    "position" in slot && validPositions.has(slot.position as SlotPanelPosition);
+  const slotPositionsOk =
+    !("slotPositions" in slot) ||
+    (Array.isArray(slot.slotPositions) &&
+      slot.slotPositions.length > 0 &&
+      slot.slotPositions.every((p) => validPositions.has(p)));
   return (
-    typeof val === "object" &&
-    val !== null &&
-    "id" in val &&
-    typeof (val as SlotPlugin).id === "string" &&
-    "name" in val &&
-    typeof (val as SlotPlugin).name === "string" &&
-    "position" in val &&
-    ["above-results", "below-results", "sidebar", "at-a-glance"].includes(
-      (val as SlotPlugin).position as SlotPanelPosition,
-    ) &&
-    "trigger" in val &&
-    typeof (val as SlotPlugin).trigger === "function" &&
-    "execute" in val &&
-    typeof (val as SlotPlugin).execute === "function"
+    "id" in slot &&
+    typeof slot.id === "string" &&
+    "name" in slot &&
+    typeof slot.name === "string" &&
+    positionOk &&
+    slotPositionsOk &&
+    "trigger" in slot &&
+    typeof slot.trigger === "function" &&
+    "execute" in slot &&
+    typeof slot.execute === "function"
   );
 }
 
@@ -41,7 +49,7 @@ async function loadSlotsFromRoot(
   rootDir: string,
   source: "plugin" | "builtin",
 ): Promise<void> {
-  const { readdir, readFile, stat } = await import("fs/promises");
+  const { readdir, stat } = await import("fs/promises");
   const { pathToFileURL } = await import("url");
   let entries: string[];
   try {
@@ -72,38 +80,11 @@ async function loadSlotsFromRoot(
       if (!slot || !isSlotPlugin(slot)) continue;
 
       const slotSettingsId = slot.settingsId ?? `slot-${slot.id}`;
-      const template = await readFile(
-        join(entryPath, "template.html"),
-        "utf-8",
-      ).catch(() => "");
-      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(
-        () => "",
-      );
-      if (css) addPluginCss(slotSettingsId, css);
-      const hasScript = await stat(join(entryPath, "script.js")).catch(
-        () => null,
-      );
-      if (hasScript?.isFile())
-        registerPluginScript(entry, source, slotSettingsId);
       registerPluginSettingsId(entry, slotSettingsId);
 
-      if (slot.init) {
-        const ctx: PluginContext = {
-          dir: entryPath,
-          template,
-          readFile: (filename: string) =>
-            readFile(join(entryPath, filename), "utf-8"),
-        };
-        await Promise.resolve(slot.init(ctx));
-      }
-
-      if (slot.settingsSchema?.length && slot.configure) {
-        try {
-          const stored = await getSettings(slotSettingsId);
-          if (Object.keys(stored).length > 0) slot.configure(stored);
-        } catch (err) {
-          debug("slots", `Failed to configure slot plugin: ${slot.id}`, err);
-        }
+      if (!(await isDisabled(slotSettingsId))) {
+        const template = await loadPluginAssets(entryPath, entry, slotSettingsId, source);
+        await initPlugin(slot, entryPath, slotSettingsId, template);
       }
       slotPlugins.push(slot);
     } catch (err) {

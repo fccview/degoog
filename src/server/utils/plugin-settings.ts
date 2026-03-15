@@ -4,28 +4,27 @@ import { pluginSettingsFile } from "./paths";
 
 const SETTINGS_PATH = pluginSettingsFile();
 
+type PluginSettingsStore = Record<string, Record<string, SettingValue>>;
 export type SettingValue = string | string[];
 
-export function asString(v: SettingValue | undefined): string {
+export const asString = (v: SettingValue | undefined): string => {
   if (v === undefined || v === null) return "";
   return typeof v === "string" ? v : (v[0] ?? "");
-}
+};
 
-export function settingsAsStrings(
+export const settingsAsStrings = (
   settings: Record<string, SettingValue>,
-): Record<string, string> {
+): Record<string, string> => {
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(settings)) {
     out[k] = asString(v);
   }
   return out;
-}
-
-type PluginSettingsStore = Record<string, Record<string, SettingValue>>;
+};
 
 let cache: PluginSettingsStore | null = null;
 
-async function load(): Promise<PluginSettingsStore> {
+const load = async (): Promise<PluginSettingsStore> => {
   if (cache) return cache;
   try {
     const raw = await readFile(SETTINGS_PATH, "utf-8");
@@ -41,11 +40,30 @@ async function persist(store: PluginSettingsStore): Promise<void> {
   await writeFile(SETTINGS_PATH, JSON.stringify(store, null, 2), "utf-8");
 }
 
-export async function getSettings(
+export const getSettings = async (
   id: string,
-): Promise<Record<string, SettingValue>> {
+): Promise<Record<string, SettingValue>> => {
   const store = await load();
   return store[id] ?? {};
+}
+
+export const isDisabled = async (id: string): Promise<boolean> => {
+  const settings = await getSettings(id);
+  return settings["disabled"] === "true";
+}
+
+export const mergeDefaults = (
+  stored: Record<string, SettingValue>,
+  schema: Array<{ key: string; default?: unknown }>,
+): Record<string, SettingValue> => {
+  const out: Record<string, SettingValue> = {};
+  for (const field of schema) {
+    if (field.default !== undefined && field.default !== null) {
+      out[field.key] = field.default as SettingValue;
+    }
+  }
+
+  return { ...out, ...stored };
 }
 
 export async function setSettings(
@@ -55,10 +73,11 @@ export async function setSettings(
   const store = await load();
   store[id] = { ...(store[id] ?? {}), ...values };
   cache = store;
+
   await persist(store);
 }
 
-export async function getAllSettings(): Promise<PluginSettingsStore> {
+export const getAllSettings = async (): Promise<PluginSettingsStore> => {
   return load();
 }
 
@@ -71,23 +90,24 @@ export async function removeSettings(id: string): Promise<void> {
   }
 }
 
-export function maskSecrets(
+export const maskSecrets = (
   settings: Record<string, SettingValue>,
   schema: { key: string; secret?: boolean }[],
-): Record<string, SettingValue> {
+): Record<string, SettingValue> => {
   const masked: Record<string, SettingValue> = {};
   for (const [key, value] of Object.entries(settings)) {
     const field = schema.find((f) => f.key === key);
     masked[key] = field?.secret ? (value ? "__SET__" : "") : value;
   }
+
   return masked;
 }
 
-export function mergeSecrets(
+export const mergeSecrets = (
   incoming: Record<string, SettingValue>,
   existing: Record<string, SettingValue>,
   schema: { key: string; secret?: boolean }[],
-): Record<string, SettingValue> {
+): Record<string, SettingValue> => {
   const merged: Record<string, SettingValue> = { ...existing };
   for (const [key, value] of Object.entries(incoming)) {
     const field = schema.find((f) => f.key === key);
@@ -98,5 +118,6 @@ export function mergeSecrets(
       merged[key] = value;
     }
   }
+
   return merged;
 }

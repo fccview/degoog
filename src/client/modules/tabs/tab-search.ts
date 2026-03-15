@@ -1,13 +1,17 @@
 import { state } from "../../state";
 import { showResults, setActiveTab } from "../../utils/navigation";
+import { fetchSlotPanels } from "../../utils/search-utils";
+import {
+  clearSlotPanels,
+  renderSidebar,
+} from "../renderer/render";
 import { closeMediaPreview, destroyMediaObserver } from "../media/media";
 import { hideAcDropdown } from "../../utils/autocomplete";
-import { clearSlotPanels } from "../renderer/render";
 import { skeletonResults } from "../../animations/skeleton";
 import { escapeHtml, cleanUrl } from "../../utils/dom";
 import { faviconUrl, proxyImageUrl } from "../../utils/url";
 import { buildPaginationHtml } from "../../utils/pagination";
-import type { ScoredResult } from "../../types";
+import { SlotPanelPosition, type ScoredResult, type SearchResponse } from "../../types";
 
 export async function performTabSearch(
   query: string,
@@ -62,17 +66,41 @@ export async function performTabSearch(
       results: ScoredResult[];
       totalPages?: number;
       page?: number;
+      engineTimings?: SearchResponse["engineTimings"];
+      totalTime?: number;
     };
 
     state.currentResults = data.results || [];
+    const timings = data.engineTimings ?? [];
+    const totalTime = data.totalTime ?? 0;
     if (resultsMeta)
-      resultsMeta.textContent = `${data.results?.length ?? 0} results`;
+      resultsMeta.textContent =
+        totalTime > 0
+          ? `${data.results?.length ?? 0} results (${(totalTime / 1000).toFixed(2)}s)`
+          : `${data.results?.length ?? 0} results`;
+
+    state.currentData = {
+      results: state.currentResults,
+      atAGlance: null,
+      query,
+      totalTime,
+      type: `tab:${tabId}`,
+      engineTimings: timings,
+      relatedSearches: [],
+      knowledgePanel: null,
+    } satisfies SearchResponse;
+    renderSidebar(state.currentData, (q) => void performTabSearch(q, tabId));
 
     _renderTabResults(data.results || [], resultsList);
 
     if (data.totalPages && data.totalPages > 1 && pagination) {
       _renderTabPagination(pagination, data.totalPages, page, query, tabId);
     }
+
+    const panels = await fetchSlotPanels(query);
+    renderSidebar(state.currentData, (q) => void performTabSearch(q, tabId), {
+      sidebarTopPanels: panels.filter((p) => p.position === SlotPanelPosition.KnowledgePanel),
+    });
   } catch {
     if (resultsMeta) resultsMeta.textContent = "";
     if (resultsList)
