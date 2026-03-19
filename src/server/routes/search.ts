@@ -11,17 +11,21 @@ import {
   getSearchResultTabs,
   getSearchResultTabById,
 } from "../extensions/search-result-tabs/registry";
-import { getSettings } from "../utils/plugin-settings";
+import { asString, getSettings, isDisabled } from "../utils/plugin-settings";
 import { getClientIp } from "../utils/request";
 import { outgoingFetch } from "../utils/outgoing";
 import { checkRateLimit } from "../utils/rate-limit";
-import type {
-  EngineConfig,
-  SearchType,
-  TimeFilter,
-  SearchResponse,
-  SlotPanelResult,
-  ScoredResult,
+import {
+  SLOT_POSITION_SETTING_KEY,
+  SlotPanelPosition,
+  type EngineConfig,
+  type SlotPluginContext,
+  type SearchType,
+  type TimeFilter,
+  type SearchResponse,
+  type SlotPanelResult,
+  type ScoredResult,
+  type EngineTiming,
 } from "../types";
 
 const DEGOOG_SETTINGS_ID = "degoog-settings";
@@ -68,29 +72,40 @@ async function runSlotPlugins(
   query: string,
   clientIp?: string,
   results?: ScoredResult[],
-  options?: { excludePosition?: "at-a-glance" },
+  options?: { excludePosition?: SlotPanelPosition },
 ): Promise<SlotPanelResult[]> {
   const plugins = getSlotPlugins();
   const panels: SlotPanelResult[] = [];
   const exclude = options?.excludePosition;
   for (const plugin of plugins) {
-    if (exclude && plugin.position === exclude) continue;
+    const slotSettingsId = plugin.settingsId ?? `slot-${plugin.id}`;
+    let effectivePosition: SlotPanelPosition = plugin.position;
+    if (plugin.slotPositions?.length) {
+      const raw = await getSettings(slotSettingsId);
+      const chosen = asString(raw[SLOT_POSITION_SETTING_KEY]);
+      if (chosen && plugin.slotPositions.includes(chosen as SlotPanelPosition)) {
+        effectivePosition = chosen as SlotPanelPosition;
+      }
+    }
+    if (exclude && effectivePosition === exclude) continue;
     try {
-      const slotSettingsId = plugin.settingsId ?? `slot-${plugin.id}`;
-      const slotSettings = await getSettings(slotSettingsId);
-      if (slotSettings["disabled"] === "true") continue;
+      if (await isDisabled(slotSettingsId)) continue;
       const ok = await Promise.resolve(plugin.trigger(query.trim()));
       if (!ok) continue;
-      const context = { clientIp, results };
+      const context: SlotPluginContext = {
+        clientIp,
+        results,
+        fetch: outgoingFetch as SlotPluginContext["fetch"],
+      };
       const out = await plugin.execute(query, context);
       if (!out.html || !out.html.trim()) continue;
       panels.push({
         id: plugin.id,
         title: out.title,
         html: out.html,
-        position: plugin.position,
+        position: effectivePosition,
       });
-    } catch {}
+    } catch { }
   }
   return panels;
 }
@@ -132,7 +147,7 @@ router.get("/api/search", async (c) => {
       query.trim(),
       clientIp ?? undefined,
       response.results,
-      { excludePosition: "at-a-glance" },
+      { excludePosition: SlotPanelPosition.AtAGlance },
     );
     response = { ...response, slotPanels };
   }
@@ -147,7 +162,7 @@ router.get("/api/slots", async (c) => {
   if (!query || !query.trim()) return c.json({ panels: [] });
   const clientIp = getClientIp(c);
   const panels = await runSlotPlugins(query.trim(), clientIp, undefined, {
-    excludePosition: "at-a-glance",
+    excludePosition: SlotPanelPosition.AtAGlance,
   });
   return c.json({ panels });
 });
@@ -166,20 +181,21 @@ router.post("/api/slots/glance", async (c) => {
   }
   const clientIp = getClientIp(c);
   const glancePlugins = getSlotPlugins().filter(
-    (p) => p.position === "at-a-glance",
+    (p) => p.position === SlotPanelPosition.AtAGlance,
   );
   const panels: SlotPanelResult[] = [];
   for (const plugin of glancePlugins) {
     try {
       const slotSettingsId = plugin.settingsId ?? `slot-${plugin.id}`;
-      const slotSettings = await getSettings(slotSettingsId);
-      if (slotSettings["disabled"] === "true") continue;
+      if (await isDisabled(slotSettingsId)) continue;
       const ok = await Promise.resolve(plugin.trigger(body.query!.trim()));
       if (!ok) continue;
-      const out = await plugin.execute(body.query!.trim(), {
+      const context: SlotPluginContext = {
         clientIp: clientIp ?? undefined,
         results: body.results,
-      });
+        fetch: outgoingFetch as SlotPluginContext["fetch"],
+      };
+      const out = await plugin.execute(body.query!.trim(), context);
       if (!out.html || !out.html.trim()) continue;
       panels.push({
         id: plugin.id,
@@ -187,7 +203,7 @@ router.post("/api/slots/glance", async (c) => {
         html: out.html,
         position: plugin.position,
       });
-    } catch {}
+    } catch { }
   }
   return c.json({ panels });
 });
@@ -315,8 +331,7 @@ router.get("/api/search-tabs", async (c) => {
       continue;
     }
     const settingsId = tab.settingsId ?? `tab-${tab.id}`;
-    const tabSettings = await getSettings(settingsId);
-    if (tabSettings["disabled"] === "true") continue;
+    if (await isDisabled(settingsId)) continue;
     list.push({ id: tab.id, name: tab.name, icon: tab.icon ?? null });
   }
   return c.json({ tabs: list });
@@ -347,6 +362,9 @@ router.get("/api/tab-search", async (c) => {
     return c.json({ error: "Tab not found" }, 404);
   }
 
+  const startTime = performance.now();
+  const engineTimings: EngineTiming[] = [];
+
   try {
     const allResults: ScoredResult[] = [];
     let totalPages = 1;
@@ -354,30 +372,60 @@ router.get("/api/tab-search", async (c) => {
     if (engineType) {
       const engines = getEnginesForCustomType(engineType);
       const engineContext = { fetch: outgoingFetch };
-      const settled = await Promise.allSettled(
-        engines.map((e) =>
-          e.executeSearch(query.trim(), page, undefined, engineContext),
-        ),
-      );
-      let idx = 0;
-      for (const s of settled) {
-        if (s.status === "fulfilled") {
-          for (const r of s.value) {
-            allResults.push({
-              ...r,
-              score: Math.max(100 - idx, 1),
-              sources: [r.source],
-            });
-            idx++;
+      const outcomes = await Promise.all(
+        engines.map(async (e) => {
+          const start = performance.now();
+          try {
+            const value = await e.executeSearch(
+              query.trim(),
+              page,
+              undefined,
+              engineContext,
+            );
+            return {
+              name: e.name,
+              time: Math.round(performance.now() - start),
+              resultCount: value.length,
+              results: value,
+            };
+          } catch {
+            return {
+              name: e.name,
+              time: Math.round(performance.now() - start),
+              resultCount: 0,
+              results: [] as ScoredResult[],
+            };
           }
+        }),
+      );
+      for (const o of outcomes) {
+        engineTimings.push({
+          name: o.name,
+          time: o.time,
+          resultCount: o.resultCount,
+        });
+        let idx = allResults.length;
+        for (const r of o.results) {
+          allResults.push({
+            ...r,
+            score: Math.max(100 - idx, 1),
+            sources: [r.source],
+          });
+          idx++;
         }
       }
       if (allResults.length > 0) totalPages = 10;
     }
 
-    if (tab?.executeSearch) {
+    if (tab?.executeSearch && !(await isDisabled(tab.settingsId ?? `tab-${tab.id}`))) {
+      const tabStart = performance.now();
       const result = await tab.executeSearch(query.trim(), page, {
         clientIp: clientIp ?? undefined,
+      });
+      engineTimings.push({
+        name: tab.name,
+        time: Math.round(performance.now() - tabStart),
+        resultCount: result.results.length,
       });
       const offset = allResults.length;
       for (let i = 0; i < result.results.length; i++) {
@@ -392,7 +440,14 @@ router.get("/api/tab-search", async (c) => {
         totalPages = result.totalPages;
     }
 
-    return c.json({ results: allResults, totalPages, page });
+    const totalTime = Math.round(performance.now() - startTime);
+    return c.json({
+      results: allResults,
+      totalPages,
+      page,
+      engineTimings,
+      totalTime,
+    });
   } catch (err) {
     return c.json(
       { error: err instanceof Error ? err.message : "Tab search failed" },

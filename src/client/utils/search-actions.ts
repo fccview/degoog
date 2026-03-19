@@ -27,7 +27,7 @@ import {
   buildCommandGlanceHtml,
 } from "./search-utils";
 import { skeletonResults, skeletonGlance } from "../animations/skeleton";
-import type { Command, SearchResponse, ScoredResult } from "../types";
+import { SlotPanelPosition, type Command, type SearchResponse, type ScoredResult } from "../types";
 
 let commandsCache: Command[] | null = null;
 
@@ -46,7 +46,7 @@ const _fetchCommands = async (): Promise<Command[]> => {
       commandsCache = body.commands || [];
       return commandsCache;
     }
-  } catch {}
+  } catch { }
   return [];
 };
 
@@ -148,16 +148,25 @@ export async function performSearch(
     const metaText = `About ${data.results.length} results (${(data.totalTime / 1000).toFixed(2)} seconds)`;
     setResultsMeta(metaText);
 
-    if (resolvedType === "all") {
-      renderSidebar(data, (q) => void performSearch(q));
-      renderSlotPanels(data.slotPanels || []);
-      void fetchGlancePanels(query, data.results, data.atAGlance);
-      if (!data.slotPanels || data.slotPanels.length === 0)
-        void fetchSlotPanels(query);
-    }
-    if (resolvedType !== "all") {
+    const isMediaType = resolvedType === "images" || resolvedType === "videos";
+    if (isMediaType) {
       if (glanceEl) glanceEl.innerHTML = "";
       if (sidebar) sidebar.innerHTML = "";
+    } else {
+      const sidebarTop =
+        data.slotPanels?.filter((p) => p.position === SlotPanelPosition.KnowledgePanel) ?? [];
+      renderSidebar(data, (q) => void performSearch(q), {
+        sidebarTopPanels: sidebarTop,
+      });
+      if (resolvedType === "all") {
+        renderSlotPanels(data.slotPanels || []);
+        void fetchGlancePanels(query, data.results, data.atAGlance);
+        if (!data.slotPanels || data.slotPanels.length === 0)
+          void fetchSlotPanels(query);
+      } else {
+        if (glanceEl) glanceEl.innerHTML = "";
+        renderSlotPanels(data.slotPanels || []);
+      }
     }
     renderResults(data.results);
   } catch {
@@ -188,14 +197,23 @@ async function _performSearchWithBang(
     state.currentData = searchData;
     const metaText = `About ${searchData.results.length} results (${(searchData.totalTime / 1000).toFixed(2)} seconds)`;
     setResultsMeta(metaText);
-    if (type === "all") {
-      renderSidebar(searchData, (q) => void performSearch(q));
-      renderSlotPanels(searchData.slotPanels || []);
-      void fetchSlotPanels(query);
-    }
-    if (type !== "all") {
+    const isMediaType = type === "images" || type === "videos";
+    if (isMediaType) {
       if (glanceEl) glanceEl.innerHTML = "";
       if (sidebar) sidebar.innerHTML = "";
+    } else {
+      const sidebarTop =
+        searchData.slotPanels?.filter((p) => p.position === SlotPanelPosition.KnowledgePanel) ?? [];
+      renderSidebar(searchData, (q) => void performSearch(q), {
+        sidebarTopPanels: sidebarTop,
+      });
+      if (type === "all") {
+        renderSlotPanels(searchData.slotPanels || []);
+        void fetchSlotPanels(query);
+      } else {
+        if (glanceEl) glanceEl.innerHTML = "";
+        renderSlotPanels(searchData.slotPanels || []);
+      }
     }
     renderResults(searchData.results);
 
@@ -419,10 +437,18 @@ export async function retryEngine(engineName: string): Promise<void> {
       renderResults(data.results);
     }
 
-    if (state.currentType === "all" && state.currentData) {
-      renderSidebar(state.currentData, (q) => void performSearch(q));
+    const isMediaType =
+      state.currentType === "images" || state.currentType === "videos";
+    if (!isMediaType && state.currentData) {
+      const sidebarTop =
+        state.currentData.slotPanels?.filter(
+          (p) => p.position === SlotPanelPosition.KnowledgePanel,
+        ) ?? [];
+      renderSidebar(state.currentData, (q) => void performSearch(q), {
+        sidebarTopPanels: sidebarTop,
+      });
     }
-  } catch {}
+  } catch { }
 }
 
 export async function performLucky(query: string): Promise<void> {

@@ -1,7 +1,12 @@
 import { escapeHtml } from "../../utils/dom";
-import type { SlotPanel } from "../../types";
+import { SlotPanelPosition, type SlotPanel } from "../../types";
 
-const SLOT_IDS = ["slot-above-results", "slot-below-results", "slot-sidebar"];
+const SLOT_IDS = [
+  "slot-above-results",
+  "slot-below-results",
+  "slot-above-sidebar",
+  "slot-below-sidebar",
+];
 
 export function clearSlotPanels(): void {
   for (const id of SLOT_IDS) {
@@ -15,16 +20,18 @@ export function clearSlotPanels(): void {
 function _renderSlotPanelsInto(panels: SlotPanel[], clearFirst: boolean): void {
   if (!panels || !Array.isArray(panels) || panels.length === 0) return;
   if (clearFirst) clearSlotPanels();
-  const byPosition: Record<string, HTMLElement | null> = {
-    "above-results": document.getElementById("slot-above-results"),
-    "below-results": document.getElementById("slot-below-results"),
-    sidebar: document.getElementById("slot-sidebar"),
-    "at-a-glance": document.getElementById("at-a-glance"),
+  const byPosition: Record<SlotPanelPosition, HTMLElement | null> = {
+    [SlotPanelPosition.AboveResults]: document.getElementById("slot-above-results"),
+    [SlotPanelPosition.BelowResults]: document.getElementById("slot-below-results"),
+    [SlotPanelPosition.AboveSidebar]: document.getElementById("slot-above-sidebar"),
+    [SlotPanelPosition.BelowSidebar]: document.getElementById("slot-below-sidebar"),
+    [SlotPanelPosition.KnowledgePanel]: null,
+    [SlotPanelPosition.AtAGlance]: document.getElementById("at-a-glance"),
   };
   for (const panel of panels) {
     const container = byPosition[panel.position];
     if (!container) continue;
-    if (panel.position === "at-a-glance") {
+    if (panel.position === SlotPanelPosition.AtAGlance) {
       container.innerHTML = panel.html;
     } else {
       const block = document.createElement("div");

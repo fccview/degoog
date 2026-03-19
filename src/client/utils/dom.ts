@@ -22,13 +22,22 @@ export const escapeHtml = (str: string | null | undefined): string => {
   return div.innerHTML;
 };
 
-export const isConfigured = (ext: {
-  settingsSchema: Array<{ required?: boolean; key: string }>;
+type SchemaField = { key: string; required?: boolean };
+
+const _hasValue = (v: string | string[] | undefined): boolean => {
+  if (v === undefined || v === null) return false;
+  if (typeof v === "string") return v.trim() !== "";
+  return Array.isArray(v) && v.length > 0;
+};
+
+export const getConfigStatus = (ext: {
+  configurable: boolean;
+  settingsSchema: SchemaField[];
   settings: Record<string, string | string[]>;
-}): boolean =>
-  ext.settingsSchema
-    .filter((f) => f.required)
-    .every((f) => {
-      const v = ext.settings[f.key];
-      return !!v && v !== "";
-    });
+}): "configured" | "needs-config" | null => {
+  if (!ext.configurable || ext.settingsSchema.length === 0) return null;
+  const missingRequired = ext.settingsSchema.some(
+    (f) => f.required === true && !_hasValue(ext.settings[f.key]),
+  );
+  return missingRequired ? "needs-config" : "configured";
+};

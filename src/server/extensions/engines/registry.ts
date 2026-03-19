@@ -1,10 +1,15 @@
-import type {
-  SearchEngine,
-  SearchType,
-  EngineConfig,
-  ExtensionMeta,
+import {
+  type SearchEngine,
+  type SearchType,
+  type EngineConfig,
+  type ExtensionMeta,
+  ExtensionStoreType,
 } from "../../types";
-import { getSettings, maskSecrets } from "../../utils/plugin-settings";
+import {
+  getSettings,
+  maskSecrets,
+  mergeDefaults,
+} from "../../utils/plugin-settings";
 import { debug } from "../../utils/logger";
 import { GoogleEngine } from "./google";
 import { DuckDuckGoEngine } from "./duckduckgo";
@@ -319,7 +324,7 @@ export async function getEngineExtensionMeta(): Promise<ExtensionMeta[]> {
       id: def.id,
       displayName: def.displayName,
       description: `${def.searchType} search engine`,
-      type: "engine",
+      type: ExtensionStoreType.Engine,
       configurable: schema.length > 0,
       settingsSchema: schema,
       settings: maskedSettings,
@@ -347,7 +352,9 @@ export async function initEngines(): Promise<void> {
     const instance = builtinMap[def.id];
     if (instance?.configure && instance.settingsSchema?.length) {
       const stored = await getSettings(def.id);
-      if (Object.keys(stored).length > 0) instance.configure(stored);
+      instance.configure(
+        mergeDefaults(stored, instance.settingsSchema),
+      );
     }
   }
 
@@ -405,7 +412,9 @@ export async function initEngines(): Promise<void> {
             : undefined;
         if (instance.configure && instance.settingsSchema?.length) {
           const stored = await getSettings(id);
-          if (Object.keys(stored).length > 0) instance.configure(stored);
+          instance.configure(
+            mergeDefaults(stored, instance.settingsSchema),
+          );
         }
         pluginEntries.push({
           id,

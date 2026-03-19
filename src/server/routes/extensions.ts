@@ -16,13 +16,19 @@ import { getSearchBarActionExtensionMeta } from "../extensions/search-bar/regist
 import { getThemeExtensionMeta } from "../extensions/themes/registry";
 import {
   getSettings,
+  isDisabled,
   setSettings,
   mergeSecrets,
   maskSecrets,
   type SettingValue,
 } from "../utils/plugin-settings";
-import { getAllPluginCss } from "../utils/plugin-assets";
-import type { ExtensionMeta } from "../types";
+import { getPluginCssIds, getPluginCssById } from "../utils/plugin-assets";
+import {
+  ExtensionStoreType,
+  SLOT_POSITION_SETTING_KEY,
+  type ExtensionMeta,
+  type SettingField,
+} from "../types";
 
 const router = new Hono();
 
@@ -30,19 +36,39 @@ async function getSlotExtensionMeta(): Promise<ExtensionMeta[]> {
   const slots = getSlotPlugins();
   const out: ExtensionMeta[] = [];
   for (const slot of slots) {
-    const schema = slot.settingsSchema ?? [];
-    if (schema.length === 0) continue;
+    const baseSchema = slot.settingsSchema ?? [];
+    const hasPositionChoice = (slot.slotPositions?.length ?? 0) > 0;
+    if (baseSchema.length === 0 && !hasPositionChoice) continue;
+    const fullSchema: SettingField[] = [...baseSchema];
+    if (hasPositionChoice) {
+      fullSchema.push({
+        key: SLOT_POSITION_SETTING_KEY,
+        label: "Position",
+        type: "select",
+        options: [...slot.slotPositions!],
+        description: "Where the slot content appears (e.g. knowledge-panel replaces the default knowledge panel).",
+      });
+    }
     const id = slot.settingsId ?? `slot-${slot.id}`;
     const raw = await getSettings(id);
-    const settings = maskSecrets(raw, schema);
+    const settings = maskSecrets(raw, fullSchema);
     if (raw["disabled"]) settings["disabled"] = raw["disabled"];
+    if (hasPositionChoice) {
+      const stored = raw[SLOT_POSITION_SETTING_KEY];
+      const value =
+        (typeof stored === "string" ? stored : undefined) ?? slot.position;
+      settings[SLOT_POSITION_SETTING_KEY] =
+        slot.slotPositions!.includes(value as typeof slot.position)
+          ? value
+          : slot.position;
+    }
     out.push({
       id,
       displayName: slot.name,
       description: slot.description,
-      type: "plugin",
+      type: ExtensionStoreType.Plugin,
       configurable: true,
-      settingsSchema: schema,
+      settingsSchema: fullSchema,
       settings,
     });
   }
@@ -146,9 +172,16 @@ router.post("/api/extensions/:id/settings", async (c) => {
   return c.json({ ok: true });
 });
 
-router.get("/api/plugins/styles.css", (c) => {
+router.get("/api/plugins/styles.css", async (c) => {
+  const ids = getPluginCssIds();
+  const parts: string[] = [];
+  for (const id of ids) {
+    if (await isDisabled(id)) continue;
+    const css = getPluginCssById(id);
+    if (css) parts.push(css);
+  }
   c.header("Content-Type", "text/css");
-  return c.body(getAllPluginCss());
+  return c.body(parts.join("\n"));
 });
 
 export default router;

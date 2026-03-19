@@ -1,9 +1,11 @@
 import { join } from "path";
-import type { SearchResultTab, PluginContext } from "../../types";
-import { getSettings } from "../../utils/plugin-settings";
+import type { SearchResultTab } from "../../types";
 import {
-  addPluginCss,
-  registerPluginScript,
+  isDisabled,
+} from "../../utils/plugin-settings";
+import {
+  loadPluginAssets,
+  initPlugin,
   registerPluginSettingsId,
 } from "../../utils/plugin-assets";
 import { debug } from "../../utils/logger";
@@ -24,7 +26,7 @@ async function loadTabsFromRoot(
   rootDir: string,
   source: "plugin" | "builtin",
 ): Promise<void> {
-  const { readdir, readFile, stat } = await import("fs/promises");
+  const { readdir, stat } = await import("fs/promises");
   const { pathToFileURL } = await import("url");
   let entries: string[];
   try {
@@ -55,42 +57,11 @@ async function loadTabsFromRoot(
       if (!tab || !isSearchResultTab(tab)) continue;
 
       const tabSettingsId = tab.settingsId ?? `tab-${tab.id}`;
-      const template = await readFile(
-        join(entryPath, "template.html"),
-        "utf-8",
-      ).catch(() => "");
-      const css = await readFile(join(entryPath, "style.css"), "utf-8").catch(
-        () => "",
-      );
-      if (css) addPluginCss(tabSettingsId, css);
-      const hasScript = await stat(join(entryPath, "script.js")).catch(
-        () => null,
-      );
-      if (hasScript?.isFile())
-        registerPluginScript(entry, source, tabSettingsId);
       registerPluginSettingsId(entry, tabSettingsId);
 
-      if (tab.init) {
-        const ctx: PluginContext = {
-          dir: entryPath,
-          template,
-          readFile: (filename: string) =>
-            readFile(join(entryPath, filename), "utf-8"),
-        };
-        await Promise.resolve(tab.init(ctx));
-      }
-
-      if (tab.settingsSchema?.length && tab.configure) {
-        try {
-          const stored = await getSettings(tabSettingsId);
-          if (Object.keys(stored).length > 0) tab.configure(stored);
-        } catch (err) {
-          debug(
-            "search-result-tabs",
-            `Failed to configure tab plugin: ${tab.id}`,
-            err,
-          );
-        }
+      if (!(await isDisabled(tabSettingsId))) {
+        const template = await loadPluginAssets(entryPath, entry, tabSettingsId, source);
+        await initPlugin(tab, entryPath, tabSettingsId, template);
       }
       tabPlugins.push(tab);
     } catch (err) {

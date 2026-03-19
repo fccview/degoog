@@ -53,43 +53,41 @@ export class GoogleEngine implements SearchEngine {
     const $ = cheerio.load(html);
     const results: SearchResult[] = [];
 
-    $(".MjjYud").each((_, el) => {
-      const titleEl = $(el).find("[role='link']").first();
-      const linkEl = $(el).find("a[href]").first();
-      const snippetEl = $(el).find("[data-sncf]").first();
-
-      const title = titleEl.text().trim() || linkEl.text().trim();
-      const href = resolveGoogleHref(linkEl.attr("href") || "");
-      const snippet = snippetEl.text().trim();
-
-      if (
-        title &&
-        href &&
-        href.startsWith("http") &&
-        !href.includes("google.com/search")
-      ) {
-        results.push({ title, url: href, snippet, source: this.name });
+    const pushResult = (
+      title: string,
+      href: string,
+      snippet: string,
+    ): boolean => {
+      const url = resolveGoogleHref(href);
+      if (title && url && url.startsWith("http") && !url.includes("google.com/search")) {
+        results.push({ title, url, snippet, source: this.name });
+        return true;
       }
+      return false;
+    };
+
+    $('a[href^="/url?q="]').each((_, el) => {
+      const linkEl = $(el);
+      const title = linkEl.find("span").first().text().trim();
+      const href = linkEl.attr("href") || "";
+      const snippet = linkEl.parent().next("div").text().trim();
+      pushResult(title, href, snippet);
     });
 
     if (results.length === 0) {
-      $(".g").each((_, el) => {
-        const titleEl = $(el).find("h3").first();
-        const linkEl = $(el).find("a[href]").first();
-        const snippetEl = $(el).find(".VwiC3b, [data-sncf], .IsZvec").first();
-
-        const title = titleEl.text().trim();
-        const href = resolveGoogleHref(linkEl.attr("href") || "");
-        const snippet = snippetEl.text().trim();
-
-        if (
-          title &&
-          href &&
-          href.startsWith("http") &&
-          !href.includes("google.com/search")
-        ) {
-          results.push({ title, url: href, snippet, source: this.name });
-        }
+      $("[data-hveid] a[href]").each((_, el) => {
+        const linkEl = $(el);
+        const title =
+          linkEl.find("h3").first().text().trim() ||
+          linkEl.closest("[data-hveid]").find("[role='link']").first().text().trim();
+        const href = linkEl.attr("href") || "";
+        const snippet = linkEl
+          .closest("[data-hveid]")
+          .find("[data-sncf]")
+          .first()
+          .text()
+          .trim();
+        pushResult(title, href, snippet);
       });
     }
 

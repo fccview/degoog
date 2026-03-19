@@ -3,7 +3,9 @@ import { getSettings } from "./plugin-settings";
 import { debug } from "./logger";
 
 export interface OutgoingFetchOptions {
+  method?: string;
   headers?: Record<string, string>;
+  body?: string;
   redirect?: RequestRedirect;
   signal?: AbortSignal;
 }
@@ -63,28 +65,26 @@ export async function outgoingFetch(
   );
 
   const useProxy = enabled && urls.length > 0;
-  const opts: RequestInit = {
-    redirect: options.redirect ?? "follow",
-    signal: options.signal,
-    headers: options.headers,
-  };
+  const method = options.method ?? "GET";
+  const redirect = options.redirect ?? "follow";
+  const signal = options.signal;
+  const headers = options.headers;
+  const body = options.body;
 
   if (!useProxy) {
     debug("outgoing", `direct fetch ${new URL(url).hostname}`);
-    return fetch(url, opts);
+    return fetch(url, { method, redirect, signal, headers, body });
   }
 
   const proxyUrl = urls[proxyIndex++ % urls.length];
   debug("outgoing", `via proxy ${proxyUrl} -> ${new URL(url).hostname}`);
   const agent = new ProxyAgent(proxyUrl);
-  const dispatcherOpts = {
-    method: "GET",
-    redirect: opts.redirect ?? "follow",
-    signal: opts.signal,
-    headers: opts.headers,
-  };
   return undiciFetch(url, {
-    ...dispatcherOpts,
+    method,
+    redirect,
+    signal,
+    headers,
+    body: body ?? undefined,
     dispatcher: agent,
   }) as unknown as Promise<Response>;
 }

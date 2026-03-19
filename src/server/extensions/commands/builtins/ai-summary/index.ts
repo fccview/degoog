@@ -1,4 +1,4 @@
-import type { SettingField, SlotPlugin } from "../../../../types";
+import { SlotPanelPosition, type SettingField, type SlotPlugin } from "../../../../types";
 import { getSettings, asString } from "../../../../utils/plugin-settings";
 
 export const AI_SUMMARY_ID = "ai-summary";
@@ -167,7 +167,7 @@ const aiSummarySlot: SlotPlugin = {
   name: "AI Summary",
   description:
     "Replaces At a Glance with a brief AI-generated summary using any OpenAI-compatible provider",
-  position: "at-a-glance",
+  position: SlotPanelPosition.AtAGlance,
   async trigger(): Promise<boolean> {
     const settings = await getAISummarySettings();
     return settings.enabled && !!settings.baseUrl && !!settings.model;

@@ -9,9 +9,17 @@ import {
   getActiveTheme,
   getActiveThemeDataAttrs,
 } from "../extensions/themes/registry";
-import { getAllPluginCss, getPluginScriptFolders, getPluginSettingsIds } from "../utils/plugin-assets";
-import { getSettings } from "../utils/plugin-settings";
-import { shouldServeSettingsGate, getSettingsTokenFromRequest, validateSettingsToken } from "./settings-auth";
+import {
+  getAllPluginCss,
+  getPluginScriptFolders,
+  getPluginSettingsIds,
+} from "../utils/plugin-assets";
+import { isDisabled } from "../utils/plugin-settings";
+import {
+  shouldServeSettingsGate,
+  getSettingsTokenFromRequest,
+  validateSettingsToken,
+} from "./settings-auth";
 import { isPublicInstance } from "../utils/public-instance";
 import pkg from "../../../package.json";
 
@@ -44,8 +52,10 @@ async function pluginAssetsPlaceholder(): Promise<string> {
     const settingsIds = getPluginSettingsIds(folder);
     let disabled = false;
     for (const sid of settingsIds) {
-      const settings = await getSettings(sid);
-      if (settings["disabled"] === "true") { disabled = true; break; }
+      if (await isDisabled(sid)) {
+        disabled = true;
+        break;
+      }
     }
     if (disabled) continue;
     parts.push(
@@ -84,13 +94,13 @@ router.get("/", async (c) => {
 
 router.get("/search", async (c) => {
   const override = await getThemeHtml("search");
-  if (override)
-    return c.html(await applyPagePlaceholders(override));
+  if (override) return c.html(await applyPagePlaceholders(override));
   return c.html(await buildPage("search.html"));
 });
 
 router.get("/settings", async (c) => {
-  if (isPublicInstance()) return c.html(await buildPage("settings-public.html"));
+  if (isPublicInstance())
+    return c.html(await buildPage("settings-public.html"));
   if (await shouldServeSettingsGate(c)) {
     return c.html(await buildPage("settings-gate.html"));
   }

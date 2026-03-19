@@ -1,4 +1,4 @@
-import { escapeHtml, isConfigured } from "../utils/dom";
+import { escapeHtml, getConfigStatus } from "../utils/dom";
 import { openModal } from "../modules/modals/settings-modal/modal";
 import type { ExtensionMeta } from "../types";
 
@@ -11,8 +11,13 @@ const _renderThemeCard = (
 ): string => {
   const themeId = _themeIdFromExtId(themeExt.id);
   const isActive = activeId === themeId;
-  const configured = themeExt.configurable && isConfigured(themeExt);
-  const badge = configured ? `<span class="ext-configured-badge"></span>` : "";
+  const status = themeExt.configurable ? getConfigStatus(themeExt) : null;
+  const badge =
+    status === "configured"
+      ? '<span class="ext-configured-badge"></span>'
+      : status === "needs-config"
+        ? '<span class="ext-needs-config-badge"></span>'
+        : "";
   const configureBtn = themeExt.configurable
     ? `<button class="ext-card-configure" data-id="${escapeHtml(themeExt.id)}" type="button">Configure</button>`
     : "";

@@ -1,4 +1,4 @@
-import { escapeHtml, isConfigured } from "../utils/dom";
+import { escapeHtml, getConfigStatus } from "../utils/dom";
 import { openModal } from "../modules/modals/settings-modal/modal";
 import type { ExtensionMeta, AllExtensions } from "../types";
 
@@ -11,8 +11,13 @@ const _renderPluginCard = (plugin: ExtensionMeta): string => {
   const desc = plugin.description
     ? `<span class="ext-card-desc">${escapeHtml(plugin.description)}</span>`
     : "";
-  const configured = plugin.configurable && isConfigured(plugin);
-  const badge = configured ? `<span class="ext-configured-badge"></span>` : "";
+  const status = plugin.configurable ? getConfigStatus(plugin) : null;
+  const badge =
+    status === "configured"
+      ? '<span class="ext-configured-badge"></span>'
+      : status === "needs-config"
+        ? '<span class="ext-needs-config-badge"></span>'
+        : "";
   const configureBtn = plugin.configurable
     ? `<button class="ext-card-configure" data-id="${escapeHtml(plugin.id)}" type="button">Configure</button>`
     : "";

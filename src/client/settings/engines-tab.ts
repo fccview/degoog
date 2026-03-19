@@ -1,6 +1,6 @@
 import { idbGet, idbSet } from "../utils/db";
 import { SETTINGS_KEY } from "../constants";
-import { escapeHtml, isConfigured } from "../utils/dom";
+import { escapeHtml, getConfigStatus } from "../utils/dom";
 import { openModal } from "../modules/modals/settings-modal/modal";
 import type { ExtensionMeta, EngineRecord, AllExtensions } from "../types";
 
@@ -31,9 +31,16 @@ const _renderEngineCard = (
   allowConfigure: boolean,
 ): string => {
   const isEnabled = enabledMap[engine.id] !== false;
-  const configured =
-    allowConfigure && engine.configurable && isConfigured(engine);
-  const badge = configured ? `<span class="ext-configured-badge"></span>` : "";
+  const status =
+    allowConfigure && engine.configurable
+      ? getConfigStatus(engine)
+      : null;
+  const badge =
+    status === "configured"
+      ? '<span class="ext-configured-badge"></span>'
+      : status === "needs-config"
+        ? '<span class="ext-needs-config-badge"></span>'
+        : "";
   const configureBtn =
     allowConfigure && engine.configurable
       ? `<button class="ext-card-configure" data-id="${escapeHtml(engine.id)}" type="button">Configure</button>`

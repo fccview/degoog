@@ -41,7 +41,7 @@ export function initTimeFilter(): void {
     document.body.appendChild(dropdown);
     dropdown.style.position = "absolute";
     dropdown.style.top = `${rect.bottom + window.scrollY}px`;
-    dropdown.style.left = `${rect.left + window.scrollX}px`;
+    dropdown.style.left = `${rect.left + window.scrollX - rect.width}px`;
     dropdown.style.display = "block";
     toggle.classList.add("active");
   }

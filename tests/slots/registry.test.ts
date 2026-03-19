@@ -4,6 +4,7 @@ import {
   getSlotPlugins,
   getSlotPluginById,
 } from "../../src/server/extensions/slots/registry";
+import { SlotPanelPosition } from "../../src/server/types";
 
 describe("slots registry", () => {
   beforeAll(async () => {
@@ -26,7 +27,7 @@ describe("slots registry", () => {
   test("built-in ai-summary slot has position at-a-glance and settingsId", () => {
     const slot = getSlotPluginById("ai-summary");
     expect(slot).not.toBeNull();
-    expect(slot!.position).toBe("at-a-glance");
+    expect(slot!.position).toBe(SlotPanelPosition.AtAGlance);
     expect(slot!.settingsId).toBe("ai-summary");
   });
 });

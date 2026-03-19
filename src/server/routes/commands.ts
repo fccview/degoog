@@ -4,7 +4,7 @@ import {
   getCommandsApiResponse,
 } from "../extensions/commands/registry";
 import { searchSingleEngine } from "../search";
-import { getSettings } from "../utils/plugin-settings";
+import { isDisabled } from "../utils/plugin-settings";
 import { getClientIp } from "../utils/request";
 import type { TimeFilter } from "../types";
 
@@ -22,8 +22,7 @@ router.get("/api/command", async (c) => {
   if (!match) return c.json({ error: "Unknown command" }, 404);
 
   if (match.type === "command") {
-    const settings = await getSettings(match.commandId);
-    if (settings["disabled"] === "true") {
+    if (await isDisabled(match.commandId)) {
       return c.json({ error: "This plugin is disabled" }, 403);
     }
   }

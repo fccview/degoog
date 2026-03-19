@@ -13,11 +13,14 @@ import {
   listRepoItems,
   installItem,
   uninstallItem,
+  updateItem,
+  updateAllItems,
   getInstalledItems,
   getStoreDirPath,
   resolveScreenshotPath,
   resolveRepoAssetPath,
 } from "../extensions/store/repo-manager";
+import { ExtensionStoreType } from "../types";
 
 const router = new Hono();
 
@@ -25,10 +28,9 @@ function getStoreToken(c: Context): string | undefined {
   return c.req.header("x-settings-token") ?? c.req.query("token");
 }
 
-const VALID_TYPES = ["plugin", "theme", "engine"] as const;
-type ItemType = (typeof VALID_TYPES)[number];
+const VALID_TYPES: ExtensionStoreType[] = Object.values(ExtensionStoreType);
 
-function isValidType(type: string): type is ItemType {
+function isValidType(type: string): type is ExtensionStoreType {
   return (VALID_TYPES as readonly string[]).includes(type);
 }
 
@@ -190,6 +192,42 @@ router.post("/api/store/uninstall", async (c) => {
   }
 });
 
+router.post("/api/store/update", async (c) => {
+  if (!(await validateSettingsToken(getStoreToken(c))))
+    return c.json({ error: "Unauthorized" }, 401);
+  const body = await c.req.json<{
+    repoUrl?: string;
+    itemPath?: string;
+    type?: string;
+  }>();
+  const { repoUrl, itemPath, type } = body ?? {};
+  if (!repoUrl?.trim() || !itemPath?.trim() || !type) {
+    return c.json({ error: "Missing repoUrl, itemPath, or type" }, 400);
+  }
+  if (!isValidType(type)) {
+    return c.json({ error: "Invalid type" }, 400);
+  }
+  try {
+    await updateItem(repoUrl.trim(), itemPath.trim(), type);
+    return c.json({ ok: true });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Update failed";
+    return c.json({ error: message }, 400);
+  }
+});
+
+router.post("/api/store/update-all", async (c) => {
+  if (!(await validateSettingsToken(getStoreToken(c))))
+    return c.json({ error: "Unauthorized" }, 401);
+  try {
+    const result = await updateAllItems();
+    return c.json({ ok: true, ...result });
+  } catch (e) {
+    const message = e instanceof Error ? e.message : "Update failed";
+    return c.json({ error: message }, 400);
+  }
+});
+
 router.get("/api/store/installed", async (c) => {
   if (!(await validateSettingsToken(getStoreToken(c))))
     return c.json({ error: "Unauthorized" }, 401);
@@ -203,13 +241,17 @@ router.get(
     if (!(await validateSettingsToken(getStoreToken(c))))
       return c.json({ error: "Unauthorized" }, 401);
     const repoSlug = c.req.param("repoSlug");
-    const type = c.req.param("type");
+    const typeParam = c.req.param("type");
+    if (!isValidType(typeParam)) {
+      return c.json({ error: "Invalid type" }, 400);
+    }
+    const type = typeParam;
     const item = c.req.param("item");
     const filename = c.req.param("filename");
     const itemPath =
-      type === "plugin"
+      type === ExtensionStoreType.Plugin
         ? `plugins/${item}`
-        : type === "theme"
+        : type === ExtensionStoreType.Theme
           ? `themes/${item}`
           : `engines/${item}`;
     const resolved = resolveScreenshotPath(repoSlug, itemPath, filename);

@@ -1,7 +1,7 @@
 import { escapeHtml } from "../../utils/dom";
 import { proxyImageUrl } from "../../utils/url";
 import { retryEngine } from "../../utils/search-actions";
-import type { SearchResponse } from "../../types";
+import type { SearchResponse, SlotPanel } from "../../types";
 
 const _sidebarAccordion = (title: string, content: string): string =>
   `<div class="sidebar-panel sidebar-accordion">
@@ -15,13 +15,22 @@ const _sidebarAccordion = (title: string, content: string): string =>
 export function renderSidebar(
   data: SearchResponse,
   onRelatedSearch: (q: string) => void,
+  options?: { sidebarTopPanels?: SlotPanel[] },
 ): void {
   const sidebar = document.getElementById("results-sidebar");
   if (!sidebar) return;
 
   let html = "";
 
-  if (data.knowledgePanel) {
+  const sidebarTop = options?.sidebarTopPanels?.length
+    ? options.sidebarTopPanels
+    : [];
+  if (sidebarTop.length > 0) {
+    for (const panel of sidebarTop) {
+      const title = panel.title ?? "Info";
+      html += _sidebarAccordion(title, panel.html);
+    }
+  } else if (data.knowledgePanel) {
     const kp = data.knowledgePanel;
     let kpContent = "";
     if (kp.image) {

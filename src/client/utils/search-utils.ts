@@ -5,7 +5,7 @@ import {
 } from "../modules/renderer/render-slots";
 import { skeletonGlance } from "../animations/skeleton";
 import { runScriptsInContainer } from "./search-helpers";
-import type { ScoredResult, SlotPanel } from "../types";
+import { SlotPanelPosition, type ScoredResult, type SlotPanel } from "../types";
 
 let glanceAbortController: AbortController | null = null;
 
@@ -36,7 +36,7 @@ export async function fetchGlancePanels(
     if (!glanceEl) return;
     if (data.panels && data.panels.length > 0) {
       const glancePanels = data.panels.filter(
-        (p) => p.position === "at-a-glance",
+        (p) => p.position === SlotPanelPosition.AtAGlance,
       );
       const parts: string[] = [];
       for (const panel of glancePanels) {
@@ -58,15 +58,17 @@ export async function fetchGlancePanels(
   }
 }
 
-export async function fetchSlotPanels(query: string): Promise<void> {
+export async function fetchSlotPanels(query: string): Promise<SlotPanel[]> {
   try {
     const res = await fetch("/api/slots?q=" + encodeURIComponent(query));
-    if (!res.ok) return;
+    if (!res.ok) return [];
     const data = (await res.json()) as { panels?: SlotPanel[] };
-    if (data.panels && data.panels.length > 0) {
-      appendSlotPanels(data.panels);
-    }
-  } catch {}
+    const panels = data.panels ?? [];
+    if (panels.length > 0) appendSlotPanels(panels);
+    return panels;
+  } catch {
+    return [];
+  }
 }
 
 export const buildCommandGlanceHtml = (cmdData: {
