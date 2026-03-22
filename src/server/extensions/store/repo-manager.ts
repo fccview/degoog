@@ -483,6 +483,10 @@ export async function installItem(
   _installingSet.add(key);
   const storeDir = getStoreDir();
   const srcDir = join(storeDir, repo.localPath, normalizedPath);
+  const repoBase = resolve(join(storeDir, repo.localPath));
+  if (!resolve(srcDir).startsWith(repoBase + "/")) {
+    throw new Error("Invalid item path.");
+  }
   try {
     await stat(srcDir);
   } catch {

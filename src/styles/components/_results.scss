@@ -410,8 +410,6 @@
 }
 
 .results-slot {
-  margin: 16px 0;
-
   &--above {
     margin-bottom: 20px;
   }
@@ -422,6 +420,10 @@
 
   &--sidebar {
     margin-top: 16px;
+  }
+
+  &--above-sidebar {
+    margin-bottom: 16px;
   }
 }
 
@@ -453,9 +455,5 @@
   a {
     color: $primary;
     text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }

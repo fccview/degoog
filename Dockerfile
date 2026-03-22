@@ -12,14 +12,15 @@ COPY . .
 RUN bun run build
 
 FROM base AS release
-RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates gosu && rm -rf /var/lib/apt/lists/*
 
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=build /app/src ./src
 COPY --from=build /app/package.json ./package.json
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 ENV PORT=4444
 EXPOSE 4444
 
-USER bun
-ENTRYPOINT ["bun", "run", "src/server/index.ts"]
+ENTRYPOINT ["/entrypoint.sh"]
