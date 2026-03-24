@@ -112,10 +112,11 @@ export function openMediaPreview(
 
   if (img) img.src = proxyImageUrl(item.thumbnail || "") || "";
   if (info) {
+    const target = state.openInNewTab ? ' target="_blank" rel="noopener"' : "";
     info.innerHTML = `
       <h3 class="media-preview-title">${escapeHtml(item.title)}</h3>
-      <a class="media-preview-link" href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(cleanHostname(item.url))}</a>
-      <a class="media-preview-visit" href="${escapeHtml(item.url)}" target="_blank">Visit page</a>
+      <a class="media-preview-link" href="${escapeHtml(item.url)}"${target}>${escapeHtml(cleanHostname(item.url))}</a>
+      <a class="media-preview-visit" href="${escapeHtml(item.url)}"${target}>Visit page</a>
     `;
   }
 

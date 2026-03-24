@@ -76,6 +76,7 @@ export interface AppState {
   currentTimeFilter: string;
   mediaLoading: boolean;
   currentBangQuery: string;
+  openInNewTab: boolean;
 }
 
 export type SettingFieldType =
