@@ -7,6 +7,9 @@ import { initTabs } from "./tabs/tabs";
 import { initMediaPreview } from "./media/media-preview";
 import { initTheme } from "../utils/theme";
 import { initTimeFilter } from "../utils/time-filter";
+import { idbGet } from "../utils/db";
+import { OPEN_IN_NEW_TAB_KEY } from "../constants";
+import { state } from "../state";
 
 import { initInstallPrompt } from "../utils/install-prompt";
 import { initSearchBarActions } from "../utils/search-bar-actions";
@@ -72,6 +75,10 @@ export function init(): void {
   void initTheme();
   initTimeFilter();
   initInstallPrompt();
+
+  void idbGet<boolean>(OPEN_IN_NEW_TAB_KEY).then((v) => {
+    if (v !== null) state.openInNewTab = v;
+  });
 
   document.body.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLElement>(".uuid-copy");
