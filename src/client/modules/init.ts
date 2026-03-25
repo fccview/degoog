@@ -7,7 +7,6 @@ import { initTabs } from "./tabs/tabs";
 import { initMediaPreview } from "./media/media-preview";
 import { initTheme } from "../utils/theme";
 import { initOptionsDropdown } from "../utils/time-filter";
-import { initTimeFilter } from "../utils/time-filter";
 import { idbGet } from "../utils/db";
 import { OPEN_IN_NEW_TAB_KEY } from "../constants";
 import { state } from "../state";
