@@ -78,6 +78,74 @@ function engineTypeLabel(t: string): string {
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
+function storeItemTypeLabel(item: StoreItem): string {
+  if (item.type === "plugin") return "Plugin";
+  if (item.type === "theme") return "Theme";
+  return "Engine";
+}
+
+function storeItemSubtypeLabel(item: StoreItem): string {
+  if (item.type === "plugin" && item.pluginType) {
+    return pluginTypeLabel(item.pluginType);
+  }
+  if (item.type === "engine" && item.engineType) {
+    return engineTypeLabel(item.engineType);
+  }
+  return "";
+}
+
+function storeItemKey(item: StoreItem): string {
+  return `${item.type}::${item.repoUrl}::${item.path}`;
+}
+
+function storeItemScreenshotUrls(
+  item: StoreItem,
+  getToken: () => string | null,
+): string[] {
+  const token = getToken();
+  const itemSlug = item.path.split("/").pop() ?? "";
+  return item.screenshots.map((shot) =>
+    screenshotUrl(item.repoSlug, item.type, itemSlug, shot, token),
+  );
+}
+
+function renderStoreItemActionButtons(item: StoreItem): string {
+  return item.installed
+    ? item.updateAvailable
+      ? `<span class="ext-configured-badge"></span><button class="btn btn--primary store-btn-update" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Update</button><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
+      : `<span class="ext-configured-badge"></span><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
+    : `<button class="btn btn--primary store-btn-install" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Install</button>`;
+}
+
+function renderStoreItemScreenshotMarkup(
+  urls: string[],
+  itemName: string,
+): string {
+  if (!urls.length) {
+    return "";
+  }
+
+  return `
+    <div class="store-detail-gallery">
+      ${urls
+        .slice(0, 6)
+        .map(
+          (shot, index) => `
+            <div class="store-detail-gallery-item">
+              <img
+                class="store-detail-gallery-img"
+                src="${escapeHtml(shot)}"
+                alt="${escapeHtml(itemName)} screenshot ${index + 1}"
+                loading="lazy"
+              >
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
 const _renderRepoDetail = (
   repo: RepoInfo,
   getToken: () => string | null,
@@ -160,6 +228,7 @@ const _renderItemCard = (
   getToken: () => string | null,
 ): string => {
   const itemSlug = item.path.split("/").pop() ?? "";
+  const detailKey = storeItemKey(item);
   const token = getToken();
   const firstUrl = item.screenshots.length
     ? screenshotUrl(
@@ -188,29 +257,15 @@ const _renderItemCard = (
       ? `<a href="${escapeHtml(item.author.url)}" target="_blank" rel="noopener">${escapeHtml(item.author.name)}</a>`
       : escapeHtml(item.author.name)
     : "";
-  const typeLabel =
-    item.type === "plugin"
-      ? "Plugin"
-      : item.type === "theme"
-        ? "Theme"
-        : "Engine";
-  const subLabel =
-    item.type === "plugin" && item.pluginType
-      ? pluginTypeLabel(item.pluginType)
-      : item.type === "engine" && item.engineType
-        ? engineTypeLabel(item.engineType)
-        : "";
-  const btn = item.installed
-    ? item.updateAvailable
-      ? `<span class="ext-configured-badge"></span><button class="btn btn--primary store-btn-update" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Update</button><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
-      : `<span class="ext-configured-badge"></span><button class="btn btn--secondary store-btn-uninstall" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Uninstall</button>`
-    : `<button class="btn btn--primary store-btn-install" type="button" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}">Install</button>`;
+  const typeLabel = storeItemTypeLabel(item);
+  const subLabel = storeItemSubtypeLabel(item);
+  const btn = renderStoreItemActionButtons(item);
   return `
-    <div class="store-card" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}" data-plugin-type="${escapeHtml(item.pluginType || "")}" data-engine-type="${escapeHtml(item.engineType || "")}">
+    <div class="store-card" data-detail-key="${escapeHtml(detailKey)}" data-repo-url="${escapeHtml(item.repoUrl)}" data-item-path="${escapeHtml(item.path)}" data-type="${escapeHtml(item.type)}" data-plugin-type="${escapeHtml(item.pluginType || "")}" data-engine-type="${escapeHtml(item.engineType || "")}">
       <div class="store-card-thumb-wrap${clickableClass}"${screenshotsData}${thumbA11y}>${thumb}</div>
       <div class="store-card-body">
-        <div class="store-card-main">
-          <div class="store-card-name">${escapeHtml(item.name)}</div>
+        <div class="store-card-main" data-detail-key="${escapeHtml(detailKey)}" role="button" tabindex="0" aria-label="View details for ${escapeHtml(item.name)}">
+          <button class="store-card-name-button" type="button" data-detail-key="${escapeHtml(detailKey)}">${escapeHtml(item.name)}</button>
           <div class="store-card-meta">by ${author || "—"} · ${escapeHtml(item.repoName)}</div>
           <div class="store-card-desc">${escapeHtml(item.description || "")}</div>
           <div class="store-card-version">${item.updateAvailable ? `<span class="store-card-version-old">v${escapeHtml(item.installedVersion || "?")}</span> → ` : ""}v${escapeHtml(item.version)}</div>
@@ -285,6 +340,234 @@ export async function initStoreTab(
   let typeFilter = "all";
   let subtypeFilter = "all";
   let searchQuery = "";
+  let activeDetailKey: string | null = null;
+  let detailBodyScrollTop = "";
+
+  function getActiveDetailItem(): StoreItem | null {
+    if (!activeDetailKey) return null;
+    return items.find((item) => storeItemKey(item) === activeDetailKey) ?? null;
+  }
+
+  function lockBodyScroll(): void {
+    if (!detailBodyScrollTop) {
+      detailBodyScrollTop = document.body.style.overflow || "";
+    }
+    document.body.style.overflow = "hidden";
+  }
+
+  function unlockBodyScroll(): void {
+    document.body.style.overflow = detailBodyScrollTop;
+    detailBodyScrollTop = "";
+  }
+
+  function buildStoreDetailHtml(item: StoreItem): string {
+    const detailKey = storeItemKey(item);
+    const itemSlug = item.path.split("/").pop() ?? "";
+    const typeLabel = storeItemTypeLabel(item);
+    const subLabel = storeItemSubtypeLabel(item);
+    const heroUrls = storeItemScreenshotUrls(item, getToken);
+    const heroHtml = heroUrls.length
+      ? `<img class="store-detail-hero-img" src="${escapeHtml(heroUrls[0])}" alt="${escapeHtml(item.name)}">`
+      : `<div class="store-detail-hero-placeholder"><span class="store-detail-hero-placeholder-kicker">${escapeHtml(typeLabel)}</span><span class="store-detail-hero-placeholder-title">${escapeHtml(item.repoName)}</span></div>`;
+    const author = item.author
+      ? item.author.url
+        ? `<a href="${escapeHtml(item.author.url)}" target="_blank" rel="noopener">${escapeHtml(item.author.name)}</a>`
+        : escapeHtml(item.author.name)
+      : "—";
+    const description = item.description?.trim()
+      ? escapeHtml(item.description)
+      : "No description provided.";
+    const versionHtml = item.updateAvailable
+      ? `<span class="store-detail-version-old">v${escapeHtml(item.installedVersion || "?")}</span> <span class="store-detail-version-arrow">→</span> <span class="store-detail-version-current">v${escapeHtml(item.version)}</span>`
+      : `<span class="store-detail-version-current">v${escapeHtml(item.version)}</span>`;
+
+    return `
+      <div class="store-detail-panel" data-detail-key="${escapeHtml(detailKey)}">
+        <div class="store-detail-hero">${heroHtml}</div>
+        <div class="store-detail-copy">
+          <div class="store-detail-heading-row">
+            <div class="store-detail-heading-copy">
+              <span class="store-detail-kicker">${escapeHtml(typeLabel)}${subLabel ? ` · ${escapeHtml(subLabel)}` : ""}</span>
+              <h3 class="store-detail-title">${escapeHtml(item.name)}</h3>
+              <div class="store-detail-meta">by ${author} · ${escapeHtml(item.repoName)}</div>
+            </div>
+            <div class="store-detail-version">${versionHtml}</div>
+          </div>
+          <div class="store-detail-description">${description}</div>
+          <div class="store-detail-actions">${renderStoreItemActionButtons(item)}</div>
+          <div class="store-detail-info-grid">
+            <div class="store-detail-info-item">
+              <span class="store-detail-info-label">Repository</span>
+              <a href="${escapeHtml(item.repoUrl.replace(/\.git$/, ""))}" target="_blank" rel="noopener" class="store-detail-info-value">${escapeHtml(item.repoName)}</a>
+            </div>
+            <div class="store-detail-info-item">
+              <span class="store-detail-info-label">Type</span>
+              <span class="store-detail-info-value">${escapeHtml(typeLabel)}${subLabel ? ` · ${escapeHtml(subLabel)}` : ""}</span>
+            </div>
+            <div class="store-detail-info-item">
+              <span class="store-detail-info-label">Path</span>
+              <span class="store-detail-info-value">${escapeHtml(item.path)}</span>
+            </div>
+            <div class="store-detail-info-item">
+              <span class="store-detail-info-label">Slug</span>
+              <span class="store-detail-info-value">${escapeHtml(itemSlug)}</span>
+            </div>
+          </div>
+          ${heroUrls.length ? `<div class="store-detail-gallery-wrap"><div class="store-detail-gallery-heading">Screenshots</div>${renderStoreItemScreenshotMarkup(heroUrls, item.name)}</div>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  function syncDetailModal(): void {
+    const modal = container.querySelector<HTMLElement>(".store-detail-modal");
+    const body = modal?.querySelector<HTMLElement>(".store-detail-body");
+    if (!modal || !body) return;
+
+    const item = getActiveDetailItem();
+    if (!item) {
+      modal.classList.remove("store-detail-modal--open");
+      modal.setAttribute("aria-hidden", "true");
+      unlockBodyScroll();
+      body.innerHTML = "";
+      return;
+    }
+
+    body.innerHTML = buildStoreDetailHtml(item);
+    modal.classList.add("store-detail-modal--open");
+    modal.setAttribute("aria-hidden", "false");
+    lockBodyScroll();
+
+    body
+      .querySelectorAll<HTMLButtonElement>(".store-btn-install")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleInstall(btn));
+      });
+    body
+      .querySelectorAll<HTMLButtonElement>(".store-btn-uninstall")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleUninstall(btn));
+      });
+    body
+      .querySelectorAll<HTMLButtonElement>(".store-btn-update")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleUpdate(btn));
+      });
+    body
+      .querySelectorAll<HTMLElement>(".store-detail-gallery-item")
+      .forEach((galleryItem, index) => {
+        galleryItem.addEventListener("click", () => {
+          const screenshotUrls = storeItemScreenshotUrls(item, getToken);
+          if (screenshotUrls.length === 0) return;
+          openStoreScreenshotLightbox(screenshotUrls, index);
+        });
+      });
+  }
+
+  function openDetailForKey(detailKey: string): void {
+    activeDetailKey = detailKey;
+    syncDetailModal();
+  }
+
+  function closeDetail(): void {
+    activeDetailKey = null;
+    syncDetailModal();
+  }
+
+  function openStoreScreenshotLightbox(
+    urls: string[],
+    startIndex = 0,
+  ): void {
+    const lb = container.querySelector<HTMLElement>(".store-lightbox");
+    const img = lb?.querySelector<HTMLImageElement>(".store-lightbox-img");
+    const counter = lb?.querySelector<HTMLElement>(".store-lightbox-counter");
+    const prevBtn = lb?.querySelector<HTMLButtonElement>(".store-lightbox-prev");
+    const nextBtn = lb?.querySelector<HTMLButtonElement>(".store-lightbox-next");
+    const closeBtn = lb?.querySelector<HTMLButtonElement>(".store-lightbox-close");
+    const backdrop = lb?.querySelector<HTMLElement>(".store-lightbox-backdrop");
+    if (
+      !lb ||
+      !img ||
+      !counter ||
+      !prevBtn ||
+      !nextBtn ||
+      !closeBtn ||
+      !backdrop ||
+      urls.length === 0
+    ) {
+      return;
+    }
+
+    let currentIndex = Math.max(0, Math.min(startIndex, urls.length - 1));
+
+    const renderSlide = (): void => {
+      img.src = urls[currentIndex] || "";
+      counter.textContent =
+        urls.length > 1 ? `${currentIndex + 1} / ${urls.length}` : "";
+      prevBtn.style.visibility = urls.length > 1 ? "visible" : "hidden";
+      nextBtn.style.visibility = urls.length > 1 ? "visible" : "hidden";
+    };
+
+    const closeLightbox = (): void => {
+      lb.classList.remove("store-lightbox--open");
+      lb.setAttribute("aria-hidden", "true");
+      document.removeEventListener("keydown", onKey);
+      closeBtn.onclick = null;
+      backdrop.onclick = null;
+      prevBtn.onclick = null;
+      nextBtn.onclick = null;
+    };
+
+    const onKey = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") {
+        closeLightbox();
+        return;
+      }
+      if (event.key === "ArrowLeft" && urls.length > 1) {
+        currentIndex = (currentIndex - 1 + urls.length) % urls.length;
+        renderSlide();
+      }
+      if (event.key === "ArrowRight" && urls.length > 1) {
+        currentIndex = (currentIndex + 1) % urls.length;
+        renderSlide();
+      }
+    };
+
+    closeDetail();
+    lb.classList.add("store-lightbox--open");
+    lb.setAttribute("aria-hidden", "false");
+    renderSlide();
+    document.addEventListener("keydown", onKey);
+
+    closeBtn.onclick = closeLightbox;
+    backdrop.onclick = closeLightbox;
+    prevBtn.onclick = () => {
+      currentIndex = (currentIndex - 1 + urls.length) % urls.length;
+      renderSlide();
+    };
+    nextBtn.onclick = () => {
+      currentIndex = (currentIndex + 1) % urls.length;
+      renderSlide();
+    };
+  }
+
+  function bindStoreActionButtons(root: ParentNode): void {
+    root
+      .querySelectorAll<HTMLButtonElement>(".store-btn-install")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleInstall(btn));
+      });
+    root
+      .querySelectorAll<HTMLButtonElement>(".store-btn-uninstall")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleUninstall(btn));
+      });
+    root
+      .querySelectorAll<HTMLButtonElement>(".store-btn-update")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => void handleUpdate(btn));
+      });
+  }
 
   async function loadRepos(): Promise<void> {
     const res = await fetch("/api/store/repos", {
@@ -443,22 +726,10 @@ export async function initStoreTab(
       grid.innerHTML = filtered
         .map((item) => _renderItemCard(item, getToken))
         .join("");
-      grid
-        .querySelectorAll<HTMLButtonElement>(".store-btn-install")
-        .forEach((btn) => {
-          btn.addEventListener("click", () => void handleInstall(btn));
-        });
-      grid
-        .querySelectorAll<HTMLButtonElement>(".store-btn-uninstall")
-        .forEach((btn) => {
-          btn.addEventListener("click", () => void handleUninstall(btn));
-        });
-      grid
-        .querySelectorAll<HTMLButtonElement>(".store-btn-update")
-        .forEach((btn) => {
-          btn.addEventListener("click", () => void handleUpdate(btn));
-        });
+      bindStoreActionButtons(grid);
     }
+
+    syncDetailModal();
 
     const updateAllBtn = container.querySelector<HTMLButtonElement>(
       ".store-btn-update-all",
@@ -663,6 +934,13 @@ export async function initStoreTab(
       </div>
       <div class="store-catalog-grid"></div>
     </section>
+    <div class="store-detail-modal" id="store-detail-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Catalog item details">
+      <div class="store-detail-backdrop"></div>
+      <div class="store-detail-dialog" role="document">
+        <button class="store-detail-close" type="button" aria-label="Close">&times;</button>
+        <div class="store-detail-body"></div>
+      </div>
+    </div>
     <div class="store-lightbox" id="store-lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Screenshot gallery">
       <div class="store-lightbox-backdrop"></div>
       <button class="store-lightbox-close" type="button" aria-label="Close">&times;</button>
@@ -717,6 +995,22 @@ export async function initStoreTab(
     });
 
   container.addEventListener("click", async (e) => {
+    const detailClose = (e.target as HTMLElement).closest<HTMLElement>(
+      ".store-detail-close, .store-detail-backdrop",
+    );
+    if (detailClose) {
+      closeDetail();
+      return;
+    }
+
+    const detailCard = (e.target as HTMLElement).closest<HTMLElement>(
+      ".store-card-main[data-detail-key], .store-card-name-button[data-detail-key]",
+    );
+    if (detailCard?.dataset.detailKey) {
+      openDetailForKey(detailCard.dataset.detailKey);
+      return;
+    }
+
     const refreshBtn = (e.target as HTMLElement).closest<HTMLElement>(
       ".store-btn-refresh",
     );
@@ -732,6 +1026,22 @@ export async function initStoreTab(
       });
       if (ok) void handleRemove(removeBtn.dataset.url);
     }
+  });
+
+  container.addEventListener("keydown", (e) => {
+    const target = e.target as HTMLElement;
+    if (e.key === "Escape" && activeDetailKey) {
+      closeDetail();
+      return;
+    }
+
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const detailCard = target.closest<HTMLElement>(
+      ".store-card-main[data-detail-key]",
+    );
+    if (!detailCard?.dataset.detailKey) return;
+    e.preventDefault();
+    openDetailForKey(detailCard.dataset.detailKey);
   });
 
   container

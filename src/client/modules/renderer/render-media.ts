@@ -22,7 +22,8 @@ const _shortestColumn = (columns: HTMLElement[]): HTMLElement =>
 
 function _ensureImageColumns(grid: HTMLElement): void {
   const count = _getImageColumnCount(
-    Math.max(grid.getBoundingClientRect().width, window.innerWidth),
+    Math.max(Math.round(grid.getBoundingClientRect().width), 0) ||
+      window.innerWidth,
   );
   const existing = grid.querySelectorAll(".image-column").length;
   if (existing === count) return;
@@ -54,7 +55,6 @@ function _handleResize(): void {
 }
 
 let _resizeListenerAdded = false;
-let _layoutListenerAdded = false;
 
 export function appendMediaCards(
   grid: HTMLElement,
@@ -93,10 +93,6 @@ export function appendMediaCards(
     if (!_resizeListenerAdded) {
       window.addEventListener("resize", _handleResize);
       _resizeListenerAdded = true;
-    }
-    if (!_layoutListenerAdded) {
-      window.addEventListener("degoog-media-layout", _handleResize);
-      _layoutListenerAdded = true;
     }
   } else {
     const fragment = document.createDocumentFragment();

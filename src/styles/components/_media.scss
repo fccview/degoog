@@ -88,7 +88,7 @@
   position: fixed;
   top: var(--media-preview-panel-top, 16px);
   right: 16px;
-  width: min(420px, calc(100vw - 32px));
+  width: min(var(--media-preview-panel-width, 440px), calc(100vw - 32px));
   height: var(--media-preview-panel-height, calc(100dvh - 32px));
   padding: 68px 18px 18px;
   box-sizing: border-box;
@@ -105,11 +105,22 @@
   transform: translateX(calc(100% + 32px));
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
     opacity $transition-fast;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: visible;
   overscroll-behavior: contain;
   z-index: 340;
   isolation: isolate;
   backdrop-filter: blur(18px);
+  scrollbar-gutter: stable;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+  }
 
   &.open {
     opacity: 1;
@@ -174,7 +185,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: min(52vh, 720px);
+  height: clamp(240px, 36vh, 420px);
+  min-height: clamp(240px, 36vh, 420px);
+  max-height: clamp(240px, 36vh, 420px);
   background: var(--bg-light);
   border-radius: 22px;
   overflow: hidden;
@@ -228,10 +241,9 @@
 .media-preview-img {
   width: 100%;
   height: 100%;
-  max-height: min(52vh, 720px);
   object-fit: contain;
   background: transparent;
-  padding: 22px;
+  padding: 18px;
   border-radius: 22px;
   cursor: zoom-in;
   opacity: 1;
@@ -250,13 +262,13 @@
 .media-preview-video {
   width: 100%;
   height: 100%;
-  min-height: min(52vh, 720px);
+  min-height: 0;
   border: 0;
   background: #000;
 }
 
 .media-preview-panel--video {
-  width: min(520px, calc(100vw - 32px));
+  width: min(var(--media-preview-panel-width, 440px), calc(100vw - 32px));
 
   @media (max-width: 767px) {
     width: 100% !important;
@@ -264,9 +276,9 @@
 }
 
 .media-preview-info {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  flex: 0 0 auto;
+  min-height: auto;
+  overflow: visible;
   overflow-x: visible;
   padding: 2px 4px 0 2px;
   position: relative;
@@ -281,6 +293,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 .media-preview-title {
@@ -320,6 +333,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  position: relative;
+  z-index: 3;
 
   @media (max-width: 767px) {
     display: grid;
@@ -362,6 +377,7 @@
 
 .media-action-menu-wrap {
   position: relative;
+  z-index: 5;
 
   &.open .media-action-menu {
     opacity: 1;
@@ -372,7 +388,7 @@
 
 .media-action-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  bottom: calc(100% + 8px);
   right: 0;
   min-width: 220px;
   padding: 8px;
@@ -381,10 +397,10 @@
   background: var(--bg);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(6px);
   pointer-events: none;
   transition: opacity $transition-fast, transform $transition-fast;
-  z-index: 12;
+  z-index: 20;
 
   @media (max-width: 767px) {
     min-width: min(240px, calc(100vw - 48px));

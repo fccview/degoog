@@ -4,6 +4,17 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$scriptDir = if ($PSScriptRoot) {
+  $PSScriptRoot
+} else {
+  Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
+# Fix for Bun's long path prefix (\\?\) which causes Join-Path to fail
+$scriptDir = $scriptDir.Replace("\\?\", "")
+
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "..")).Path
+Set-Location $repoRoot
 
 function Stop-ChildProcess {
   param([System.Diagnostics.Process]$Process)
@@ -35,7 +46,7 @@ Write-Output "Starting server on http://127.0.0.1:$Port using data dir: $DataDir
 $cmd = "set DEGOOG_DATA_DIR=$DataDir&& set DEGOOG_PORT=$Port&& bun run src/server/index.ts"
 $process = Start-Process -FilePath "cmd.exe" `
   -ArgumentList "/c", $cmd `
-  -WorkingDirectory (Get-Location).Path `
+  -WorkingDirectory $repoRoot `
   -PassThru `
   -RedirectStandardOutput $stdout `
   -RedirectStandardError $stderr

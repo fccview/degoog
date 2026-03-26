@@ -29,11 +29,15 @@ let lightboxDidDrag = false;
 let lightboxSuppressStageClickUntil = 0;
 let lightboxImageRequestToken = 0;
 let sidePreviewImageRequestToken = 0;
+let sidePanelLayoutFrame: number | null = null;
+let sidePanelLayoutObserver: ResizeObserver | null = null;
 
 const LIGHTBOX_CLOSE_MS = 180;
 const LIGHTBOX_DRAG_THRESHOLD = 6;
 const MIN_LIGHTBOX_SCALE = 0.75;
 const MAX_LIGHTBOX_SCALE = 6;
+const DESKTOP_MEDIA_PANEL_WIDTH = 440;
+const DESKTOP_MEDIA_PANEL_GAP = 28;
 export function registerAppendMediaCards(
   fn: (
     grid: HTMLElement,
@@ -358,7 +362,7 @@ function _renderSidePreview(item: ScoredResult): void {
 
   panel?.classList.toggle("media-preview-panel--video", !!videoEmbedUrl);
   panel?.classList.add("open");
-  _syncSidePanelLayout();
+  _scheduleSidePanelLayoutSync();
   _updateNavButtons();
 }
 
@@ -972,11 +976,20 @@ function _syncSidePanelLayout(): void {
     document.querySelector<HTMLElement>(".image-tools-bar:not([hidden])"),
     document.getElementById("results-meta"),
   ].filter((el): el is HTMLElement => !!el);
-  const top =
-    anchors.length > 0
-      ? Math.max(...anchors.map((el) => el.getBoundingClientRect().bottom)) + 12
-      : 16;
+  const visibleAnchorBottoms = anchors
+    .map((el) => el.getBoundingClientRect().bottom)
+    .filter((bottom) => bottom > 0);
+  const top = Math.max(
+    visibleAnchorBottoms.length > 0
+      ? Math.max(...visibleAnchorBottoms) + 12
+      : 16,
+    16,
+  );
   const height = Math.max(window.innerHeight - top - 16, 320);
+  const reservedSpace = Math.min(
+    DESKTOP_MEDIA_PANEL_WIDTH + DESKTOP_MEDIA_PANEL_GAP,
+    Math.max(window.innerWidth - 24, 0),
+  );
 
   document.documentElement.style.setProperty(
     "--media-preview-panel-top",
@@ -986,33 +999,76 @@ function _syncSidePanelLayout(): void {
     "--media-preview-panel-height",
     `${Math.round(height)}px`,
   );
+  document.documentElement.style.setProperty(
+    "--media-preview-panel-width",
+    `${DESKTOP_MEDIA_PANEL_WIDTH}px`,
+  );
+  document.documentElement.style.setProperty(
+    "--media-preview-panel-reserved-space",
+    `${Math.round(reservedSpace)}px`,
+  );
+  layout.classList.add("media-preview-active");
+}
 
-  requestAnimationFrame(() => {
-    if (!panel.classList.contains("open")) return;
-    const width = Math.ceil(panel.getBoundingClientRect().width);
-    document.documentElement.style.setProperty(
-      "--media-preview-panel-reserved-space",
-      `${width + 28}px`,
-    );
-    layout.classList.add("media-preview-active");
-    window.dispatchEvent(new Event("degoog-media-layout"));
+function _scheduleSidePanelLayoutSync(): void {
+  if (sidePanelLayoutFrame !== null) {
+    window.cancelAnimationFrame(sidePanelLayoutFrame);
+  }
+  sidePanelLayoutFrame = window.requestAnimationFrame(() => {
+    sidePanelLayoutFrame = null;
+    _syncSidePanelLayout();
   });
 }
 
+function _bindSidePanelLayoutObserver(): void {
+  if (
+    sidePanelLayoutObserver ||
+    typeof ResizeObserver === "undefined" ||
+    typeof document === "undefined"
+  ) {
+    return;
+  }
+
+  sidePanelLayoutObserver = new ResizeObserver(() => {
+    if (_isSidePanelOpen()) _scheduleSidePanelLayoutSync();
+  });
+
+  [
+    document.querySelector<HTMLElement>(".results-header"),
+    document.querySelector<HTMLElement>(".results-tabs"),
+    document.querySelector<HTMLElement>(".image-tools-bar"),
+    document.getElementById("results-meta"),
+  ]
+    .filter((el): el is HTMLElement => !!el)
+    .forEach((el) => sidePanelLayoutObserver?.observe(el));
+}
+
 function _clearSidePanelLayout(): void {
+  if (sidePanelLayoutFrame !== null) {
+    window.cancelAnimationFrame(sidePanelLayoutFrame);
+    sidePanelLayoutFrame = null;
+  }
   document.documentElement.style.removeProperty("--media-preview-panel-top");
   document.documentElement.style.removeProperty("--media-preview-panel-height");
+  document.documentElement.style.removeProperty("--media-preview-panel-width");
   document.documentElement.style.removeProperty(
     "--media-preview-panel-reserved-space",
   );
   document
     .querySelector<HTMLElement>(".results-layout")
     ?.classList.remove("media-preview-active");
-  window.dispatchEvent(new Event("degoog-media-layout"));
 }
 
 if (typeof window !== "undefined") {
+  _bindSidePanelLayoutObserver();
   window.addEventListener("resize", () => {
-    if (_isSidePanelOpen()) _syncSidePanelLayout();
+    if (_isSidePanelOpen()) _scheduleSidePanelLayoutSync();
   });
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (_isSidePanelOpen()) _scheduleSidePanelLayoutSync();
+    },
+    { passive: true },
+  );
 }
