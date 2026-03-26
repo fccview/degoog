@@ -14,7 +14,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
-    "test": "LOGGER= bun test $(find tests -name '*.test.ts' ! -path '*/stress/*' | sort | tr '\\n' ' ')",
+    "test": "bun run scripts/run-tests.ts",
     "test:rate-limit": "LOGGER=debug bun test tests/stress/"
   },
   "dependencies": {
