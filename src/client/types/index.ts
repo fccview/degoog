@@ -82,6 +82,7 @@ export interface AppState {
   currentBangQuery: string;
   openInNewTab: boolean;
   displayEnginePerformance: boolean;
+  displaySearchSuggestions: boolean;
 }
 
 export type SettingFieldType =

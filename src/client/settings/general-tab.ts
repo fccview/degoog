@@ -3,6 +3,7 @@ import {
   THEME_KEY,
   OPEN_IN_NEW_TAB_KEY,
   DISPLAY_ENGINE_PERFORMANCE,
+  DISPLAY_SEARCH_SUGGESTIONS,
 } from "../constants";
 import { applyTheme } from "../utils/theme";
 import { requestInstallPrompt } from "../utils/install-prompt";
@@ -49,6 +50,20 @@ export async function initAppearanceSettings(): Promise<void> {
       );
     });
   }
+
+  const displaySearchSuggestions = document.getElementById(
+    "display-search-suggestions",
+  ) as HTMLInputElement | null;
+  if (displaySearchSuggestions) {
+    const saved = await idbGet<boolean>(DISPLAY_SEARCH_SUGGESTIONS);
+    displaySearchSuggestions.checked = saved || false;
+    displaySearchSuggestions.addEventListener("change", async () => {
+      await idbSet(
+        DISPLAY_SEARCH_SUGGESTIONS,
+        displaySearchSuggestions.checked,
+      );
+    });
+  }
 }
 
 export async function initGeneralTab(
@@ -77,6 +92,15 @@ export async function initGeneralTab(
   if (displayEnginePerformance) {
     const saved = await idbGet<boolean>(DISPLAY_ENGINE_PERFORMANCE);
     displayEnginePerformance.checked = saved ?? true;
+  }
+
+  // Search suggestions toggle
+  const displaySearchSuggestions = document.getElementById(
+    "display-search-suggestions",
+  ) as HTMLInputElement | null;
+  if (displaySearchSuggestions) {
+    const saved = await idbGet<boolean>(DISPLAY_SEARCH_SUGGESTIONS);
+    displaySearchSuggestions.checked = saved ?? true;
   }
 
   const proxyEnabled = document.getElementById(
@@ -215,6 +239,13 @@ export async function initGeneralTab(
         await idbSet(
           DISPLAY_ENGINE_PERFORMANCE,
           displayEnginePerformance.checked,
+        );
+      }
+      // Save search suggestion setting
+      if (displaySearchSuggestions) {
+        await idbSet(
+          DISPLAY_SEARCH_SUGGESTIONS,
+          displaySearchSuggestions.checked,
         );
       }
       if (proxyEnabled && proxyUrls) {

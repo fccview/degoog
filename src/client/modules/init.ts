@@ -8,7 +8,11 @@ import { initMediaPreview } from "./media/media-preview";
 import { initTheme } from "../utils/theme";
 import { initOptionsDropdown } from "../utils/time-filter";
 import { idbGet } from "../utils/db";
-import { OPEN_IN_NEW_TAB_KEY, DISPLAY_ENGINE_PERFORMANCE } from "../constants";
+import {
+  OPEN_IN_NEW_TAB_KEY,
+  DISPLAY_ENGINE_PERFORMANCE,
+  DISPLAY_SEARCH_SUGGESTIONS,
+} from "../constants";
 import { state } from "../state";
 
 import { initInstallPrompt } from "../utils/install-prompt";
@@ -81,6 +85,9 @@ export function init(): void {
   });
   void idbGet<boolean>(DISPLAY_ENGINE_PERFORMANCE).then((v) => {
     if (v !== null) state.displayEnginePerformance = v;
+  });
+  void idbGet<boolean>(DISPLAY_SEARCH_SUGGESTIONS).then((v) => {
+    if (v !== null) state.displaySearchSuggestions = v;
   });
 
   document.body.addEventListener("click", (e) => {

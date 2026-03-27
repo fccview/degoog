@@ -19,4 +19,5 @@ export const state: AppState = {
   currentBangQuery: "",
   openInNewTab: false,
   displayEnginePerformance: true,
+  displaySearchSuggestions: true,
 };
