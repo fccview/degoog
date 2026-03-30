@@ -15,7 +15,7 @@ const mockResponse = (timings: { resultCount: number }[]): SearchResponse => ({
   atAGlance: null,
   query: "test",
   totalTime: 0,
-  type: "all",
+  type: "web",
   engineTimings: timings.map((t) => ({
     name: "e",
     time: 0,

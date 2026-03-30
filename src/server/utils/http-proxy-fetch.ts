@@ -1,7 +1,6 @@
 import net from "node:net";
 import tls from "node:tls";
 import { gunzipSync, inflateSync, brotliDecompressSync } from "node:zlib";
-import type { Socket } from "node:net";
 import type { OutgoingFetchOptions } from "./outgoing";
 
 const MAX_REDIRECTS = 5;
@@ -17,7 +16,7 @@ const _openConnectTunnel = (
   proxyPort: number,
   targetHost: string,
   targetPort: number,
-): Promise<Socket> =>
+): Promise<net.Socket> =>
   new Promise((resolve, reject) => {
     const sock = net.connect(proxyPort, proxyHost);
     const timer = setTimeout(() => {
@@ -62,8 +61,13 @@ async function _openProxySocket(
   targetHost: string,
   targetPort: number,
   useTls: boolean,
-): Promise<Socket> {
-  const sock = await _openConnectTunnel(proxyHost, proxyPort, targetHost, targetPort);
+): Promise<net.Socket> {
+  const sock = await _openConnectTunnel(
+    proxyHost,
+    proxyPort,
+    targetHost,
+    targetPort,
+  );
   if (!useTls) return sock;
 
   const tlsSock = tls.connect({ socket: sock, servername: targetHost });
@@ -97,7 +101,7 @@ function _buildHttpRequest(
   return lines.join("\r\n");
 }
 
-const _readAll = (sock: Socket): Promise<Buffer> =>
+const _readAll = (sock: net.Socket): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     sock.on("data", (c: Buffer) => chunks.push(c));
@@ -115,7 +119,10 @@ function _splitHeaderBody(raw: Buffer): { head: string; body: Buffer } {
   };
 }
 
-function _parseStatusLine(head: string): { status: number; statusText: string } {
+function _parseStatusLine(head: string): {
+  status: number;
+  statusText: string;
+} {
   const first = head.split("\r\n")[0];
   const match = first.match(/^HTTP\/[\d.]+ (\d{3})(?: (.*))?$/);
   return {
@@ -175,10 +182,21 @@ export async function fetchViaHttpProxy(
     const useTls = parsed.protocol === "https:";
     const port = Number(parsed.port) || (useTls ? 443 : 80);
 
-    const sock = await _openProxySocket(proxyHost, proxyPort, parsed.hostname, port, useTls);
+    const sock = await _openProxySocket(
+      proxyHost,
+      proxyPort,
+      parsed.hostname,
+      port,
+      useTls,
+    );
 
     try {
-      const reqStr = _buildHttpRequest(method, parsed, options.headers, options.body);
+      const reqStr = _buildHttpRequest(
+        method,
+        parsed,
+        options.headers,
+        options.body,
+      );
       sock.write(reqStr);
       if (options.body) sock.write(options.body);
 
