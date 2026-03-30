@@ -1,5 +1,6 @@
 import { getSettings } from "./plugin-settings";
 import { debug } from "./logger";
+import { isSocksProxy, fetchViaSocks } from "./socks-fetch";
 
 export interface OutgoingFetchOptions {
   method?: string;
@@ -77,6 +78,17 @@ export async function outgoingFetch(
 
   const proxyUrl = urls[proxyIndex++ % urls.length];
   debug("outgoing", `via proxy ${proxyUrl} -> ${new URL(url).hostname}`);
+
+  if (isSocksProxy(proxyUrl)) {
+    return fetchViaSocks(url, proxyUrl, {
+      method,
+      redirect,
+      signal,
+      headers,
+      body: body ?? undefined,
+    });
+  }
+
   return fetch(url, {
     method,
     redirect,
