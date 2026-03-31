@@ -19,7 +19,9 @@ export {
 } from "./render-slots";
 export { renderSidebar } from "./render-sidebar";
 
-export const buildResultContext = (r: ScoredResult): Record<string, unknown> => ({
+export const buildResultContext = (
+  r: ScoredResult,
+): Record<string, unknown> => ({
   title: r.title,
   url: r.url,
   cite_url: cleanUrl(r.url),
@@ -45,9 +47,10 @@ export function renderResults(results: ScoredResult[]): void {
 
   if (results.length === 0) {
     container.innerHTML = '<div class="no-results">No results found.</div>';
-    if (state.currentType === "web" || state.currentType === "news") {
+    if (state.currentType !== "images" && state.currentType !== "videos") {
       renderPagination(MAX_PAGE, state.currentPage);
     }
+
     return;
   }
 
@@ -74,9 +77,7 @@ export function renderResults(results: ScoredResult[]): void {
     .map((r) => renderTemplate("degoog-result", buildResultContext(r)) ?? "")
     .join("");
 
-  if (state.currentType === "web" || state.currentType === "news") {
-    renderPagination(MAX_PAGE, state.currentPage);
-  }
+  renderPagination(MAX_PAGE, state.currentPage);
 }
 
 export function renderPagination(totalPages: number, activePage: number): void {

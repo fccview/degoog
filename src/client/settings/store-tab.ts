@@ -75,6 +75,7 @@ function engineTypeLabel(t: string): string {
   if (t === "images") return "Images";
   if (t === "videos") return "Videos";
   if (t === "news") return "News";
+
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
@@ -163,12 +164,12 @@ const _renderItemCard = (
   const token = getToken();
   const firstUrl = item.screenshots.length
     ? screenshotUrl(
-      item.repoSlug,
-      item.type,
-      itemSlug,
-      item.screenshots[0],
-      token,
-    )
+        item.repoSlug,
+        item.type,
+        itemSlug,
+        item.screenshots[0],
+        token,
+      )
     : "";
   const thumb = item.screenshots.length
     ? `<img src="${firstUrl}" alt="" class="store-card-thumb" loading="lazy">`
@@ -335,17 +336,20 @@ export async function initStoreTab(
       ".store-repo-list-wrap",
     );
     if (listEl) {
-      listEl.innerHTML = _renderRepoList(repos, getToken, repoStatusByUrl, selectedRepoUrl);
-      listEl
-        .querySelectorAll<HTMLElement>(".store-repo-item")
-        .forEach((el) => {
-          el.addEventListener("click", () => {
-            const url = el.dataset.url;
-            if (!url) return;
-            selectedRepoUrl = selectedRepoUrl === url ? null : url;
-            render();
-          });
+      listEl.innerHTML = _renderRepoList(
+        repos,
+        getToken,
+        repoStatusByUrl,
+        selectedRepoUrl,
+      );
+      listEl.querySelectorAll<HTMLElement>(".store-repo-item").forEach((el) => {
+        el.addEventListener("click", () => {
+          const url = el.dataset.url;
+          if (!url) return;
+          selectedRepoUrl = selectedRepoUrl === url ? null : url;
+          render();
         });
+      });
     }
 
     const catalogSection = container.querySelector<HTMLElement>(
@@ -753,7 +757,7 @@ export async function initStoreTab(
         method: "POST",
         headers: jsonHeaders(getToken),
         body: JSON.stringify({}),
-      }).catch(() => { });
+      }).catch(() => {});
       await loadRepos();
       await loadItems();
       await loadReposStatus();

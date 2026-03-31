@@ -263,7 +263,7 @@ async function listScreenshots(dir: string): Promise<string[]> {
   const screenshotsDir = join(dir, "screenshots");
   try {
     const files = await readdir(screenshotsDir);
-    return files.filter((f) => /\.(png|jpg|jpeg|gif|webp)$/i.test(f));
+    return files.filter((f) => /\.(png|jpg|jpeg|gif|webp)$/i.test(f)).sort();
   } catch {
     return [];
   }
