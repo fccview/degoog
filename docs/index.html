@@ -54,9 +54,9 @@
         <h2>Overview</h2>
         <p>
           Degoog can be customised with plugins, themes, search engines,
-          transports, and aliases. Extensions live under <code>data/</code> and can be installed
-          from <strong>Store</strong> repositories (git repos you add in
-          Settings → Store).
+          transports, and aliases. Extensions live under <code>data/</code> and
+          can be installed from <strong>Store</strong> repositories (git repos
+          you add in Settings → Store).
         </p>
 
         <h2>Where things live</h2>
@@ -130,14 +130,15 @@
             target="_blank"
             rel="noopener"
             >fccview-degoog-extensions</a
-          >. Add its clone URL in Settings → Store to install plugins, themes,
-          engines, and transports.
+          >. This is automatically added to your instance when you start it for
+          the first time.
         </p>
 
         <h2>Use as your browser's default search engine</h2>
         <p>
           Any browser that supports custom search engines can use degoog.
-          Replace <code>https://your-instance</code> with your actual instance URL.
+          Replace <code>https://your-instance</code> with your actual instance
+          URL.
         </p>
         <table>
           <thead>
@@ -153,14 +154,23 @@
             </tr>
             <tr>
               <td>Suggestions URL</td>
-              <td><code>https://your-instance/api/suggest/opensearch?q=%s</code></td>
+              <td>
+                <code>https://your-instance/api/suggest/opensearch?q=%s</code>
+              </td>
             </tr>
           </tbody>
         </table>
         <p>
           Browsers that support
-          <a href="https://developer.mozilla.org/en-US/docs/Web/OpenSearch" class="external" target="_blank" rel="noopener">OpenSearch</a>
-          can detect degoog automatically — right-clicking the search bar on your instance will offer to add it.
+          <a
+            href="https://developer.mozilla.org/en-US/docs/Web/OpenSearch"
+            class="external"
+            target="_blank"
+            rel="noopener"
+            >OpenSearch</a
+          >
+          can detect degoog automatically — right-clicking the search bar on
+          your instance will offer to add it.
         </p>
 
         <h2>Extension types</h2>
@@ -180,7 +190,8 @@
           </li>
           <li>
             <strong><a href="transports.html">Transports</a></strong> — Custom
-            HTTP fetch strategies (e.g. FlareSolverr, curl fallback).
+            HTTP fetch strategies (e.g. fetch, curl and whatever you can come up
+            with really).
           </li>
           <li>
             <strong><a href="store.html">Store</a></strong> — Add git repos and
