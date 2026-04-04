@@ -1,7 +1,16 @@
 import { join } from "path";
-import type { BangCommand, ExtensionMeta, SettingField } from "../../types";
+import type {
+  BangCommand,
+  ExtensionMeta,
+  SettingField,
+  Translate,
+} from "../../types";
 import { debug } from "../../utils/logger";
-import { initPlugin, loadPluginAssets } from "../../utils/plugin-assets";
+import {
+  initPlugin,
+  loadPluginAssets,
+  registerPluginNamespace,
+} from "../../utils/plugin-assets";
 import {
   asString,
   getSettings,
@@ -97,6 +106,7 @@ async function loadCommandsFromRoot(
       if (allCommands.some((c) => c.trigger === instance.trigger)) continue;
 
       instance.t = await createTranslatorFromPath(entryPath);
+      registerPluginNamespace(entry, `commands/${id}`);
 
       if (!(await isDisabled(id))) {
         const template = await loadPluginAssets(entryPath, entry, id, source);
@@ -148,6 +158,15 @@ export async function reloadCommands(): Promise<void> {
 
 export function getCommandInstanceById(id: string): BangCommand | undefined {
   return allCommands.find((c) => c.id === id)?.instance;
+}
+
+export function getAllCommandTranslators(): {
+  namespace: string;
+  translator: Translate;
+}[] {
+  return allCommands
+    .filter((c) => !!c.instance.t)
+    .map((c) => ({ namespace: `commands/${c.id}`, translator: c.instance.t! }));
 }
 
 export function getCommandMap(): Map<

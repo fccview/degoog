@@ -183,6 +183,7 @@ export interface Translate {
   ): string;
   setLocale(locale: string): void;
   locale: string;
+  translations?: TranslationRecord;
 }
 export const TranslateFunction: Translate = Object.assign(
   function (
@@ -194,6 +195,7 @@ export const TranslateFunction: Translate = Object.assign(
   {
     setLocale(_locale: string) {},
     locale: "",
+    translations: undefined as TranslationRecord | undefined,
   },
 );
 

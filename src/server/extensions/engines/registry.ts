@@ -4,6 +4,7 @@ import {
   type SearchEngine,
   type SearchType,
   type SettingField,
+  type Translate,
   ExtensionStoreType,
 } from "../../types";
 import { debug } from "../../utils/logger";
@@ -518,4 +519,13 @@ export async function initEngines(): Promise<void> {
 
 export async function reloadEngines(): Promise<void> {
   await initEngines();
+}
+
+export function getAllEngineTranslators(): {
+  namespace: string;
+  translator: Translate;
+}[] {
+  return pluginEntries
+    .filter((e) => !!e.instance.t)
+    .map((e) => ({ namespace: `engines/${e.id}`, translator: e.instance.t! }));
 }

@@ -138,6 +138,9 @@ export const createTranslator = (translations: TranslationRecord) => {
       get locale() {
         return locale;
       },
+      get translations() {
+        return translations;
+      },
     },
   );
 };
@@ -168,14 +171,14 @@ export const withFallback = (
       get locale() {
         return primary.locale;
       },
+      get translations() {
+        return primary.translations;
+      },
     },
   );
 };
 
-export const translateHTML = (
-  html: string,
-  t: ReturnType<typeof createTranslator>,
-): string => {
+export const translateHTML = (html: string, t: Translate): string => {
   // Remove <script>...</script> blocks, translate, then restore them
   const scripts: string[] = [];
   const placeholder = (i: number) => `<!--__SCRIPT_BLOCK_${i}__-->`;
@@ -213,5 +216,62 @@ export const translateHTML = (
   return translated.replace(
     /<!--__SCRIPT_BLOCK_(\d+)__-->/g,
     (_, i) => scripts[Number(i)],
+  );
+};
+
+function deepMerge(
+  target: Record<string, unknown>,
+  source: Record<string, unknown>,
+): Record<string, unknown> {
+  for (const key of Object.keys(source)) {
+    const sv = source[key];
+    const tv = target[key];
+
+    if (
+      typeof sv === "object" &&
+      sv !== null &&
+      typeof tv === "object" &&
+      tv !== null
+    ) {
+      deepMerge(tv as Record<string, unknown>, sv as Record<string, unknown>);
+    } else {
+      target[key] = sv;
+    }
+  }
+  return target;
+}
+
+export const collectTranslationsForLocale = (
+  entries: { namespace: string; translator: Translate }[],
+  locale: string,
+): Record<string, Record<string, TranslationRecord>> => {
+  const result: Record<string, Record<string, TranslationRecord>> = {};
+  for (const { namespace, translator } of entries) {
+    if (!translator.translations) continue;
+
+    const lang = getClosestLanguage(
+      locale,
+      Object.keys(translator.translations),
+    );
+    if (!lang) continue;
+
+    const source = translator.translations[lang];
+    if (!source || typeof source !== "object") continue;
+
+    if (!result[namespace]) result[namespace] = {};
+    deepMerge(result[namespace], source as Record<string, TranslationRecord>);
+  }
+  return result;
+};
+
+// This can cause issues if plugins tried to share global variables in the frontend
+// tbh I'm not sure if that's a thing we want to support, @fccview what do you think?
+export const injectScope = (html: string, namespace: string): string => {
+  const ns = JSON.stringify(namespace);
+
+  return html.replace(
+    /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi,
+    (_, open, body, close) =>
+      `${open}(function(t){${body}})(typeof window.scopedT==="function"?window.scopedT(${ns}):function(k){return k});${close}`,
   );
 };

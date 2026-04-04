@@ -1,5 +1,6 @@
-import type { RequestMiddleware } from "../../types";
+import type { RequestMiddleware, Translate } from "../../types";
 import { debug } from "../../utils/logger";
+import { registerPluginNamespace } from "../../utils/plugin-assets";
 import { createTranslatorFromPath } from "../../utils/translation";
 
 const middlewares = new Map<string, RequestMiddleware>();
@@ -48,6 +49,7 @@ export async function initMiddlewareRegistry(): Promise<void> {
         if (!m || !isRequestMiddleware(m)) continue;
 
         m.t = await createTranslatorFromPath(entryPath);
+        registerPluginNamespace(entry, `middleware/${m.id}`);
 
         middlewares.set(m.id, m);
       } catch (err) {
@@ -70,4 +72,13 @@ export function getMiddleware(id: string): RequestMiddleware | null {
 export async function reloadMiddlewareRegistry(): Promise<void> {
   middlewares.clear();
   await initMiddlewareRegistry();
+}
+
+export function getAllMiddlewareTranslators(): {
+  namespace: string;
+  translator: Translate;
+}[] {
+  return Array.from(middlewares.values())
+    .filter((m) => !!m.t)
+    .map((m) => ({ namespace: `middleware/${m.id}`, translator: m.t! }));
 }

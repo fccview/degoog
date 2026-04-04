@@ -1,9 +1,14 @@
 import { join } from "path";
-import { SlotPanelPosition, type SlotPlugin } from "../../types";
+import {
+  SlotPanelPosition,
+  type SlotPlugin,
+  type Translate,
+} from "../../types";
 import { debug } from "../../utils/logger";
 import {
   initPlugin,
   loadPluginAssets,
+  registerPluginNamespace,
   registerPluginSettingsId,
 } from "../../utils/plugin-assets";
 import { isDisabled } from "../../utils/plugin-settings";
@@ -82,6 +87,7 @@ async function loadSlotsFromRoot(
       if (!slot || !isSlotPlugin(slot)) continue;
 
       slot.t = await createTranslatorFromPath(entryPath);
+      registerPluginNamespace(entry, `slots/${slot.id}`);
 
       const slotSettingsId = slot.settingsId ?? `slot-${slot.id}`;
       registerPluginSettingsId(entry, slotSettingsId);
@@ -116,6 +122,15 @@ export function getSlotPlugins(): SlotPlugin[] {
 
 export function getSlotPluginById(slotId: string): SlotPlugin | null {
   return slotPlugins.find((p) => p.id === slotId) ?? null;
+}
+
+export function getAllSlotTranslators(): {
+  namespace: string;
+  translator: Translate;
+}[] {
+  return slotPlugins
+    .filter((s) => !!s.t)
+    .map((s) => ({ namespace: `slots/${s.id}`, translator: s.t! }));
 }
 
 export async function reloadSlotPlugins(): Promise<void> {

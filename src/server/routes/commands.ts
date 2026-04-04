@@ -8,6 +8,7 @@ import type { TimeFilter } from "../types";
 import { debug } from "../utils/logger";
 import { isDisabled } from "../utils/plugin-settings";
 import { getClientIp } from "../utils/request";
+import { injectScope, translateHTML } from "../utils/translation";
 
 const router = new Hono();
 
@@ -84,7 +85,10 @@ router.get("/api/command", async (c) => {
     type: "command",
     trigger: match.command.trigger,
     title: result.title,
-    html: result.html,
+    html: injectScope(
+      match.command.t ? translateHTML(result.html, match.command.t) : result.html,
+      `commands/${match.commandId}`,
+    ),
     action: result.action,
     page,
     totalPages: result.totalPages ?? 1,

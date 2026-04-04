@@ -3,10 +3,16 @@ import { Hono } from "hono";
 import { join } from "path";
 import pkg from "../../../package.json";
 import { SETTINGS_TABS } from "../../shared/settings-tabs";
+import { getAllCommandTranslators } from "../extensions/commands/registry";
 import {
+  getAllEngineTranslators,
   getDefaultEngineConfig,
   getEngineRegistry,
 } from "../extensions/engines/registry";
+import { getAllMiddlewareTranslators } from "../extensions/middleware/registry";
+import { getAllSearchBarTranslators } from "../extensions/search-bar/registry";
+import { getAllTabTranslators } from "../extensions/search-result-tabs/registry";
+import { getAllSlotTranslators } from "../extensions/slots/registry";
 import {
   getActiveTheme,
   getActiveThemeDataAttrs,
@@ -24,6 +30,7 @@ import {
 import { isDisabled } from "../utils/plugin-settings";
 import { isPublicInstance } from "../utils/public-instance";
 import {
+  collectTranslationsForLocale,
   createTranslatorFromPath,
   translateHTML,
   withFallback,
@@ -126,6 +133,34 @@ async function applyPagePlaceholders(
   t: Translate,
 ): Promise<string> {
   const themeAttrs = await getActiveThemeDataAttrs();
+  const locale = t.locale || "en";
+
+  // Collect all translations for the current locale (namespaced)
+  const entries: { namespace: string; translator: Translate }[] = [
+    {
+      namespace: "themes/degoog",
+      translator: await getDefaultThemeTranslator(),
+    },
+    ...getAllCommandTranslators(),
+    ...getAllSlotTranslators(),
+    ...getAllTabTranslators(),
+    ...getAllEngineTranslators(),
+    ...getAllMiddlewareTranslators(),
+    ...getAllSearchBarTranslators(),
+  ];
+  const theme = getActiveTheme();
+
+  if (theme?.t && theme.manifest?.name) {
+    entries.push({
+      namespace: `themes/${theme.manifest.name}`,
+      translator: theme.t,
+    });
+  }
+
+  const clientTranslations = collectTranslationsForLocale(entries, locale);
+  const safeJson = JSON.stringify(clientTranslations).replace(/<\//g, "<\\/");
+  const translationsScript = `<script>window.__DEGOOG_T__=${safeJson}</script>\n  <script src="/public/t.js?v=${pkg.version}"></script>`;
+
   let result = html
     .replace("__THEME_CSS__", themeCssPlaceholder())
     .replace("__THEME_ATTRS__", themeAttrs)
@@ -141,6 +176,10 @@ async function applyPagePlaceholders(
     result = result.replace("</body>", `${allTemplates}\n</body>`);
   }
   result = result.replaceAll("__APP_VERSION__", pkg.version);
+
+  // Inject translations before </head> so t() is available to all scripts
+  result = result.replace("</head>", `${translationsScript}\n  </head>`);
+
   return translateHTML(result, t);
 }
 

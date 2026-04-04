@@ -2,6 +2,7 @@ import {
   type ExtensionMeta,
   ExtensionStoreType,
   type SearchBarAction,
+  type Translate,
 } from "../../types";
 import { debug } from "../../utils/logger";
 import {
@@ -139,4 +140,21 @@ export async function getSearchBarActionExtensionMeta(): Promise<
     });
   }
   return out;
+}
+
+export function getAllSearchBarTranslators(): {
+  namespace: string;
+  translator: Translate;
+}[] {
+  const seen = new Map<string, Translate>();
+
+  for (const { pluginId, action } of storedActions) {
+    if (!action.t || seen.has(pluginId)) continue;
+    seen.set(pluginId, action.t);
+  }
+
+  return Array.from(seen.entries()).map(([id, translator]) => ({
+    namespace: `search-bar/${id}`,
+    translator,
+  }));
 }
