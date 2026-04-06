@@ -1,6 +1,7 @@
 import {
   SlotPanelPosition,
   TranslateFunction,
+  type PluginContext,
   type SlotPlugin,
 } from "../../../../types";
 
@@ -17,11 +18,14 @@ function escapeHtml(s: string): string {
 
 interface WikiPage {
   title: string;
+  description: string;
   extract: string;
   thumbnail?: { source: string };
   fullurl?: string;
   pageid: number;
 }
+
+let _template = "";
 
 let _cache: { query: string | null; page: WikiPage | null } = {
   query: null,
@@ -35,13 +39,14 @@ async function _fetchWikipedia(query: string): Promise<WikiPage | null> {
     const params = new URLSearchParams({
       action: "query",
       titles: query,
-      prop: "extracts|pageimages|info",
+      redirects: "1",
+      prop: "extracts|pageimages|info|description",
       exintro: "1",
       explaintext: "1",
-      pithumbsize: "300",
+      exsentences: "6",
+      pithumbsize: "120",
       inprop: "url",
       format: "json",
-      redirects: "1",
     });
     const res = await fetch(
       `https://en.wikipedia.org/w/api.php?${params.toString()}`,
@@ -85,6 +90,10 @@ const wikipediaSlot: SlotPlugin = {
 
   t: TranslateFunction,
 
+  init(ctx: PluginContext): void {
+    _template = ctx.template;
+  },
+
   async trigger(query: string): Promise<boolean> {
     const q = query.trim();
     if (q.length < 2 || q.length > 100) return false;
@@ -102,20 +111,20 @@ const wikipediaSlot: SlotPlugin = {
     }
     if (!page) return { html: "" };
 
-    const title = escapeHtml(page.title);
-    const description = escapeHtml(page.extract.substring(0, 500));
-    const url = escapeHtml(
-      page.fullurl ||
-        `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`,
-    );
+    const sanitizePage: Record<string, string> = {
+      title: escapeHtml(page.title),
+      description: escapeHtml(page.description || ""),
+      extract: escapeHtml(page.extract),
+      thumbnail: page.thumbnail
+        ? `<img class="wiki-thumb" src="${escapeHtml(page.thumbnail.source)}" alt="${escapeHtml(page.title)}" loading="lazy">`
+        : "",
+      url: page.fullurl ?? `https://en.wikipedia.org/?curid=${page.pageid}`,
+    };
 
-    let html = "";
-    if (page.thumbnail?.source) {
-      html += `<img class="kp-image" src="${escapeHtml(page.thumbnail.source)}" alt="${title}">`;
-    }
-    html += `<h3 class="kp-title">${title}</h3>`;
-    html += `<p class="kp-description">${description}</p>`;
-    html += `<a class="kp-link" href="${url}" target="_blank">${this.t!("wikipedia.read-more")}</a>`;
+    const html = _template.replace(
+      /\{\{(\w+)\}\}/g,
+      (_, key: string) => sanitizePage[key] ?? "",
+    );
 
     return { title: page.title, html };
   },
