@@ -37,4 +37,24 @@ describe("slots registry", () => {
     expect(slot!.position).toBe(SlotPanelPosition.AtAGlance);
     expect(slot!.waitForResults).toBe(true);
   });
+
+  test("built-in wikipedia slot has position knowledge-panel", () => {
+    const slot = getSlotPluginById("wikipedia");
+    expect(slot).not.toBeNull();
+    expect(slot!.position).toBe(SlotPanelPosition.KnowledgePanel);
+  });
+
+  test("built-in wikipedia slot trigger returns false for very short queries", async () => {
+    const slot = getSlotPluginById("wikipedia");
+    expect(slot).not.toBeNull();
+    const result = await slot!.trigger("x");
+    expect(result).toBe(false);
+  });
+
+  test("built-in wikipedia slot execute returns empty html when no page cached", async () => {
+    const slot = getSlotPluginById("wikipedia");
+    expect(slot).not.toBeNull();
+    const result = await slot!.execute("__nonexistent_query_xyz__");
+    expect(result.html).toBe("");
+  });
 });
