@@ -1,25 +1,24 @@
-import type {
-  SearchEngine,
-  SearchResult,
-  ScoredResult,
-  SearchResponse,
-  EngineConfig,
-  SearchType,
-  EngineTiming,
-  KnowledgePanel,
-  TimeFilter,
-  EngineContext,
-} from "./types";
 import {
-  getEngineMap,
   getActiveWebEngines,
-  getEnginesForSearchType,
-  getEngineIdByInstance,
   getEngineDefaultTransport,
+  getEngineIdByInstance,
+  getEngineMap,
+  getEnginesForSearchType,
 } from "./extensions/engines/registry";
-import { getSettings, asString } from "./utils/plugin-settings";
-import { outgoingFetch, parseOutgoingTransport } from "./utils/outgoing";
 import { resolveTransport } from "./extensions/transports/registry";
+import type {
+  EngineConfig,
+  EngineContext,
+  EngineTiming,
+  ScoredResult,
+  SearchEngine,
+  SearchResponse,
+  SearchResult,
+  SearchType,
+  TimeFilter,
+} from "./types";
+import { outgoingFetch, parseOutgoingTransport } from "./utils/outgoing";
+import { asString, getSettings } from "./utils/plugin-settings";
 
 const MAX_PAGE = 10;
 const ENGINE_TIMEOUT_MS = 10_000;
@@ -111,66 +110,6 @@ export const fetchRelatedSearches = async (
       .slice(0, 8);
   } catch {
     return [];
-  }
-};
-
-export const fetchKnowledgePanel = async (
-  query: string,
-): Promise<KnowledgePanel | null> => {
-  try {
-    const params = new URLSearchParams({
-      action: "query",
-      titles: query,
-      prop: "extracts|pageimages|info",
-      exintro: "1",
-      explaintext: "1",
-      pithumbsize: "300",
-      inprop: "url",
-      format: "json",
-      redirects: "1",
-    });
-    const res = await outgoingFetch(
-      `https://en.wikipedia.org/w/api.php?${params.toString()}`,
-      {
-        headers: {
-          "User-Agent": "degoog/1.0 (+https://github.com/fccview/degoog)",
-          "Api-User-Agent": "degoog/1.0 (+https://github.com/fccview/degoog)",
-        },
-      },
-    );
-    const data = (await res.json()) as {
-      query: {
-        pages: Record<
-          string,
-          {
-            title: string;
-            extract?: string;
-            thumbnail?: { source: string };
-            fullurl?: string;
-            pageid: number;
-          }
-        >;
-      };
-    };
-    const pages = data.query.pages;
-    const page = Object.values(pages)[0];
-    if (
-      !page ||
-      page.pageid === undefined ||
-      (page as Record<string, unknown>).missing !== undefined ||
-      !page.extract
-    )
-      return null;
-    return {
-      title: page.title,
-      description: page.extract.substring(0, 500),
-      image: page.thumbnail?.source,
-      url:
-        page.fullurl ||
-        `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`,
-    };
-  } catch {
-    return null;
   }
 };
 
@@ -314,13 +253,11 @@ export const search = async (
   if (rawActiveEngines.length === 0) {
     return {
       results: [],
-      atAGlance: null,
       query,
       totalTime: 0,
       type,
       engineTimings: [],
       relatedSearches: [],
-      knowledgePanel: null,
     };
   }
 
@@ -362,33 +299,24 @@ export const search = async (
   }
 
   const scored = scoreResults(allResults);
-  const atAGlance =
-    type === "web" && scored.length > 0 && scored[0].snippet ? scored[0] : null;
 
   let relatedSearches: string[] = [];
-  let knowledgePanel: KnowledgePanel | null = null;
 
   if (type === "web" && p === 1) {
-    [relatedSearches, knowledgePanel] = await Promise.all([
-      _withTimeout(fetchRelatedSearches(query), ENGINE_TIMEOUT_MS).catch(
-        () => [],
-      ),
-      _withTimeout(fetchKnowledgePanel(query), ENGINE_TIMEOUT_MS).catch(
-        () => null,
-      ),
-    ]);
+    relatedSearches = await _withTimeout(
+      fetchRelatedSearches(query),
+      ENGINE_TIMEOUT_MS,
+    ).catch(() => []);
   }
 
   const totalTime = Math.round(performance.now() - start);
 
   return {
     results: scored,
-    atAGlance,
     query,
     totalTime,
     type,
     engineTimings,
     relatedSearches,
-    knowledgePanel,
   };
 };

@@ -1,25 +1,35 @@
-import { state } from "../state";
-import { MAX_PAGE } from "../constants";
-import { setActiveTab } from "./navigation";
-import { getEngines } from "./engines";
-import { buildSearchUrl } from "./url";
 import {
-  destroyMediaObserver,
+  skeletonGlance,
+  skeletonImageGrid,
+  skeletonResults,
+  skeletonVideoGrid,
+} from "../animations/skeleton";
+import { MAX_PAGE } from "../constants";
+import {
   closeMediaPreview,
+  destroyMediaObserver,
 } from "../modules/media/media";
 import {
-  renderResults,
-  renderPagination,
-  renderSidebar,
-  clearSlotPanels,
   buildResultContext,
+  clearSlotPanels,
+  renderPagination,
+  renderResults,
+  renderSidebar,
 } from "../modules/renderer/render";
-import { hideAcDropdown } from "./autocomplete";
-import { fetchGlancePanels, fetchSlotPanels } from "./search-utils";
-import { skeletonResults, skeletonGlance, skeletonImageGrid, skeletonVideoGrid } from "../animations/skeleton";
 import { renderMediaEngineBar } from "../modules/renderer/render-media";
+import { state } from "../state";
+import {
+  EngineTiming,
+  ScoredResult,
+  SearchResponse,
+  SlotPanelPosition,
+} from "../types";
+import { hideAcDropdown } from "./autocomplete";
+import { getEngines } from "./engines";
+import { setActiveTab } from "./navigation";
+import { fetchGlancePanels, fetchSlotPanels } from "./search-utils";
 import { renderTemplate } from "./template";
-import type { SearchResponse, ScoredResult, EngineTiming } from "../types";
+import { buildSearchUrl } from "./url";
 
 interface StreamEngineResult {
   engine: string;
@@ -40,8 +50,6 @@ interface StreamDone {
   totalTime: number;
   engineTimings: EngineTiming[];
   relatedSearches: string[];
-  knowledgePanel: { title: string; description: string; image?: string; url: string } | null;
-  atAGlance: ScoredResult | null;
 }
 
 let _activeSource: EventSource | null = null;
@@ -175,16 +183,11 @@ export async function performStreamingSearch(
 
     const searchData: SearchResponse = {
       results: currentResults,
-      atAGlance:
-        currentResults.length > 0 && currentResults[0].snippet
-          ? currentResults[0]
-          : null,
       query,
       totalTime: data.totalTime,
       type,
       engineTimings: data.engineTimings,
       relatedSearches: data.relatedSearches,
-      knowledgePanel: data.knowledgePanel,
     };
 
     state.currentData = searchData;
@@ -199,8 +202,17 @@ export async function performStreamingSearch(
     } else {
       renderSidebar(searchData, (q) => onComplete(q));
       if (type === "web") {
-        void fetchGlancePanels(query, currentResults, data.atAGlance);
-        void fetchSlotPanels(query, currentResults);
+        void fetchGlancePanels(query, currentResults);
+        void fetchSlotPanels(query, currentResults).then((panels) => {
+          const kpPanels = panels.filter(
+            (p) => p.position === SlotPanelPosition.KnowledgePanel,
+          );
+          if (kpPanels.length > 0) {
+            renderSidebar(searchData, (q) => onComplete(q), {
+              sidebarTopPanels: kpPanels,
+            });
+          }
+        });
       } else {
         if (glanceEl) glanceEl.innerHTML = "";
       }
@@ -253,9 +265,11 @@ function _updateResults(
   for (const r of results) {
     const existing = existingEls.get(r.url);
     if (existing) {
-      const oldSources = existing.querySelector(".result-engines")?.textContent?.trim() ?? "";
+      const oldSources =
+        existing.querySelector(".result-engines")?.textContent?.trim() ?? "";
       const newSources = r.sources.join(" ");
-      const oldSnippet = existing.querySelector(".result-snippet")?.textContent?.trim() ?? "";
+      const oldSnippet =
+        existing.querySelector(".result-snippet")?.textContent?.trim() ?? "";
       if (oldSources !== newSources || oldSnippet !== r.snippet.trim()) {
         const updated = _renderResultEl(r);
         if (updated) {
@@ -304,16 +318,19 @@ function _updateEngineTimings(
   let panel = sidebar.querySelector<HTMLElement>(".streaming-engine-panel");
   if (!panel) {
     panel = document.createElement("div");
-    panel.className = "sidebar-panel sidebar-accordion streaming-engine-panel open";
+    panel.className =
+      "sidebar-panel sidebar-accordion streaming-engine-panel open";
     panel.innerHTML = `
       <button class="sidebar-accordion-toggle" type="button">
         <span>Engine Performance</span>
         <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="sidebar-accordion-body"></div>`;
-    panel.querySelector(".sidebar-accordion-toggle")?.addEventListener("click", () => {
-      panel!.classList.toggle("open");
-    });
+    panel
+      .querySelector(".sidebar-accordion-toggle")
+      ?.addEventListener("click", () => {
+        panel!.classList.toggle("open");
+      });
     sidebar.appendChild(panel);
   }
 
@@ -323,7 +340,11 @@ function _updateEngineTimings(
   let html = "";
   for (const et of timings) {
     const isRetrying = et.resultCount === -1;
-    const statusClass = isRetrying ? " engine-retrying" : et.resultCount === 0 ? " engine-failed" : "";
+    const statusClass = isRetrying
+      ? " engine-retrying"
+      : et.resultCount === 0
+        ? " engine-failed"
+        : "";
     const meta = isRetrying
       ? `retrying... · ${et.time}ms`
       : `${et.resultCount} results · ${et.time}ms`;

@@ -1,8 +1,6 @@
 .glance-box {
   background: var(--bg-light);
   border-radius: $radius-lg;
-  padding: $space-5;
-  margin: 0 0 $space-4 0;
   max-width: $results-max-width;
 }
 
@@ -35,7 +33,6 @@
 
 .glance-ai {
   position: relative;
-  padding: $space-2;
 }
 
 .glance-ai-footer {

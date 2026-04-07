@@ -1,0 +1,7 @@
+{
+  "wikipedia": {
+    "name": "Wikipédia",
+    "description": "Affiche une carte récapitulative Wikipédia dans la barre latérale lorsque la requête de recherche correspond à un article.",
+    "read-more": "Wikipédia ↗"
+  }
+}

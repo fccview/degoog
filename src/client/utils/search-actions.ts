@@ -1,34 +1,46 @@
-import { state } from "../state";
-import { MAX_PAGE, BUILTIN_SEARCH_TYPES } from "../constants";
-import { setActiveTab } from "./navigation";
-import { getEngines } from "./engines";
-import { buildSearchUrl } from "./url";
-import { buildPaginationHtml } from "./pagination";
 import {
-  destroyMediaObserver,
+  skeletonGlance,
+  skeletonImageGrid,
+  skeletonResults,
+  skeletonVideoGrid,
+} from "../animations/skeleton";
+import { BUILTIN_SEARCH_TYPES, MAX_PAGE } from "../constants";
+import {
   closeMediaPreview,
+  destroyMediaObserver,
 } from "../modules/media/media";
-import { renderAtAGlance } from "../modules/renderer/render-slots";
 import {
+  clearSlotPanels,
   renderResults,
   renderSidebar,
-  clearSlotPanels,
 } from "../modules/renderer/render";
 import { renderMediaEngineBar } from "../modules/renderer/render-media";
-import { hideAcDropdown } from "./autocomplete";
+import { state } from "../state";
 import {
-  setResultsMeta,
-  runScriptsInContainer,
+  SlotPanelPosition,
+  type Command,
+  type ScoredResult,
+  type SearchResponse,
+} from "../types";
+import { hideAcDropdown } from "./autocomplete";
+import { getEngines } from "./engines";
+import { setActiveTab } from "./navigation";
+import { buildPaginationHtml } from "./pagination";
+import {
   getNaturalLanguageBangQuery,
+  runScriptsInContainer,
+  setResultsMeta,
 } from "./search-helpers";
 import {
+  buildCommandGlanceHtml,
   fetchGlancePanels,
   fetchSlotPanels,
-  buildCommandGlanceHtml,
 } from "./search-utils";
-import { skeletonResults, skeletonGlance, skeletonImageGrid, skeletonVideoGrid } from "../animations/skeleton";
-import { type Command, type SearchResponse, type ScoredResult } from "../types";
-import { performStreamingSearch, abortStreamingSearch } from "./streaming-search";
+import {
+  abortStreamingSearch,
+  performStreamingSearch,
+} from "./streaming-search";
+import { buildSearchUrl } from "./url";
 
 let commandsCache: Command[] | null = null;
 let _streamingConfig: { enabled: boolean } | null = null;
@@ -66,7 +78,7 @@ const _fetchCommands = async (): Promise<Command[]> => {
       commandsCache = body.commands || [];
       return commandsCache;
     }
-  } catch { }
+  } catch {}
   return [];
 };
 
@@ -105,9 +117,13 @@ export async function performSearch(
     return _performBangCommand(query, resolvedType, page || 1);
   }
 
-  if ((!page || page === 1) && await _fetchStreamingConfig()) {
+  if ((!page || page === 1) && (await _fetchStreamingConfig())) {
     abortStreamingSearch();
-    return performStreamingSearch(query, resolvedType, (q) => void performSearch(q));
+    return performStreamingSearch(
+      query,
+      resolvedType,
+      (q) => void performSearch(q),
+    );
   }
 
   state.currentQuery = query;
@@ -122,7 +138,6 @@ export async function performSearch(
 
   const engines = await getEngines();
   const url = buildSearchUrl(query, engines, resolvedType, 1);
-
 
   setActiveTab(resolvedType);
   closeMediaPreview();
@@ -192,8 +207,17 @@ export async function performSearch(
     } else {
       renderSidebar(data, (q) => void performSearch(q));
       if (resolvedType === "web") {
-        void fetchGlancePanels(query, data.results, data.atAGlance);
-        void fetchSlotPanels(query, data.results);
+        void fetchGlancePanels(query, data.results);
+        void fetchSlotPanels(query, data.results).then((panels) => {
+          const kpPanels = panels.filter(
+            (p) => p.position === SlotPanelPosition.KnowledgePanel,
+          );
+          if (kpPanels.length > 0) {
+            renderSidebar(data, (q) => void performSearch(q), {
+              sidebarTopPanels: kpPanels,
+            });
+          }
+        });
       } else {
         if (glanceEl) glanceEl.innerHTML = "";
       }
@@ -235,7 +259,16 @@ async function _performSearchWithBang(
     } else {
       renderSidebar(searchData, (q) => void performSearch(q));
       if (type === "web") {
-        void fetchSlotPanels(query, searchData.results);
+        void fetchSlotPanels(query, searchData.results).then((panels) => {
+          const kpPanels = panels.filter(
+            (p) => p.position === SlotPanelPosition.KnowledgePanel,
+          );
+          if (kpPanels.length > 0) {
+            renderSidebar(searchData, (q) => void performSearch(q), {
+              sidebarTopPanels: kpPanels,
+            });
+          }
+        });
       } else {
         if (glanceEl) glanceEl.innerHTML = "";
       }
@@ -246,7 +279,6 @@ async function _performSearchWithBang(
       const cmdData = (await cmdRes.json()) as {
         type: string;
         results?: ScoredResult[];
-        atAGlance?: { snippet: string } | null;
         title?: string;
         html?: string;
       };
@@ -271,7 +303,6 @@ async function _performBangCommand(
   _type: string,
   page = 1,
 ): Promise<void> {
-
   closeMediaPreview();
   hideAcDropdown(document.getElementById("ac-dropdown-home"));
   hideAcDropdown(document.getElementById("ac-dropdown-results"));
@@ -312,12 +343,6 @@ async function _performBangCommand(
       type: string;
       results?: ScoredResult[];
       totalTime?: number;
-      atAGlance?: {
-        snippet: string;
-        url: string;
-        title: string;
-        sources: string[];
-      } | null;
       title?: string;
       html?: string;
       totalPages?: number;
@@ -328,7 +353,6 @@ async function _performBangCommand(
       state.currentData = data as unknown as SearchResponse;
       if (resultsMeta)
         resultsMeta.textContent = `About ${data.results?.length ?? 0} results (${((data.totalTime ?? 0) / 1000).toFixed(2)} seconds)`;
-      renderAtAGlance(data.atAGlance ?? null);
       renderResults(data.results ?? []);
       return;
     }
@@ -400,8 +424,8 @@ export async function goToPage(pageNum: number): Promise<void> {
     state.currentPage = pageNum;
     const metaText = `About ${state.currentResults.length} results — Page ${state.currentPage}`;
     setResultsMeta(metaText);
-    if (state.currentPage === 1 && data.atAGlance) {
-      renderAtAGlance(data.atAGlance);
+    if (state.currentPage === 1 && state.currentType === "web") {
+      void fetchGlancePanels(state.currentQuery, data.results);
     }
     if (state.currentType === "web") {
       void fetchSlotPanels(state.currentQuery, state.currentResults);
@@ -450,16 +474,12 @@ export async function retryEngine(engineName: string): Promise<void> {
       state.currentResults = data.results;
       if (state.currentData) {
         state.currentData.results = data.results;
-        if (data.atAGlance) state.currentData.atAGlance = data.atAGlance;
       }
 
       const resultsMeta = document.getElementById("results-meta");
       if (resultsMeta)
         resultsMeta.textContent = `About ${data.results.length} results (${((state.currentData?.totalTime ?? 0) / 1000).toFixed(2)} seconds)`;
 
-      if (state.currentType === "web" && state.currentData?.atAGlance) {
-        renderAtAGlance(state.currentData.atAGlance);
-      }
       renderResults(data.results);
     }
 
@@ -470,7 +490,7 @@ export async function retryEngine(engineName: string): Promise<void> {
     } else if (state.currentData) {
       renderSidebar(state.currentData, (q) => void performSearch(q));
     }
-  } catch { }
+  } catch {}
 }
 
 export async function performLucky(query: string): Promise<void> {

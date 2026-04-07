@@ -51,6 +51,8 @@ function isSlotPlugin(val: unknown): val is SlotPlugin {
   );
 }
 
+const slotSourceMap = new Map<string, "builtin" | "plugin">();
+
 const registry = createRegistry<SlotPlugin>({
   dirs: () => [
     { dir: builtinsDir, source: "builtin" },
@@ -62,6 +64,7 @@ const registry = createRegistry<SlotPlugin>({
   },
   onLoad: async (slot, { entryPath, folderName, source }) => {
     const settingsId = slot.settingsId ?? `slot-${slot.id}`;
+    slotSourceMap.set(slot.id, source);
     slot.t = await createTranslatorFromPath(entryPath);
     registerPluginNamespace(folderName, `slots/${slot.id}`);
     registerPluginSettingsId(folderName, settingsId);
@@ -74,7 +77,12 @@ const registry = createRegistry<SlotPlugin>({
 });
 
 export async function initSlotPlugins(): Promise<void> {
+  slotSourceMap.clear();
   await registry.init();
+}
+
+export function getSlotSource(slotId: string): "builtin" | "plugin" {
+  return slotSourceMap.get(slotId) ?? "plugin";
 }
 
 export function getSlotPlugins(): SlotPlugin[] {
@@ -95,5 +103,6 @@ export function getAllSlotTranslators(): {
 }
 
 export async function reloadSlotPlugins(): Promise<void> {
+  slotSourceMap.clear();
   await registry.reload();
 }

@@ -1,0 +1,67 @@
+.wiki-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.wiki-thumb {
+  border-radius: 13px;
+  max-width: 40%;
+  float: right;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  background: var(--border-color);
+}
+
+.wiki-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.wiki-title {
+  display: block;
+  font-size: var(--font-large);
+  font-weight: 600;
+  color: var(--link-color);
+  text-decoration: none;
+  line-height: 1.1;
+}
+
+.wiki-title:hover {
+  color: var(--link-hover, var(--link-color));
+  text-decoration: underline;
+}
+
+.wiki-desc {
+  margin-bottom: 1rem;
+  font-size: var(--font-small);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+
+.wiki-extract {
+  font-size: var(--font-medium);
+  color: var(--text-primary);
+  display: inline;
+}
+
+.wiki-footer-link {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.wiki-footer-link:hover {
+  color: var(--link-color);
+  text-decoration: underline;
+}

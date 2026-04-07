@@ -6,8 +6,8 @@ import {
 } from "../extensions/commands/registry";
 import { searchSingleEngine } from "../search";
 import type { TimeFilter } from "../types";
-import { debug } from "../utils/logger";
 import { getLocale } from "../utils/hono";
+import { debug } from "../utils/logger";
 import { isDisabled } from "../utils/plugin-settings";
 import { getClientIp } from "../utils/request";
 import { injectScope, translateHTML } from "../utils/translation";
@@ -63,11 +63,6 @@ router.get("/api/command", async (c) => {
       totalTime: timing.time,
       engineTimings: [timing],
       relatedSearches: [],
-      knowledgePanel: null,
-      atAGlance:
-        results.length > 0 && results[0].snippet
-          ? { ...results[0], score: 10, sources: [results[0].source] }
-          : null,
     });
   }
 

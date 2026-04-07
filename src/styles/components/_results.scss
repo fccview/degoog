@@ -541,6 +541,11 @@
   overflow: hidden;
   flex: 1 1 100%;
   min-width: 0;
+  margin-bottom: $space-4;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   &[data-grid="1"] {
     flex: 1 1 0;
@@ -568,12 +573,12 @@
   font-size: $font-size-base;
   font-weight: 600;
   color: var(--text-primary);
-  padding: $space-3;
+  padding: $space-4;
   margin-bottom: 0;
 }
 
 .results-slot-panel-body {
-  padding: $space-3;
+  padding: $space-4;
   font-size: $font-size-small;
   color: var(--text-primary);
   line-height: 1.5;

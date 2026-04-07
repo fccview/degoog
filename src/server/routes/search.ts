@@ -13,7 +13,6 @@ import {
 import { getSlotPlugins } from "../extensions/slots/registry";
 import {
   createSearchEngineContext,
-  fetchKnowledgePanel,
   fetchRelatedSearches,
   mergeNewResults,
   scoreResults,
@@ -33,12 +32,12 @@ import {
   type TimeFilter,
 } from "../types";
 import * as cache from "../utils/cache";
+import { getLocale } from "../utils/hono";
 import { debug } from "../utils/logger";
 import { outgoingFetch } from "../utils/outgoing";
 import { asString, getSettings, isDisabled } from "../utils/plugin-settings";
 import { checkRateLimit } from "../utils/rate-limit";
 import { getClientIp } from "../utils/request";
-import { getLocale } from "../utils/hono";
 import { injectScope, translateHTML } from "../utils/translation";
 
 const DEGOOG_SETTINGS_ID = "degoog-settings";
@@ -338,8 +337,6 @@ router.get("/api/search/stream", async (c) => {
               totalTime: cached.totalTime,
               engineTimings: cached.engineTimings,
               relatedSearches: cached.relatedSearches,
-              knowledgePanel: cached.knowledgePanel,
-              atAGlance: cached.atAGlance,
             })}\n\n`,
           ),
         );
@@ -381,13 +378,11 @@ router.get("/api/search/stream", async (c) => {
   if (rawActiveEngines.length === 0) {
     return c.json({
       results: [],
-      atAGlance: null,
       query,
       totalTime: 0,
       type: searchType,
       engineTimings: [],
       relatedSearches: [],
-      knowledgePanel: null,
     });
   }
 
@@ -478,31 +473,20 @@ router.get("/api/search/stream", async (c) => {
       void Promise.all(enginePromises).then(async () => {
         const totalTime = Math.round(performance.now() - start);
         const finalResults = scoreResults(allRawResults);
-        const atAGlance =
-          searchType === "web" &&
-          finalResults.length > 0 &&
-          finalResults[0].snippet
-            ? finalResults[0]
-            : null;
-
         let relatedSearches: string[] = [];
-        let knowledgePanel: import("../types").KnowledgePanel | null = null;
         if (searchType === "web" && page === 1) {
-          [relatedSearches, knowledgePanel] = await Promise.all([
-            fetchRelatedSearches(query).catch(() => [] as string[]),
-            fetchKnowledgePanel(query).catch(() => null),
-          ]);
+          relatedSearches = await fetchRelatedSearches(query).catch(
+            () => [] as string[],
+          );
         }
 
         const response: SearchResponse = {
           results: finalResults,
-          atAGlance,
           query,
           totalTime,
           type: searchType,
           engineTimings: allTimings,
           relatedSearches,
-          knowledgePanel,
         };
 
         const ttl = cache.hasFailedEngines(response)
@@ -516,8 +500,6 @@ router.get("/api/search/stream", async (c) => {
           totalTime,
           engineTimings: allTimings,
           relatedSearches,
-          knowledgePanel,
-          atAGlance,
         });
         if (!closed) {
           closed = true;
@@ -550,10 +532,15 @@ router.post("/api/slots", async (c) => {
   }
   if (!body.query || !body.query.trim()) return c.json({ panels: [] });
   const clientIp = getClientIp(c);
-  const panels = await runSlotPlugins(body.query.trim(), clientIp, body.results, {
-    excludePosition: SlotPanelPosition.AtAGlance,
-    locale: getLocale(c),
-  });
+  const panels = await runSlotPlugins(
+    body.query.trim(),
+    clientIp,
+    body.results,
+    {
+      excludePosition: SlotPanelPosition.AtAGlance,
+      locale: getLocale(c),
+    },
+  );
   return c.json({ panels });
 });
 
@@ -661,8 +648,6 @@ router.get("/api/search/retry", async (c) => {
       ...cached,
       results: merged,
       engineTimings: updatedTimings,
-      atAGlance:
-        merged.length > 0 && merged[0].snippet ? merged[0] : cached.atAGlance,
     };
     cache.set(
       key,

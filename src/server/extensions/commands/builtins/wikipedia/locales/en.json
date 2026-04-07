@@ -1,0 +1,7 @@
+{
+  "wikipedia": {
+    "name": "Wikipedia",
+    "description": "Shows a Wikipedia summary card in the sidebar when the search query matches an article.",
+    "view-on-wikipedia": "Wikipedia ↗"
+  }
+}

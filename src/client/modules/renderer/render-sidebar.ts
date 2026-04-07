@@ -1,8 +1,7 @@
-import { escapeHtml } from "../../utils/dom";
-import { proxyImageUrl } from "../../utils/url";
-import { retryEngine } from "../../utils/search-actions";
-import type { SearchResponse, SlotPanel } from "../../types";
 import { state } from "../../state";
+import type { SearchResponse, SlotPanel } from "../../types";
+import { escapeHtml } from "../../utils/dom";
+import { retryEngine } from "../../utils/search-actions";
 
 export const setupRetryLinks = (container: HTMLElement): void => {
   container
@@ -51,16 +50,6 @@ export function renderSidebar(
       const title = panel.title ?? "Info";
       html += _sidebarAccordion(title, panel.html);
     }
-  } else if (data.knowledgePanel) {
-    const kp = data.knowledgePanel;
-    let kpContent = "";
-    if (kp.image) {
-      kpContent += `<img class="kp-image" src="${escapeHtml(proxyImageUrl(kp.image))}" alt="${escapeHtml(kp.title)}">`;
-    }
-    kpContent += `<h3 class="kp-title">${escapeHtml(kp.title)}</h3>`;
-    kpContent += `<p class="kp-description">${escapeHtml(kp.description)}</p>`;
-    kpContent += `<a class="kp-link" href="${escapeHtml(kp.url)}" target="_blank">Wikipedia</a>`;
-    html += _sidebarAccordion(kp.title, kpContent);
   }
 
   if (

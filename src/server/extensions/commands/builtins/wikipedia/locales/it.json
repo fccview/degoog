@@ -1,0 +1,7 @@
+{
+  "wikipedia": {
+    "name": "Wikipedia",
+    "description": "Mostra una scheda riassuntiva di Wikipedia nella barra laterale quando la query di ricerca corrisponde a un articolo.",
+    "read-more": "Wikipedia ↗"
+  }
+}

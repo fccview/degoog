@@ -1,25 +1,20 @@
-import { escapeHtml } from "./dom";
-import {
-  renderAtAGlance,
-  appendSlotPanels,
-} from "../modules/renderer/render-slots";
 import { skeletonGlance } from "../animations/skeleton";
-import { runScriptsInContainer } from "./search-helpers";
+import { appendSlotPanels } from "../modules/renderer/render-slots";
 import { SlotPanelPosition, type ScoredResult, type SlotPanel } from "../types";
+import { escapeHtml } from "./dom";
+import { runScriptsInContainer } from "./search-helpers";
 
 let glanceAbortController: AbortController | null = null;
 
 export async function fetchGlancePanels(
   query: string,
   results: ScoredResult[],
-  fallbackAtAGlance: ScoredResult | null,
 ): Promise<void> {
   if (glanceAbortController) glanceAbortController.abort();
   glanceAbortController = new AbortController();
   const signal = glanceAbortController.signal;
   const glanceEl = document.getElementById("at-a-glance");
   if (!results || results.length === 0) {
-    if (glanceEl && fallbackAtAGlance) renderAtAGlance(fallbackAtAGlance);
     return;
   }
   if (glanceEl) glanceEl.innerHTML = skeletonGlance();
@@ -49,16 +44,19 @@ export async function fetchGlancePanels(
       }
       glanceEl.innerHTML = parts.join("");
       runScriptsInContainer(glanceEl);
-    } else if (fallbackAtAGlance) {
-      renderAtAGlance(fallbackAtAGlance);
+    } else {
+      if (glanceEl) glanceEl.innerHTML = "";
     }
   } catch (err) {
     if (err instanceof Error && err.name === "AbortError") return;
-    if (glanceEl && fallbackAtAGlance) renderAtAGlance(fallbackAtAGlance);
+    if (glanceEl) glanceEl.innerHTML = "";
   }
 }
 
-export async function fetchSlotPanels(query: string, results?: ScoredResult[]): Promise<SlotPanel[]> {
+export async function fetchSlotPanels(
+  query: string,
+  results?: ScoredResult[],
+): Promise<SlotPanel[]> {
   try {
     const res = await fetch("/api/slots", {
       method: "POST",
@@ -78,17 +76,16 @@ export async function fetchSlotPanels(query: string, results?: ScoredResult[]): 
 export const buildCommandGlanceHtml = (cmdData: {
   type: string;
   results?: ScoredResult[];
-  atAGlance?: { snippet: string } | null;
 }): string => {
   if (
     cmdData.type === "engine" &&
     cmdData.results &&
     cmdData.results.length > 0
   ) {
-    const glance =
-      cmdData.atAGlance && cmdData.atAGlance.snippet
-        ? `<div class="glance-box"><div class="glance-snippet">${escapeHtml(cmdData.atAGlance.snippet)}</div></div>`
-        : "";
+    const top = cmdData.results[0];
+    const glance = top.snippet
+      ? `<div class="glance-box"><div class="glance-snippet">${escapeHtml(top.snippet)}</div></div>`
+      : "";
     return `<div class="command-result">${glance}<p class="natural-command-meta">${cmdData.results.length} results from engine</p></div>`;
   }
   if (cmdData.type === "engine") {

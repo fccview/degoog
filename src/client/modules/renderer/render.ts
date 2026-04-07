@@ -1,23 +1,22 @@
-import { state } from "../../state";
 import { MAX_PAGE } from "../../constants";
+import { state } from "../../state";
+import type { ScoredResult } from "../../types";
 import { cleanUrl } from "../../utils/dom";
-import { faviconUrl, proxyImageUrl } from "../../utils/url";
 import { buildPaginationHtml } from "../../utils/pagination";
-import { setupMediaObserver, destroyMediaObserver } from "../media/media";
-import { renderImageGrid, renderVideoGrid } from "./render-media";
 import { goToPage } from "../../utils/search-actions";
 import { renderTemplate } from "../../utils/template";
-import type { ScoredResult } from "../../types";
+import { faviconUrl, proxyImageUrl } from "../../utils/url";
+import { destroyMediaObserver, setupMediaObserver } from "../media/media";
+import { renderImageGrid, renderVideoGrid } from "./render-media";
 
 import { clearSlotPanels as _clearSlots } from "./render-slots";
 
+export { renderSidebar } from "./render-sidebar";
 export {
+  appendSlotPanels,
   clearSlotPanels,
   renderSlotPanels,
-  appendSlotPanels,
-  renderAtAGlance,
 } from "./render-slots";
-export { renderSidebar } from "./render-sidebar";
 
 export const buildResultContext = (
   r: ScoredResult,
