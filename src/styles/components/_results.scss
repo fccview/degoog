@@ -541,6 +541,11 @@
   overflow: hidden;
   flex: 1 1 100%;
   min-width: 0;
+  margin-bottom: $space-4;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   &[data-grid="1"] {
     flex: 1 1 0;

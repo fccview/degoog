@@ -106,6 +106,7 @@ export async function getSearchBarActionExtensionMeta(): Promise<
       configurable: true,
       settingsSchema: schema,
       settings,
+      source: "plugin",
     });
   }
   return out;

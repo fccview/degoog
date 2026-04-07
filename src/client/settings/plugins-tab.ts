@@ -56,10 +56,11 @@ export function initPluginsTab(allExtensions: AllExtensions): void {
   if (!container) return;
 
   const custom = allExtensions.plugins.filter(
-    (p) => p.id.startsWith("plugin-") || p.id.startsWith("slot-"),
+    (p) => p.source === "plugin",
   );
+
   const builtin = allExtensions.plugins.filter(
-    (p) => !p.id.startsWith("plugin-") && !p.id.startsWith("slot-"),
+    (p) => p.source !== "plugin",
   );
 
   let html = "";

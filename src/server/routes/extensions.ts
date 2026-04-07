@@ -18,6 +18,7 @@ import { getLocale } from "../utils/hono";
 import {
   getSlotPlugins,
   getSlotPluginById,
+  getSlotSource,
 } from "../extensions/slots/registry";
 import { getSearchBarActionExtensionMeta } from "../extensions/search-bar/registry";
 import { getThemeExtensionMeta } from "../extensions/themes/registry";
@@ -85,6 +86,7 @@ async function getSlotExtensionMeta(coreT?: Translate): Promise<ExtensionMeta[]>
       configurable: fullSchema.length > 0,
       settingsSchema: fullSchema,
       settings,
+      source: getSlotSource(slot.id),
     });
   }
   return out;

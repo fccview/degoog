@@ -60,6 +60,8 @@ function isBangCommand(val: unknown): val is BangCommand {
   );
 }
 
+const commandSourceMap = new Map<string, "builtin" | "plugin">();
+
 const registry = createRegistry<CommandEntry>({
   dirs: () => [
     { dir: builtinsDir, source: "builtin" },
@@ -83,6 +85,7 @@ const registry = createRegistry<CommandEntry>({
   },
   onLoad: async (entry, { entryPath, folderName, source }) => {
     entry.id = (source === "plugin" ? "plugin-" : "") + folderName;
+    commandSourceMap.set(entry.id, source);
     entry.instance.t = await createTranslatorFromPath(entryPath);
     registerPluginNamespace(folderName, `commands/${entry.id}`);
     if (!(await isDisabled(entry.id))) {
@@ -116,11 +119,16 @@ export async function initPlugins(): Promise<void> {
     userAliases = {};
   }
 
+  commandSourceMap.clear();
   await registry.init();
 }
 
 export async function reloadCommands(): Promise<void> {
   await initPlugins();
+}
+
+export function getCommandSource(id: string): "builtin" | "plugin" {
+  return commandSourceMap.get(id) ?? "plugin";
 }
 
 export function getCommandInstanceById(id: string): BangCommand | undefined {
@@ -354,6 +362,7 @@ export async function getPluginExtensionMeta(
       configurable: schema.length > 0,
       settingsSchema: translatedSchema,
       settings: maskedSettings,
+      source: commandSourceMap.get(entry.id) ?? "plugin",
     };
     const inst = entry.instance as unknown as Record<string, unknown>;
     if (Array.isArray(inst.defaultFeedUrls)) {
