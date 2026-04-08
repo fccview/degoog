@@ -31,6 +31,10 @@ import {
   type SlotPluginContext,
   type TimeFilter,
 } from "../types";
+import {
+  filterBlockedDomains,
+  applyDomainReplacements,
+} from "../utils/domain-filter";
 import * as cache from "../utils/cache";
 import { getLocale } from "../utils/hono";
 import { logger } from "../utils/logger";
@@ -438,10 +442,13 @@ router.get("/api/search/stream", async (c) => {
             if (timing.resultCount > 0) {
               allRawResults.push({ results, multiplier: score });
               allTimings.push(timing);
+              const rawScored = scoreResults(allRawResults);
+              const afterBlock = await filterBlockedDomains(rawScored);
+              const finalResults = await applyDomainReplacements(afterBlock);
               _send("engine-result", {
                 engine: engineName,
                 timing,
-                results: scoreResults(allRawResults),
+                results: finalResults,
                 retry: isRetry,
                 attempt,
               });
@@ -460,10 +467,13 @@ router.get("/api/search/stream", async (c) => {
           }
 
           allTimings.push(lastTiming);
+          const rawScored = scoreResults(allRawResults);
+          const afterBlock = await filterBlockedDomains(rawScored);
+          const finalResults = await applyDomainReplacements(afterBlock);
           _send("engine-result", {
             engine: engineName,
             timing: lastTiming,
-            results: scoreResults(allRawResults),
+            results: finalResults,
             retry: false,
             attempt: 0,
           });
@@ -472,7 +482,9 @@ router.get("/api/search/stream", async (c) => {
 
       void Promise.all(enginePromises).then(async () => {
         const totalTime = Math.round(performance.now() - start);
-        const finalResults = scoreResults(allRawResults);
+        const rawFinal = scoreResults(allRawResults);
+        const afterBlock = await filterBlockedDomains(rawFinal);
+        const finalResults = await applyDomainReplacements(afterBlock);
         let relatedSearches: string[] = [];
         if (searchType === "web" && page === 1) {
           relatedSearches = await fetchRelatedSearches(query).catch(
@@ -847,8 +859,10 @@ router.get("/api/tab-search", async (c) => {
     }
 
     const totalTime = Math.round(performance.now() - startTime);
+    const afterBlock = await filterBlockedDomains(allResults);
+    const finalResults = await applyDomainReplacements(afterBlock);
     return c.json({
-      results: allResults,
+      results: finalResults,
       totalPages,
       page,
       engineTimings,

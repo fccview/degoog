@@ -8,6 +8,8 @@ import {
 import { applyTheme } from "../utils/theme";
 import { requestInstallPrompt } from "../utils/install-prompt";
 
+const t = window.scopedT("core");
+
 export async function initAppearanceSettings(): Promise<void> {
   const themeSelect = document.getElementById(
     "theme-select",
@@ -24,6 +26,38 @@ export async function initAppearanceSettings(): Promise<void> {
       applyTheme(value);
     });
   }
+
+  document
+    .getElementById("save-default-theme")
+    ?.addEventListener("click", async () => {
+      const btn = document.getElementById("save-default-theme");
+      const select = document.getElementById(
+        "theme-select",
+      ) as HTMLSelectElement | null;
+      const value = select?.value ?? "system";
+      try {
+        const token = sessionStorage.getItem("degoog-settings-token");
+        if (!token) throw new Error("missing token");
+        await fetch("/api/settings/general", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-settings-token": token,
+          },
+          body: JSON.stringify({ defaultTheme: value }),
+        });
+        if (btn) {
+          const prev = btn.textContent;
+          btn.textContent = t("settings-page.server.saved");
+          setTimeout(() => {
+            btn.textContent = prev;
+          }, 1200);
+        }
+      } catch {
+        if (btn)
+          btn.textContent = t("settings-page.server.save-failed-network");
+      }
+    });
 
   const openInNewTab = document.getElementById(
     "settings-open-new-tab",
