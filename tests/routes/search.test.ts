@@ -3,15 +3,10 @@ import { describe, test, expect, beforeAll } from "bun:test";
 let searchRouter: {
   request: (req: Request | string) => Response | Promise<Response>;
 };
-let slotsRouter: {
-  request: (req: Request | string) => Response | Promise<Response>;
-};
 
 beforeAll(async () => {
   const mod = await import("../../src/server/routes/search");
   searchRouter = mod.default;
-  const slotsMod = await import("../../src/server/routes/slots");
-  slotsRouter = slotsMod.default;
 });
 
 describe("routes/search", () => {
