@@ -132,6 +132,25 @@ https://proxmox-scripts.com/posts/degoog
 
 </details>
 
+<details>
+<summary>API Usage</summary>
+  
+The degoog API is accessible at: `/api/search`
+
+**Degoog API Integration into [Open WebUI](https://github.com/open-webui/open-webui)**
+
+1. Navigate to the Admin Panel in Open WebUI
+2. Go to the Settings section
+3. Select Web Search and enable it
+4. Set Web Search Engine to: searxng
+5. Set SearxNG Query URL to your degoog instance endpoint + /api/search
+
+Example Configuration: `http://127.0.0.1:4444/api/search`
+
+Replace the base URL (http://127.0.0.1:4444) with your actual degoog instance address.
+
+</details>
+
 <p align="center">
   <br />
   <a href="https://www.buymeacoffee.com/fccview">
