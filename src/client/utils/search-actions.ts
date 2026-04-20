@@ -140,18 +140,19 @@ export async function performSearch(
     );
   }
 
+  const resolvedPage = page && page > 0 ? page : 1;
   state.currentQuery = query;
   state.currentType = resolvedType;
-  state.currentPage = 1;
+  state.currentPage = resolvedPage;
   state.lastPage = MAX_PAGE;
-  state.imagePage = 1;
+  state.imagePage = resolvedPage;
   state.imageLastPage = MAX_PAGE;
-  state.videoPage = 1;
+  state.videoPage = resolvedPage;
   state.videoLastPage = MAX_PAGE;
   destroyMediaObserver();
 
   const engines = await getEngines();
-  const url = buildSearchUrl(query, engines, resolvedType, 1);
+  const url = buildSearchUrl(query, engines, resolvedType, resolvedPage);
 
   setActiveTab(resolvedType);
   closeMediaPreview();
@@ -193,7 +194,12 @@ export async function performSearch(
   document.title = `${query} - degoog`;
 
   if (state.postMethodEnabled) {
-    const historyState = { degoog: true, query, type: resolvedType, page: 1 };
+    const historyState = {
+      degoog: true,
+      query,
+      type: resolvedType,
+      page: resolvedPage,
+    };
     if (isInit) {
       history.replaceState(historyState, "", "/search");
     } else {
@@ -202,6 +208,7 @@ export async function performSearch(
   } else {
     const urlParams = new URLSearchParams({ q: query });
     if (resolvedType !== "web") urlParams.set("type", resolvedType);
+    if (resolvedPage > 1) urlParams.set("page", String(resolvedPage));
     history.replaceState(null, "", `/search?${urlParams.toString()}`);
   }
 
@@ -219,7 +226,7 @@ export async function performSearch(
       ? await fetch("/api/search", {
           method: "POST",
           body: JSON.stringify(
-            buildSearchBody(query, engines, resolvedType, 1),
+            buildSearchBody(query, engines, resolvedType, resolvedPage),
           ),
           headers: { "Content-Type": "application/json" },
         })

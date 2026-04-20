@@ -62,7 +62,7 @@ router.get("/plugins/:folder/*", async (c) => {
     const ns = getPluginNamespace(folder);
     if (ns) {
       const code = await file.text();
-      const scoped = `(function(t){${code}})(window.scopedT(${JSON.stringify(ns)}));`;
+      const scoped = `(function(t){${code}\n})(window.scopedT(${JSON.stringify(ns)}));`;
       return c.body(scoped);
     }
   }
@@ -93,7 +93,7 @@ router.get("/themes/:folder/*", async (c) => {
   if (ext === ".js" || ext === ".mjs") {
     const ns = `themes/${folder}`;
     const code = await file.text();
-    const scoped = `(function(t){${code}})(window.scopedT(${JSON.stringify(ns)}));`;
+    const scoped = `(function(t){${code}\n})(window.scopedT(${JSON.stringify(ns)}));`;
     return c.body(scoped);
   }
   return c.body(await file.arrayBuffer());

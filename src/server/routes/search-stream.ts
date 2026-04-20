@@ -11,6 +11,7 @@ import {
 } from "../search";
 import {
   EngineTiming,
+  ScoredResult,
   SearchResponse,
   SearchResult,
   SearchType,
@@ -18,6 +19,10 @@ import {
 } from "../types";
 import * as cache from "../utils/cache";
 import { asString, getSettings } from "../utils/plugin-settings";
+import {
+  applyDomainReplacements,
+  filterBlockedDomains,
+} from "../utils/domain-filter";
 import {
   _applyRateLimit,
   cacheKey,
@@ -158,6 +163,13 @@ router.get("/api/search/stream", async (c) => {
         }
       }
 
+      const _applyDomainRules = async (
+        results: ScoredResult[],
+      ): Promise<ScoredResult[]> => {
+        const afterBlock = await filterBlockedDomains(results);
+        return await applyDomainReplacements(afterBlock);
+      };
+
       const enginePromises = rawActiveEngines.map(
         async ({ instance, score, id }) => {
           const engineName = instance.name;
@@ -187,7 +199,7 @@ router.get("/api/search/stream", async (c) => {
               _send("engine-result", {
                 engine: engineName,
                 timing,
-                results: scoreResults(allRawResults),
+                results: await _applyDomainRules(scoreResults(allRawResults)),
                 retry: isRetry,
                 attempt,
               });
@@ -209,7 +221,7 @@ router.get("/api/search/stream", async (c) => {
           _send("engine-result", {
             engine: engineName,
             timing: lastTiming,
-            results: scoreResults(allRawResults),
+            results: await _applyDomainRules(scoreResults(allRawResults)),
             retry: false,
             attempt: 0,
           });
@@ -218,7 +230,9 @@ router.get("/api/search/stream", async (c) => {
 
       void Promise.all(enginePromises).then(async () => {
         const totalTime = Math.round(performance.now() - start);
-        const finalResults = scoreResults(allRawResults);
+        const finalResults = await _applyDomainRules(
+          scoreResults(allRawResults),
+        );
         let relatedSearches: string[] = [];
         if (searchType === "web" && page === 1) {
           relatedSearches = await fetchRelatedSearches(query).catch(

@@ -279,6 +279,6 @@ export const injectScope = (html: string, namespace: string): string => {
   return html.replace(
     /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/gi,
     (_, open, body, close) =>
-      `${open}(function(t){${body}})(typeof window.scopedT==="function"?window.scopedT(${ns}):function(k){return k});${close}`,
+      `${open}(function(t){${body}\n})(typeof window.scopedT==="function"?window.scopedT(${ns}):function(k){return k});${close}`,
   );
 };

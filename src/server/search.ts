@@ -167,25 +167,34 @@ export const createSearchEngineContext = (
   lang?: string,
   dateFrom?: string,
   dateTo?: string,
-): EngineContext => ({
-  fetch: async (url, init) => {
-    let raw: string | undefined;
-    if (engineSettingsId !== undefined) {
-      raw =
-        asString((await getSettings(engineSettingsId)).outgoingTransport) ||
-        undefined;
-    }
-    if (!raw && engineSettingsId !== undefined) {
-      raw = getEngineDefaultTransport(engineSettingsId) ?? undefined;
-    }
-    const transport = parseOutgoingTransport(raw);
-    return outgoingFetch(url, init ?? {}, transport);
-  },
-  lang: lang || undefined,
-  dateFrom: dateFrom || undefined,
-  dateTo: dateTo || undefined,
-  buildAcceptLanguage: () => _buildAcceptLanguage(lang),
-});
+): EngineContext => {
+  const resolvedLang =
+    lang ||
+    (process.env.DEGOOG_DEFAULT_SEARCH_LANGUAGE || "")
+      .trim()
+      .split(/[-_]/)[0]
+      .toLowerCase() ||
+    undefined;
+  return {
+    fetch: async (url, init) => {
+      let raw: string | undefined;
+      if (engineSettingsId !== undefined) {
+        raw =
+          asString((await getSettings(engineSettingsId)).outgoingTransport) ||
+          undefined;
+      }
+      if (!raw && engineSettingsId !== undefined) {
+        raw = getEngineDefaultTransport(engineSettingsId) ?? undefined;
+      }
+      const transport = parseOutgoingTransport(raw);
+      return outgoingFetch(url, init ?? {}, transport);
+    },
+    lang: resolvedLang,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+    buildAcceptLanguage: () => _buildAcceptLanguage(resolvedLang),
+  };
+};
 
 export const searchSingleEngine = async (
   engineName: string,

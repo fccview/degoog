@@ -38,15 +38,16 @@ export async function initAppearanceSettings(): Promise<void> {
       const value = select?.value ?? "system";
       try {
         const token = sessionStorage.getItem("degoog-settings-token");
-        if (!token) throw new Error("missing token");
-        await fetch("/api/settings/general", {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (token) headers["x-settings-token"] = token;
+        const res = await fetch("/api/settings/general", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-settings-token": token,
-          },
+          headers,
           body: JSON.stringify({ defaultTheme: value }),
         });
+        if (!res.ok) throw new Error("save failed");
         if (btn) {
           const prev = btn.textContent;
           btn.textContent = t("settings-page.server.saved");
