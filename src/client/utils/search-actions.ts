@@ -127,7 +127,13 @@ export async function performSearch(
     return _performBangCommand(query, resolvedType, page || 1);
   }
 
+  const commands = await _fetchCommands();
+  const naturalBangQuery = commands.length
+    ? getNaturalLanguageBangQuery(query, commands)
+    : null;
+
   if (
+    !naturalBangQuery &&
     !state.postMethodEnabled &&
     (!page || page === 1) &&
     (await _fetchStreamingConfig())
@@ -212,13 +218,8 @@ export async function performSearch(
     history.replaceState(null, "", `/search?${urlParams.toString()}`);
   }
 
-  const commands = await _fetchCommands();
-  const bangQuery = commands.length
-    ? getNaturalLanguageBangQuery(query, commands)
-    : null;
-
-  if (bangQuery) {
-    return _performSearchWithBang(bangQuery, url, query, resolvedType);
+  if (naturalBangQuery) {
+    return _performSearchWithBang(naturalBangQuery, url, query, resolvedType);
   }
 
   try {
