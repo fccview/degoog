@@ -147,7 +147,8 @@ export async function performTabSearch(
     } satisfies SearchResponse;
     _renderTabResults(data.results || [], resultsList);
 
-    if (data.totalPages && data.totalPages > 1 && pagination) {
+    const isMediaTab = tabId === "engine:images" || tabId === "engine:videos";
+    if (data.totalPages && data.totalPages > 1 && pagination && !isMediaTab) {
       _renderTabPagination(pagination, data.totalPages, page, query, tabId);
     }
 

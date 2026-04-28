@@ -28,7 +28,7 @@ interface GoogleImageResult {
 }
 
 export class GoogleImagesEngine implements SearchEngine {
-  name = "Google Images";
+  name = "Google Images (BROKEN)";
   safeSearch: string = "off";
   settingsSchema: SettingField[] = [
     {

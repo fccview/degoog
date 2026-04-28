@@ -98,6 +98,7 @@ const BUILTIN_DEFINITIONS: EngineDefinition[] = [
     displayName: "Google Images",
     searchType: "images",
     EngineClass: GoogleImagesEngine,
+    disabledByDefault: true,
     outgoingHosts: ["www.google.com", "google.com"],
     defaultTransport: "curl",
   },
@@ -194,7 +195,7 @@ const engineRegistry = createRegistry<PluginEntry>({
       instance,
       outgoingHosts:
         Array.isArray(mod.outgoingHosts) &&
-        (mod.outgoingHosts as unknown[]).length > 0
+          (mod.outgoingHosts as unknown[]).length > 0
           ? (mod.outgoingHosts as string[])
           : undefined,
     };
@@ -433,24 +434,24 @@ export async function getEngineExtensionMeta(
 
   const baseScoreField = coreT
     ? {
-        ...SCORE_FIELD,
-        label: coreT("settings-page.schema.score.label") || SCORE_FIELD.label,
-        description:
-          coreT("settings-page.schema.score.description") ||
-          SCORE_FIELD.description,
-      }
+      ...SCORE_FIELD,
+      label: coreT("settings-page.schema.score.label") || SCORE_FIELD.label,
+      description:
+        coreT("settings-page.schema.score.description") ||
+        SCORE_FIELD.description,
+    }
     : SCORE_FIELD;
 
   const baseTransportField = coreT
     ? {
-        ...OUTGOING_TRANSPORT_FIELD,
-        label:
-          coreT("settings-page.schema.outgoing-transport.label") ||
-          OUTGOING_TRANSPORT_FIELD.label,
-        description:
-          coreT("settings-page.schema.outgoing-transport.description") ||
-          OUTGOING_TRANSPORT_FIELD.description,
-      }
+      ...OUTGOING_TRANSPORT_FIELD,
+      label:
+        coreT("settings-page.schema.outgoing-transport.label") ||
+        OUTGOING_TRANSPORT_FIELD.label,
+      description:
+        coreT("settings-page.schema.outgoing-transport.description") ||
+        OUTGOING_TRANSPORT_FIELD.description,
+    }
     : OUTGOING_TRANSPORT_FIELD;
 
   const defaults = getDefaultEngineConfig();
@@ -477,9 +478,9 @@ export async function getEngineExtensionMeta(
 
     const scoreField: SettingField = engineScoreField
       ? {
-          ...baseScoreField,
-          default: engineScoreField.default ?? baseScoreField.default,
-        }
+        ...baseScoreField,
+        default: engineScoreField.default ?? baseScoreField.default,
+      }
       : baseScoreField;
 
     const pluginEntry = pluginItems.find((e) => e.id === def.id);
@@ -490,28 +491,28 @@ export async function getEngineExtensionMeta(
     );
     const translatedEngineSchema = pluginT
       ? engineSchemaFiltered.map((field) => {
-          const base = `${def.id}.settings.${field.key}`;
-          const label = pluginT(`${base}.label`);
-          const desc =
-            field.description !== undefined
-              ? pluginT(`${base}.description`)
-              : undefined;
-          const placeholder =
-            field.placeholder !== undefined
-              ? pluginT(`${base}.placeholder`)
-              : undefined;
-          return {
-            ...field,
-            label: label !== `${base}.label` ? label : field.label,
-            ...(desc !== undefined && desc !== `${base}.description`
-              ? { description: desc }
-              : {}),
-            ...(placeholder !== undefined &&
+        const base = `${def.id}.settings.${field.key}`;
+        const label = pluginT(`${base}.label`);
+        const desc =
+          field.description !== undefined
+            ? pluginT(`${base}.description`)
+            : undefined;
+        const placeholder =
+          field.placeholder !== undefined
+            ? pluginT(`${base}.placeholder`)
+            : undefined;
+        return {
+          ...field,
+          label: label !== `${base}.label` ? label : field.label,
+          ...(desc !== undefined && desc !== `${base}.description`
+            ? { description: desc }
+            : {}),
+          ...(placeholder !== undefined &&
             placeholder !== `${base}.placeholder`
-              ? { placeholder }
-              : {}),
-          };
-        })
+            ? { placeholder }
+            : {}),
+        };
+      })
       : engineSchemaFiltered;
 
     const schema: SettingField[] = [
