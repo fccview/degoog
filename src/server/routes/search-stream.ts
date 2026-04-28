@@ -11,7 +11,6 @@ import {
 } from "../search";
 import {
   EngineTiming,
-  ScoredResult,
   SearchResponse,
   SearchResult,
   SearchType,
@@ -20,27 +19,16 @@ import {
 import * as cache from "../utils/cache";
 import { asString, getSettings } from "../utils/plugin-settings";
 import {
-  applyDomainReplacements,
-  applyDomainScores,
-  filterBlockedDomains,
-} from "../utils/domain-filter";
-import {
   _applyRateLimit,
   cacheKey,
   DEGOOG_SETTINGS_ID,
   isValidQuery,
   parseEngineConfig,
 } from "../utils/search";
+import { applyDomainRules } from "./search/_domain-rules";
+import { parsePage } from "./search/_parsers";
 
 const router = new Hono();
-
-const _applyDomainRules = async (
-  results: ScoredResult[],
-): Promise<ScoredResult[]> => {
-  const afterBlock = await filterBlockedDomains(results);
-  const afterReplace = await applyDomainReplacements(afterBlock);
-  return applyDomainScores(afterReplace);
-};
 
 router.get("/api/search/stream", async (c) => {
   const limitRes = await _applyRateLimit(c);
@@ -53,10 +41,7 @@ router.get("/api/search/stream", async (c) => {
 
   const searchType = (c.req.query("type") || "web") as SearchType;
   const engines = parseEngineConfig(new URL(c.req.url).searchParams);
-  const page = Math.max(
-    1,
-    Math.min(10, Math.floor(Number(c.req.query("page"))) || 1),
-  );
+  const page = parsePage(c.req.query("page"));
   const timeFilter = (c.req.query("time") || "any") as TimeFilter;
   const lang = c.req.query("lang") || "";
   const dateFrom = c.req.query("dateFrom") || "";
@@ -74,7 +59,7 @@ router.get("/api/search/stream", async (c) => {
 
   const cached = cache.get(key);
   if (cached) {
-    const liveResults = await _applyDomainRules(cached.results);
+    const liveResults = await applyDomainRules(cached.results);
     const encoder = new TextEncoder();
     const body = new ReadableStream({
       start(controller) {
@@ -203,7 +188,7 @@ router.get("/api/search/stream", async (c) => {
               _send("engine-result", {
                 engine: engineName,
                 timing,
-                results: await _applyDomainRules(scoreResults(allRawResults)),
+                results: await applyDomainRules(scoreResults(allRawResults)),
                 retry: isRetry,
                 attempt,
               });
@@ -225,7 +210,7 @@ router.get("/api/search/stream", async (c) => {
           _send("engine-result", {
             engine: engineName,
             timing: lastTiming,
-            results: await _applyDomainRules(scoreResults(allRawResults)),
+            results: await applyDomainRules(scoreResults(allRawResults)),
             retry: false,
             attempt: 0,
           });
