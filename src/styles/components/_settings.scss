@@ -134,6 +134,8 @@
   &.active {
     color: var(--text-primary);
     background: var(--bg-hover);
+    box-shadow: $box-shadow;
+    border: 1px solid transparent;
     font-weight: 500;
   }
 }

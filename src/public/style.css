@@ -162,6 +162,8 @@
   border-radius: 24px;
   height: 44px;
   padding: 0 14px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   transition:
     box-shadow 0.2s ease,
     border-color 0.2s ease;
@@ -222,10 +224,12 @@
   padding: 0 16px;
   height: 36px;
   cursor: pointer;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
+
 .search-btn:hover {
   border-color: var(--border);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -1662,10 +1666,12 @@ input:checked + .toggle-slider::after {
 
 .ext-card {
   background: var(--bg-light);
-  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 14px 16px;
+  box-shadow: $box-shadow;
+  border: 1px solid transparent;
 }
+
 .ext-card-main {
   display: flex;
   align-items: center;

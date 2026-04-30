@@ -6,6 +6,8 @@
   background: var(--bg-light);
   border-radius: $radius-lg;
   max-width: $results-max-width;
+  box-shadow: $box-shadow;
+  border: 1px solid transparent;
 }
 
 .glance-snippet {
