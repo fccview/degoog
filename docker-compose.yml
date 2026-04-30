@@ -1,6 +1,6 @@
 services:
   degoog:
-    image: ghcr.io/fccview/degoog:latest
+    image: ghcr.io/degoog-org/degoog:latest
     volumes:
       - ./data:/app/data
     ports:

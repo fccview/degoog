@@ -6,8 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        > **Note:** Before submitting, please consider whether your feature could be implemented as a [plugin](https://fccview.github.io/degoog/plugins.html).
-        > If it can, we encourage you to create your own plugin repository and use it via the [store](https://fccview.github.io/degoog/store.html) instead of opening a feature request here.
+        > **Note:** Before submitting, please consider whether your feature could be implemented as a [plugin](https://degoog-org.github.io/degoog/plugins.html).
+        > If it can, we encourage you to create your own plugin repository and use it via the [store](https://degoog-org.github.io/degoog/store.html) instead of opening a feature request here.
         > Feature requests here should be for changes to Degoog's core functionality.
   - type: textarea
     id: problem

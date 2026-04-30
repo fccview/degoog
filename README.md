@@ -27,7 +27,7 @@ Search aggregator that queries multiple engines and shows results in one place. 
 
 ## Run
 
-By default the app will run on port `4444` with user `1000:1000`, please check the [documentation](https://fccview.github.io/degoog/env.html) for a comprehensive list of env variables and various nuances.
+By default the app will run on port `4444` with user `1000:1000`, please check the [documentation](https://degoog-org.github.io/degoog/env.html) for a comprehensive list of env variables and various nuances.
 
 ```bash
 mkdir -p ./data
@@ -40,7 +40,7 @@ sudo chown -R 1000:1000 ./data
 ```yaml
 services:
   degoog:
-    image: ghcr.io/fccview/degoog:latest
+    image: ghcr.io/degoog-org/degoog:latest
     volumes:
       - ./data:/app/data
     ports:
@@ -54,7 +54,7 @@ services:
 <summary>Inline podman</summary>
 
 ```bash
-podman run -d --name degoog -p 4444:4444 -v ./data:/app/data --security-opt label=disable --restart unless-stopped ghcr.io/fccview/degoog:latest
+podman run -d --name degoog -p 4444:4444 -v ./data:/app/data --security-opt label=disable --restart unless-stopped ghcr.io/degoog-org/degoog:latest
 ```
 
 </details>
@@ -69,7 +69,7 @@ Wants=network-online.target
 After=network-online.target
 
 [Container]
-Image=ghcr.io/fccview/degoog:latest
+Image=ghcr.io/degoog-org/degoog:latest
 AutoUpdate=registry
 ContainerName=degoog
 Environment=TZ=<Country/City>
@@ -97,7 +97,7 @@ WantedBy=default.target
 <summary>Inline docker</summary>
 
 ```bash
-docker run -d --name degoog -p 4444:4444 -v ./data:/app/data --restart unless-stopped ghcr.io/fccview/degoog:latest
+docker run -d --name degoog -p 4444:4444 -v ./data:/app/data --restart unless-stopped ghcr.io/degoog-org/degoog:latest
 ```
 
 </details>
@@ -112,7 +112,7 @@ You'll need a `.env` file for your env variables and the following required depe
 - [curl](https://curl.se)
 
 ```bash
-git clone https://github.com/fccview/degoog.git
+git clone https://github.com/degoog-org/degoog.git
 cd degoog
 bun install
 bun run build
@@ -145,24 +145,13 @@ Some amazing people around the web decided to make their degoog instances availa
 
 ## Store repositories
 
-Aside from the official store these are third party repositories, they have been vetted once before adding them to the readme but I will not personally keep an eye on all of them, it's your responsibility to make sure what you install on your instance. I love open source and I'll obviously try to add these for as long as it's manageable to do so, eventually I may need a system for it, but for now they're comfy in the readme.
+Aside from the official store repo community members have been working hard on their own plugins and been sharing them with everyone who wants to enhance their degoog experience. **You can find a bunch of them [here](https://degoog-org.github.io/community-extensions)**.
 
-| name                     | url                                                                |
-| :----------------------- | :----------------------------------------------------------------- |
-| official store           | `https://github.com/fccview/fccview-degoog-extensions`             |
-| Subatomic1618 addons     | `https://codeberg.org/Subatomic1618/degoog-addons.git`             |
-| Weeb Paradise            | `https://codeberg.org/fccview/degoog-weeb-paradise.git`            |
-| Georgvwt stuff           | `https://codeberg.org/Georgvwt/georgvwt-degoog-stuff.git`          |
-| Lazerleif Maps           | `https://github.com/lazerleif/degoog-maps.git`                     |
-| trankil                  | `https://github.com/Arkmind/trankil.git`                           |
-| TheAnnoying's Extensions | `https://github.com/TheAnnoying/theannoying-degoog-extensions.git` |
-| SiaoZeng SearXNG         | `https://github.com/SiaoZeng/degoog-searxng-extensions.git`        |
-| Litruv Extensions        | `https://github.com/litruv/litruv-degoog-extensions.git`           |
-| Dawiddyd Extensions      | `https://github.com/dawiddyd/degoog-extensions.git`                |
+_**Note:** These have only been INITIALLY vetted, there is no way for me to keep an eye on them once they have been added to the community store repo. If your own responsibiilty to make sure what you install on your system is safe._
 
 ## Documentation
 
-Full customisation guide  (plugins, themes, engines, transports, store, settings gate, aliases, env): **[documentation](https://fccview.github.io/degoog)**.
+Full customisation guide  (plugins, themes, engines, transports, store, settings gate, aliases, env): **[documentation](https://degoog-org.github.io/degoog)**.
 
 ## Little shoutout
 
@@ -177,4 +166,4 @@ Alternatives are what make the internet a fun place, let me share a few other ag
 | OmniSearch | https://git.bwaaa.monster/omnisearch |
 | LibreY     | https://github.com/Ahwxorg/LibreY    |
 
-[![Star History Chart](https://api.star-history.com/image?repos=fccview/degoog&type=date&legend=top-left)](https://www.star-history.com/?repos=fccview%2Fdegoog&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/image?repos=degoog-org/degoog&type=date&legend=top-left)](https://www.star-history.com/?repos=fccview%2Fdegoog&type=date&legend=top-left)

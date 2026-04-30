@@ -96,18 +96,21 @@
           <code>default</code>.
         </p>
         <p>
-          Mark sensitive fields (API keys, tokens) with <code>secret: true</code>. The UI will never
-          expose the saved value — it shows a <code>Set</code> / <code>Not set</code> indicator
-          instead. On save, if the field value equals the sentinel <code>"__SET__"</code> the
-          existing stored value is preserved, so a page reload never overwrites a key the user
-          already entered.
+          Mark sensitive fields (API keys, tokens) with
+          <code>secret: true</code>. The UI will never expose the saved value —
+          it shows a <code>Set</code> / <code>Not set</code> indicator instead.
+          On save, if the field value equals the sentinel
+          <code>"__SET__"</code> the existing stored value is preserved, so a
+          page reload never overwrites a key the user already entered.
         </p>
 
         <h2>HTTP method</h2>
         <p>
-          Engines are not limited to GET requests. Since you control the fetch call inside
-          <code>executeSearch</code>, you can use any method (POST, etc.) and set any headers or
-          body your API requires. A GraphQL engine using POST looks like:
+          Engines are not limited to GET requests. Since you control the fetch
+          call inside
+          <code>executeSearch</code>, you can use any method (POST, etc.) and
+          set any headers or body your API requires. A GraphQL engine using POST
+          looks like:
         </p>
         <pre><code>async executeSearch(query, page = 1, _timeFilter, context) {
   const doFetch = context?.fetch ?? fetch;
@@ -158,8 +161,8 @@
               <td><code>context.buildAcceptLanguage()</code></td>
               <td><code>() =&gt; string</code></td>
               <td>
-                Returns a ready-to-use <code>Accept-Language</code> header
-                value derived from <code>context.lang</code> (e.g.
+                Returns a ready-to-use <code>Accept-Language</code> header value
+                derived from <code>context.lang</code> (e.g.
                 <code>"it,en;q=0.9"</code>). Falls back to
                 <code>"en,en-US;q=0.9"</code> when no lang is set. Pass it
                 directly to your <code>fetch</code> headers.
@@ -182,20 +185,23 @@
               </td>
             </tr>
             <tr>
-              <td><code>context.extractImageUrl($el, baseUrl?, selectors?)</code></td>
+              <td>
+                <code>context.extractImageUrl($el, baseUrl?, selectors?)</code>
+              </td>
               <td>
                 <code>($el, baseUrl?, selectors?) =&gt; string</code>
               </td>
               <td>
                 Robustly extract an article image URL from a cheerio element.
-                Walks <code>&lt;source srcset&gt;</code>, <code>&lt;img srcset&gt;</code>,
-                <code>data-src-hq</code>, <code>data-src</code>,
-                <code>data-lazy-src</code>, <code>data-original</code>,
-                <code>data-actualsrc</code>, <code>data-img-url</code>, <code>src</code>;
-                normalizes <code>//</code> URLs and resolves relative paths
-                against <code>baseUrl</code>. Skips favicon-like images
-                (class hints, &lt;48px). Pass <code>selectors</code> to
-                target a specific thumbnail container first.
+                Walks <code>&lt;source srcset&gt;</code>,
+                <code>&lt;img srcset&gt;</code>, <code>data-src-hq</code>,
+                <code>data-src</code>, <code>data-lazy-src</code>,
+                <code>data-original</code>, <code>data-actualsrc</code>,
+                <code>data-img-url</code>, <code>src</code>; normalizes
+                <code>//</code> URLs and resolves relative paths against
+                <code>baseUrl</code>. Skips favicon-like images (class hints,
+                &lt;48px). Pass <code>selectors</code> to target a specific
+                thumbnail container first.
               </td>
             </tr>
           </tbody>
@@ -204,8 +210,8 @@
           The <code>timeFilter</code> parameter passed to
           <code>executeSearch</code> is one of: <code>"any"</code>,
           <code>"hour"</code>, <code>"day"</code>, <code>"week"</code>,
-          <code>"month"</code>, <code>"year"</code>, <code>"custom"</code>.
-          For <code>"custom"</code>, read <code>context.dateFrom</code> /
+          <code>"month"</code>, <code>"year"</code>, <code>"custom"</code>. For
+          <code>"custom"</code>, read <code>context.dateFrom</code> /
           <code>context.dateTo</code>.
         </p>
         <pre><code>export default class MyEngine {
@@ -236,14 +242,17 @@
 
         <h2>Safe Search</h2>
         <p>
-          Built-in engines (Brave, Brave News, Google, Bing, DuckDuckGo) expose a
-          <strong>Safe Search</strong> dropdown in Settings → Engines. The default keeps
-          existing behaviour — Brave/Brave News default to <code>moderate</code>, the rest
-          default to <code>off</code>. Users can raise or lower the filter per engine.
+          Built-in engines (Brave, Brave News, Google, Bing, DuckDuckGo) expose
+          a
+          <strong>Safe Search</strong> dropdown in Settings → Engines. The
+          default keeps existing behaviour — Brave/Brave News default to
+          <code>moderate</code>, the rest default to <code>off</code>. Users can
+          raise or lower the filter per engine.
         </p>
         <p>
-          Custom engines can add the same setting by including a <code>select</code> field in
-          <code>settingsSchema</code> and applying the value in <code>executeSearch</code>:
+          Custom engines can add the same setting by including a
+          <code>select</code> field in <code>settingsSchema</code> and applying
+          the value in <code>executeSearch</code>:
         </p>
         <pre><code>settingsSchema = [
   {
@@ -299,8 +308,8 @@ export default class MyEngine {
 }</code></pre>
         <p>
           Every engine also has an <strong>Outgoing HTTP client</strong> control
-          under <strong>Advanced</strong> in Settings → Engines (Configure).
-          It is stored per engine: <code>fetch</code> (default), system
+          under <strong>Advanced</strong> in Settings → Engines (Configure). It
+          is stored per engine: <code>fetch</code> (default), system
           <code>curl</code>, <code>auto</code> (retry with curl after certain
           error statuses), or any custom <a href="transports.html">transport</a>
           installed via the Store. Custom engines should still use
@@ -340,7 +349,7 @@ export default class MyEngine {
         <ul>
           <li>
             <a
-              href="https://github.com/fccview/fccview-degoog-extensions/tree/main/engines/ecosia"
+              href="https://github.com/degoog-org/official-extensions/tree/main/engines/ecosia"
               class="external"
               target="_blank"
               rel="noopener"
@@ -351,7 +360,7 @@ export default class MyEngine {
           </li>
           <li>
             <a
-              href="https://github.com/fccview/fccview-degoog-extensions/tree/main/engines/startpage"
+              href="https://github.com/degoog-org/official-extensions/tree/main/engines/startpage"
               class="external"
               target="_blank"
               rel="noopener"
@@ -361,7 +370,7 @@ export default class MyEngine {
           </li>
           <li>
             <a
-              href="https://github.com/fccview/fccview-degoog-extensions/tree/main/engines/internet-archive"
+              href="https://github.com/degoog-org/official-extensions/tree/main/engines/internet-archive"
               class="external"
               target="_blank"
               rel="noopener"

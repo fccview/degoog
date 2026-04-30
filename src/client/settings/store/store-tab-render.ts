@@ -3,7 +3,7 @@ import { screenshotUrl } from "../store-lightbox";
 import type { RepoInfo, StoreItem } from "../../types/store-tab";
 
 const OFFICIAL_REPO_URL =
-  "https://github.com/fccview/fccview-degoog-extensions.git";
+  "https://github.com/degoog-org/official-extensions.git";
 
 export function normalizeRepoUrl(url: string): string {
   const t = (url || "").trim();
@@ -139,12 +139,12 @@ export function renderItemCard(
   const token = getToken();
   const firstUrl = item.screenshots.length
     ? screenshotUrl(
-        item.repoSlug,
-        item.type,
-        itemSlug,
-        item.screenshots[0],
-        token,
-      )
+      item.repoSlug,
+      item.type,
+      itemSlug,
+      item.screenshots[0],
+      token,
+    )
     : "";
   const thumb = item.screenshots.length
     ? `<img src="${firstUrl}" alt="" class="store-card-thumb" loading="lazy">`

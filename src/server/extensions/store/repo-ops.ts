@@ -12,7 +12,7 @@ import {
 
 const CLONE_TIMEOUT_MS = 60_000;
 const FETCH_TIMEOUT_MS = 15_000;
-const OFFICIAL_REPO_URL = "https://github.com/fccview/fccview-degoog-extensions.git";
+const OFFICIAL_REPO_URL = "https://github.com/degoog-org/official-extensions.git";
 
 export function slugFromUrl(url: string): string {
   const normalized = normalizeRepoUrl(url);
@@ -107,7 +107,7 @@ export async function removeRepo(url: string): Promise<void> {
     throw new Error(`Uninstall these items first: ${list}`);
   }
   const dest = join(getStoreDir(), repo.localPath);
-  await rm(dest, { recursive: true, force: true }).catch(() => {});
+  await rm(dest, { recursive: true, force: true }).catch(() => { });
   data.repos = data.repos.filter((r) => normalizeRepoUrl(r.url) !== normalizeRepoUrl(url));
   await writeReposData(data);
 }
