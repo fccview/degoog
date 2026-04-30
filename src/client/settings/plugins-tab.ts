@@ -21,7 +21,7 @@ const _renderPluginCard = (plugin: ExtensionMeta): string => {
         ? '<span class="ext-needs-config-badge"></span>'
         : "";
   const configureBtn = plugin.configurable
-    ? `<button class="ext-card-configure" data-id="${escapeHtml(plugin.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+    ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(plugin.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
     : "";
   const canDisable =
     plugin.configurable ||

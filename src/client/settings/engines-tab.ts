@@ -43,7 +43,7 @@ const _renderEngineCard = (
         : "";
   const configureBtn =
     allowConfigure && engine.configurable
-      ? `<button class="ext-card-configure" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+      ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
       : "";
   return `
     <div class="ext-card" data-id="${escapeHtml(engine.id)}">

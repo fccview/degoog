@@ -70,23 +70,23 @@
     flex-shrink: 0;
   }
 
-  &-configure,
-  &-apply {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: $radius-sm;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: $font-size-small;
-    padding: $space-1 $space-3;
-    transition: color $transition-fast, border-color $transition-fast;
-    white-space: nowrap;
+  // &-configure,
+  // &-apply {
+  //   background: none;
+  //   border: 1px solid var(--border);
+  //   border-radius: $radius-sm;
+  //   color: var(--text-secondary);
+  //   cursor: pointer;
+  //   font-size: $font-size-small;
+  //   padding: $space-1 $space-3;
+  //   transition: color $transition-fast, border-color $transition-fast;
+  //   white-space: nowrap;
 
-    &:hover {
-      border-color: $primary;
-      color: $primary;
-    }
-  }
+  //   &:hover {
+  //     border-color: $primary;
+  //     color: $primary;
+  //   }
+  // }
 
   &-apply {
     &:disabled {

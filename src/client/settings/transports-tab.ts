@@ -17,7 +17,7 @@ const _renderTransportCard = (transport: ExtensionMeta): string => {
         ? '<span class="ext-needs-config-badge"></span>'
         : "";
   const configureBtn = transport.configurable
-    ? `<button class="ext-card-configure" data-id="${escapeHtml(transport.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+    ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(transport.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
     : "";
   const toggle = transport.configurable
     ? `<label class="engine-toggle">
