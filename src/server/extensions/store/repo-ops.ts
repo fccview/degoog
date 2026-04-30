@@ -13,6 +13,7 @@ import {
 const CLONE_TIMEOUT_MS = 60_000;
 const FETCH_TIMEOUT_MS = 15_000;
 const OFFICIAL_REPO_URL = "https://github.com/degoog-org/official-extensions.git";
+const OLD_OFFICIAL_REPO_URL = "https://github.com/fccview/fccview-degoog-extensions.git";
 
 export function slugFromUrl(url: string): string {
   const normalized = normalizeRepoUrl(url);
@@ -217,11 +218,35 @@ export async function getReposStatus(): Promise<RepoStatus[]> {
   return results;
 }
 
+async function _migrateOfficialRepo(): Promise<void> {
+  const data = await readReposData();
+  const oldNormalized = normalizeRepoUrl(OLD_OFFICIAL_REPO_URL);
+  const oldRepo = data.repos.find((r) => normalizeRepoUrl(r.url) === oldNormalized);
+  if (!oldRepo) return;
+
+  const newNormalized = normalizeRepoUrl(OFFICIAL_REPO_URL);
+  if (!data.repos.some((r) => normalizeRepoUrl(r.url) === newNormalized)) {
+    try {
+      await addRepo(OFFICIAL_REPO_URL);
+    } catch {
+      return;
+    }
+  }
+
+  const updated = await readReposData();
+  for (const item of updated.installed) {
+    if (normalizeRepoUrl(item.repoUrl) === oldNormalized) {
+      item.repoUrl = newNormalized;
+    }
+  }
+  updated.repos = updated.repos.filter((r) => normalizeRepoUrl(r.url) !== oldNormalized);
+  await writeReposData(updated);
+  await rm(join(getStoreDir(), oldRepo.localPath), { recursive: true, force: true }).catch(() => {});
+}
+
 export async function ensureOfficialRepo(): Promise<void> {
   const data = await readReposData();
   if (data.repos.length > 0) return;
-  const normalized = normalizeRepoUrl(OFFICIAL_REPO_URL);
-  if (data.repos.some((r) => normalizeRepoUrl(r.url) === normalized)) return;
   try {
     await addRepo(OFFICIAL_REPO_URL);
   } catch {
@@ -230,11 +255,13 @@ export async function ensureOfficialRepo(): Promise<void> {
 }
 
 export async function getRepos(): Promise<RepoInfo[]> {
+  await _migrateOfficialRepo();
+  await ensureOfficialRepo();
   const data = await readReposData();
-  if (data.repos.length === 0) {
-    await ensureOfficialRepo();
-    const after = await readReposData();
-    return after.repos;
-  }
-  return data.repos;
+  const officialNormalized = normalizeRepoUrl(OFFICIAL_REPO_URL);
+  return [...data.repos].sort((a, b) => {
+    if (normalizeRepoUrl(a.url) === officialNormalized) return -1;
+    if (normalizeRepoUrl(b.url) === officialNormalized) return 1;
+    return 0;
+  });
 }
