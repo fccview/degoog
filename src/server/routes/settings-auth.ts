@@ -28,11 +28,17 @@ function getTokenFromCookie(c: Context): string | undefined {
     .split(";")
     .find((s) => s.trim().startsWith(COOKIE_NAME + "="));
   if (!match) {
-    logger.debug("settings-auth", `cookie header present but '${COOKIE_NAME}' not found`);
+    logger.debug(
+      "settings-auth",
+      `cookie header present but '${COOKIE_NAME}' not found`,
+    );
     return undefined;
   }
   const value = match.split("=")[1]?.trim();
-  logger.debug("settings-auth", `'${COOKIE_NAME}' cookie found (length: ${value?.length ?? 0})`);
+  logger.debug(
+    "settings-auth",
+    `'${COOKIE_NAME}' cookie found (length: ${value?.length ?? 0})`,
+  );
   return value || undefined;
 }
 
@@ -50,10 +56,7 @@ export function getSettingsTokenFromRequest(c: Context): string | undefined {
   return getTokenFromCookie(c);
 }
 
-async function guardRoute(
-  c: Context,
-  route: string,
-): Promise<Response | null> {
+async function guardRoute(c: Context, route: string): Promise<Response | null> {
   const token = getSettingsTokenFromRequest(c);
   const valid = await validateSettingsToken(token);
   if (!valid) {
@@ -110,7 +113,10 @@ export async function validateSettingsToken(
   }
   const expiresAt = validTokens.get(token);
   if (!expiresAt) {
-    logger.debug("settings-auth", `token validation failed: token not found in store (${validTokens.size} active tokens)`);
+    logger.debug(
+      "settings-auth",
+      `token validation failed: token not found in store (${validTokens.size} active tokens)`,
+    );
     return false;
   }
   if (Date.now() > expiresAt) {
@@ -119,7 +125,10 @@ export async function validateSettingsToken(
     return false;
   }
   const ttlMs = expiresAt - Date.now();
-  logger.debug("settings-auth", `token valid (expires in ${Math.round(ttlMs / 1000 / 60)}m)`);
+  logger.debug(
+    "settings-auth",
+    `token valid (expires in ${Math.round(ttlMs / 1000 / 60)}m)`,
+  );
   return true;
 }
 
