@@ -44,6 +44,7 @@ export interface LoadedTheme {
 
 import { themesDir } from "../../utils/paths";
 import { createTranslatorFromPath } from "../../utils/translation";
+import { extensionReadmeExists } from "../../utils/extension-docs";
 
 const THEMES_DIR = themesDir();
 
@@ -181,18 +182,20 @@ export async function getThemeExtensionMeta(): Promise<ExtensionMeta[]> {
 
   for (const theme of themes) {
     const schema = theme.manifest.settingsSchema ?? [];
-    const rawSettings =
-      schema.length > 0 ? await getSettings(settingsId(theme.id)) : {};
+    const id = settingsId(theme.id);
+    const rawSettings = schema.length > 0 ? await getSettings(id) : {};
     const maskedSettings = maskSecrets(rawSettings, schema);
+    const { exists } = await extensionReadmeExists(id);
 
     results.push({
-      id: settingsId(theme.id),
+      id,
       displayName: theme.manifest.name,
       description: theme.manifest.description ?? "Custom theme",
       type: ExtensionStoreType.Theme,
       configurable: schema.length > 0,
       settingsSchema: schema,
       settings: maskedSettings,
+      extensionDocsAvailable: exists,
     });
   }
 

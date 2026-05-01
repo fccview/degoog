@@ -6,8 +6,8 @@ import type {
 } from "../../types";
 
 const _wikimediaHeaders: Record<string, string> = {
-  "User-Agent": "degoog/1.0 (+https://github.com/fccview/degoog)",
-  "Api-User-Agent": "degoog/1.0 (+https://github.com/fccview/degoog)",
+  "User-Agent": "degoog/1.0 (+https://github.com/degoog-org/degoog)",
+  "Api-User-Agent": "degoog/1.0 (+https://github.com/degoog-org/degoog)",
 };
 
 export class WikipediaEngine implements SearchEngine {

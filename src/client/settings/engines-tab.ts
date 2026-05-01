@@ -43,19 +43,19 @@ const _renderEngineCard = (
         : "";
   const configureBtn =
     allowConfigure && engine.configurable
-      ? `<button class="ext-card-configure" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+      ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
       : "";
   return `
     <div class="ext-card" data-id="${escapeHtml(engine.id)}">
       <div class="ext-card-main">
         <div class="ext-card-info">
-          <span class="ext-card-name">${escapeHtml(engine.displayName)}</span>
+          <label for="engine-toggle-${escapeHtml(engine.id)}" class="ext-card-name engine-toggle-label">${escapeHtml(engine.displayName)}</label>
         </div>
         <div class="ext-card-actions">
           ${badge}
           ${configureBtn}
           <label class="engine-toggle">
-            <input type="checkbox" class="engine-toggle-input" data-id="${escapeHtml(engine.id)}" ${isEnabled ? "checked" : ""}>
+            <input type="checkbox" class="engine-toggle-input" id="engine-toggle-${escapeHtml(engine.id)}" data-id="${escapeHtml(engine.id)}" ${isEnabled ? "checked" : ""}>
             <span class="toggle-slider"></span>
           </label>
         </div>

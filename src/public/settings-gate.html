@@ -36,10 +36,7 @@
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="{{t:settings-page.meta.description}}"
-    />
+    <meta name="description" content="{{t:settings-page.meta.description}}" />
     <link
       rel="icon"
       href="/public/favicon/favicon.ico?v=__APP_VERSION__"
@@ -47,7 +44,8 @@
     />
     <link
       rel="manifest"
-      href="/public/favicon/site.webmanifest" crossorigin="use-credentials"
+      href="/public/favicon/site.webmanifest"
+      crossorigin="use-credentials"
     />
     <title>{{t:settings-page.meta.title}}</title>
     <link
@@ -57,32 +55,24 @@
       type="font/ttf"
       crossorigin
     />
-    <link rel="stylesheet" href="/public/themes/degoog-theme/style.css?v=__APP_VERSION__" />
+    <link
+      rel="stylesheet"
+      href="/public/themes/degoog-theme/style.css?v=__APP_VERSION__"
+    />
     __THEME_CSS__ __CUSTOM_CSS__
   </head>
   <body class="settings-page-body">
     <div class="settings-page">
       <header class="settings-page-header">
         <a href="/" class="settings-page-back">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
+          <i class="fa-solid fa-arrow-left fa-xl"></i>
           {{t:settings-page.back}}
         </a>
         <h1 class="settings-page-title">{{t:settings-page.page-title}}</h1>
       </header>
       <div class="settings-auth-gate">
         <div class="settings-auth-gate-inner">
-          <p class="settings-auth-desc">
-            {{t:settings-page.gate.desc}}
-          </p>
+          <p class="settings-auth-desc">{{t:settings-page.gate.desc}}</p>
           <form
             class="settings-auth-form"
             id="settings-auth-form"
@@ -96,7 +86,9 @@
               autocomplete="current-password"
               autofocus
             />
-            <button class="settings-auth-submit" type="submit">{{t:settings-page.gate.unlock}}</button>
+            <button class="settings-auth-submit" type="submit">
+              {{t:settings-page.gate.unlock}}
+            </button>
           </form>
           <p class="settings-auth-error" id="settings-auth-error"></p>
         </div>

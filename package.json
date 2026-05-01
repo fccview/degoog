@@ -1,6 +1,6 @@
 {
   "name": "degoog",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "type": "module",
   "scripts": {
     "dev": "bun run --watch src/server/index.ts",
@@ -18,12 +18,15 @@
   },
   "dependencies": {
     "cheerio": "1.2.0",
+    "dompurify": "^3.4.2",
     "hono": "4.12.7",
+    "marked": "^18.0.2",
     "sass": "1.85.0",
     "socks": "2.8.7"
   },
   "devDependencies": {
     "@types/bun": "1.2.0",
+    "@types/dompurify": "^3.2.0",
     "esbuild": "0.27.3",
     "eslint": "10.0.3",
     "typescript": "5.7.3",

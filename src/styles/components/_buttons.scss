@@ -11,7 +11,7 @@
   padding: $space-2 $space-3;
   transition: color $transition-fast, background $transition-fast, opacity $transition-fast;
 
-  &:hover:not(:disabled) {
+  &:hover {
     background: var(--bg-light);
     color: var(--text-primary);
   }
@@ -27,9 +27,9 @@
   }
 
   &--secondary {
-    background: transparent;
+    background: var(--bg);
     color: var(--text-secondary);
-    border: 1px solid var(--border);
+    border: 1px solid var(--bg);
     border-radius: $radius-sm;
     padding: $space-2 $space-4;
     font-size: $font-size-small;
@@ -37,17 +37,17 @@
 
     &:hover {
       color: var(--text-primary);
-      border-color: var(--border);
+      background: var(--bg);
     }
   }
 
   &--primary {
     background: $primary;
-    color: #fff;
+    color: var(--white);
 
-    &:hover:not(:disabled) {
-      background: $primary-hover;
-      color: #fff;
+    &:hover {
+      color: var(--white);
+      background: var(--primary-hover);
     }
   }
 

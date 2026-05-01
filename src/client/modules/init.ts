@@ -17,8 +17,10 @@ import { performTabSearch } from "./tabs/tab-search";
 import { initTabs } from "./tabs/tabs";
 
 import { initInstallPrompt } from "../utils/install-prompt";
+import { focusInput, initKeyboardShortcuts } from "../utils/keyboard-shortcuts";
 import { initSearchBarActions } from "../utils/search-bar-actions";
 import { renderPageTemplates } from "./renderer/render-page";
+import { initResultActions } from "./result-actions";
 
 function _copyToClipboard(text: string, onSuccess: () => void): void {
   const el = document.createElement("textarea");
@@ -113,12 +115,15 @@ export function init(): void {
     (q) => void performSearch(q),
   );
   initSearchBarActions();
+  initKeyboardShortcuts();
+  focusInput(resultsInput);
   initLuckyAnimation();
   initTabs();
   initMediaPreview();
   void initTheme();
   initOptionsDropdown();
   initInstallPrompt();
+  initResultActions();
 
   void idbGet<boolean>(OPEN_IN_NEW_TAB_KEY).then((v) => {
     if (v !== null) state.openInNewTab = v;
@@ -184,6 +189,20 @@ export function init(): void {
     }
   }
 
+  window.addEventListener("pageshow", () => {
+    const restoredParams = new URLSearchParams(window.location.search);
+    const restoredQ = restoredParams.get("q");
+    if (!restoredQ) return;
+    if (searchInput && !searchInput.value) {
+      searchInput.value = restoredQ;
+      searchInput.defaultValue = restoredQ;
+    }
+    if (resultsInput && !resultsInput.value) {
+      resultsInput.value = restoredQ;
+      resultsInput.defaultValue = restoredQ;
+    }
+  });
+
   window.addEventListener("popstate", (e) => {
     const hs = e.state as {
       degoog: boolean;
@@ -211,7 +230,10 @@ export function init(): void {
       } else {
         void performSearch(popQ, popType, popPage);
       }
-    } else {
+      return;
+    }
+
+    if (state.postMethodEnabled) {
       window.location.reload();
     }
   });

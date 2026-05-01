@@ -1,60 +1,93 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Themes — Degoog docs</title>
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("ade:theme");
+          if (t !== "light" && t !== "dark") {
+            t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.setAttribute("data-theme", t);
+        } catch (e) {}
+      })();
+    </script>
+    <link rel="icon" href="https://github.com/fccview/degoog/raw/main/src/public/images/degoog-logo.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="wrap">
-      <header>
-        <h1><a href="index.html">Degoog</a> — Themes</h1>
-        <p>Override look, layout, and result markup.</p>
+    <div class="ade-layout">
+      <header class="ade-mobile-header">
+        <button id="ade-burger" type="button" class="ade-btn ade-btn-burger">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <span class="ade-mobile-title">Degoog Docs</span>
       </header>
-
-      <nav class="doc-nav">
-        <div class="doc-search-wrap">
-          <label for="doc-search-input" class="doc-search-label">Search</label>
-          <input
-            type="search"
-            id="doc-search-input"
-            class="doc-search"
-            placeholder="Search docs..."
-            autocomplete="off"
-          />
-          <button
-            type="button"
-            class="doc-search-clear"
-            aria-label="Clear search"
-            style="display: none"
-          >
-            Clear
-          </button>
-          <span class="doc-search-count"></span>
-        </div>
-        <h2>Docs</h2>
-        <ul>
-          <li><a href="index.html">Overview</a></li>
-          <li><a href="plugins.html">Plugins</a></li>
-          <li><a href="themes.html">Themes</a></li>
-          <li><a href="engines.html">Search engines</a></li>
-          <li><a href="transports.html">Transports</a></li>
-          <li><a href="store.html">Store</a></li>
-          <li><a href="aliases.html">Aliases</a></li>
-          <li><a href="env.html">Environment</a></li>
-          <li><a href="styling.html">Styling</a></li>
-          <li><a href="translations.html">Translations</a></li>
-          <li><a href="api.html">API</a></li>
-        </ul>
-      </nav>
-
-      <main>
+      <div class="ade-content">
+        <aside class="ade-sidebar">
+          <div class="ade-sidebar-brand">
+            <img
+              src="https://github.com/fccview/degoog/raw/main/src/public/images/degoog-logo.png"
+              alt="degoog logo"
+              class="ade-brand-img"
+              onerror="this.style.display='none'"
+            />
+            <a href="index.html" class="ade-brand-name">Degoog Docs</a>
+          </div>
+          <div class="ade-sidebar-search">
+            <div class="doc-search-wrap">
+              <input
+                type="search"
+                id="doc-search-input"
+                class="ade-input doc-search"
+                placeholder="Search docs..."
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                class="doc-search-clear ade-btn"
+                aria-label="Clear search"
+                style="display: none"
+              >Clear</button>
+              <span class="doc-search-count"></span>
+            </div>
+          </div>
+          <nav class="ade-nav" aria-label="Documentation">
+            <a href="index.html" class="ade-nav-item"><span class="ade-nav-item-name">Overview</span></a>
+            <a href="plugins.html" class="ade-nav-item"><span class="ade-nav-item-name">Plugins</span></a>
+            <a href="themes.html" class="ade-nav-item"><span class="ade-nav-item-name">Themes</span></a>
+            <a href="engines.html" class="ade-nav-item"><span class="ade-nav-item-name">Search engines</span></a>
+            <a href="transports.html" class="ade-nav-item"><span class="ade-nav-item-name">Transports</span></a>
+            <a href="store.html" class="ade-nav-item"><span class="ade-nav-item-name">Store</span></a>
+            <a href="aliases.html" class="ade-nav-item"><span class="ade-nav-item-name">Aliases</span></a>
+            <a href="env.html" class="ade-nav-item"><span class="ade-nav-item-name">Environment</span></a>
+            <a href="styling.html" class="ade-nav-item"><span class="ade-nav-item-name">Styling</span></a>
+            <a href="translations.html" class="ade-nav-item"><span class="ade-nav-item-name">Translations</span></a>
+            <a href="api.html" class="ade-nav-item"><span class="ade-nav-item-name">API</span></a>
+          </nav>
+          <div class="ade-sidebar-actions">
+            <button id="doc-theme-toggle" type="button" class="ade-btn" aria-label="Toggle theme">
+              <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+          </div>
+        </aside>
+        <main class="ade-main">
+          <div class="doc-page-header">
+            <h1><a href="index.html">Degoog</a> — Themes</h1>
+            <p class="doc-page-desc">Override look, layout, and result markup.</p>
+          </div>
         <h2 id="default-theme">Default theme reference</h2>
         <p>
           The built-in theme lives at
           <a
-            href="https://github.com/fccview/degoog/tree/main/src/public/themes/degoog-theme"
+            href="https://github.com/degoog-org/degoog/tree/main/src/public/themes/degoog-theme"
             ><code>src/public/themes/degoog-theme/</code></a
           >
           &mdash; use it as your starting point.
@@ -116,7 +149,7 @@
           <code>layout.html</code> in your theme and reference it under
           <code>html.layout</code>. Copy the
           <a
-            href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/layout.html"
+            href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/layout.html"
             >default layout</a
           >
           and edit it. You <strong>must</strong> keep these placeholders:
@@ -142,19 +175,19 @@
           <li>
             <strong>Layout</strong>
             (<a
-              href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/layout.html"
+              href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/layout.html"
               ><code>layout.html</code></a
             >) &mdash; shared HTML shell. <em>Change at your own risk.</em>
           </li>
           <li>
             <strong>Skeleton</strong>
             (<a
-              href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/index.html"
+              href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/index.html"
               ><code>index.html</code></a
             >
             /
             <a
-              href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search.html"
+              href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search.html"
               ><code>search.html</code></a
             >) &mdash; empty <code>&lt;div&gt;</code>s with required IDs. JS
             depends on these.
@@ -169,7 +202,7 @@
         <p>
           See the
           <a
-            href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/theme.json"
+            href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/theme.json"
             >default theme.json</a
           >
           for a complete example.
@@ -290,7 +323,7 @@
               <td>Logo + search bar + settings gear</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/header.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/header.html"
                   >header.html</a
                 >
               </td>
@@ -300,7 +333,7 @@
               <td>Tab bar + options dropdown</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/tabs.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/tabs.html"
                   >tabs.html</a
                 >
               </td>
@@ -310,7 +343,7 @@
               <td>Image / video preview panel</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/media-preview.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/media-preview.html"
                   >media-preview.html</a
                 >
               </td>
@@ -320,7 +353,7 @@
               <td>Full-screen image lightbox</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/lightbox.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/lightbox.html"
                   >lightbox.html</a
                 >
               </td>
@@ -330,7 +363,7 @@
               <td>Web / news result item</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/result.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/result.html"
                   >result.html</a
                 >
               </td>
@@ -340,7 +373,7 @@
               <td>Image grid card</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/image-card.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/image-card.html"
                   >image-card.html</a
                 >
               </td>
@@ -350,7 +383,7 @@
               <td>Video grid card</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/video-card.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/video-card.html"
                   >video-card.html</a
                 >
               </td>
@@ -360,7 +393,7 @@
               <td>At-a-glance box</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/search-templates/at-a-glance.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/search-templates/at-a-glance.html"
                   >at-a-glance.html</a
                 >
               </td>
@@ -383,7 +416,7 @@
               <td>Top header bar</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/index-templates/header.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/index-templates/header.html"
                   >header.html</a
                 >
               </td>
@@ -393,7 +426,7 @@
               <td>Logo / branding</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/index-templates/logo.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/index-templates/logo.html"
                   >logo.html</a
                 >
               </td>
@@ -403,7 +436,7 @@
               <td>Search form</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/index-templates/search.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/index-templates/search.html"
                   >search.html</a
                 >
               </td>
@@ -413,7 +446,7 @@
               <td>Footer</td>
               <td>
                 <a
-                  href="https://github.com/fccview/degoog/blob/main/src/public/themes/degoog-theme/index-templates/footer.html"
+                  href="https://github.com/degoog-org/degoog/blob/main/src/public/themes/degoog-theme/index-templates/footer.html"
                   >footer.html</a
                 >
               </td>
@@ -545,9 +578,9 @@
           Some templates contain inner elements that JS hooks into. Keep these
           IDs when overriding or the feature breaks. Templates not listed here
           (<code>degoog-home-header</code>, <code>degoog-home-logo</code>,
-          <code>degoog-home-footer</code>, <code>degoog-result</code>,
-          <code>degoog-image-card</code>, <code>degoog-video-card</code>,
-          <code>degoog-at-a-glance</code>) can be restructured freely.
+          <code>degoog-home-footer</code>, <code>degoog-image-card</code>,
+          <code>degoog-video-card</code>, <code>degoog-at-a-glance</code>) can
+          be restructured freely.
         </p>
 
         <h4><code>degoog-home-search</code></h4>
@@ -598,6 +631,44 @@
           <li>
             <code>tools-date-from</code>, <code>tools-date-to</code>,
             <code>tools-date-apply</code> &mdash; date range
+          </li>
+        </ul>
+
+        <h4><code>degoog-result</code></h4>
+        <p>
+          IDs in this template are suffixed with the
+          <code>{{ index }}</code> placeholder (the result&rsquo;s zero-based
+          position) so they stay unique within the page. Keep the prefix intact
+          when overriding.
+        </p>
+        <ul>
+          <li>
+            <code>result-favicon-{N}</code> &mdash; favicon image. Must also
+            carry <code>data-favicon-host="{{ favicon_host }}"</code>; JS
+            attaches the DDG &rarr; Google &rarr; letter-avatar fallback chain.
+            On final fallback the <code>&lt;img&gt;</code> is replaced with a
+            <code>&lt;span class="result-favicon-fallback"&gt;</code>.
+          </li>
+          <li>
+            <code>result-actions-{N}</code> &mdash; per-result action wrapper
+            (block / replace / score). Only rendered when
+            <code>show_actions</code> is truthy.
+          </li>
+          <li>
+            <code>result-actions-toggle-{N}</code> &mdash; kebab button that
+            opens the menu; <code>aria-expanded</code> is toggled by JS.
+          </li>
+          <li>
+            <code>result-actions-menu-{N}</code> &mdash; popover containing the
+            action buttons; toggled via the <code>hidden</code> attribute.
+          </li>
+          <li>
+            <code>result-action-block-{N}</code>,
+            <code>result-action-replace-{N}</code>,
+            <code>result-action-score-{N}</code> &mdash; individual menu
+            buttons. Each one is conditional on the matching
+            <code>action_block</code> / <code>action_replace</code> /
+            <code>action_score</code> placeholder.
           </li>
         </ul>
 
@@ -668,6 +739,14 @@
           </thead>
           <tbody>
             <tr>
+              <td><code>index</code></td>
+              <td>number</td>
+              <td>
+                Zero-based position of this result; used to suffix the
+                template&rsquo;s required IDs.
+              </td>
+            </tr>
+            <tr>
               <td><code>title</code></td>
               <td>string</td>
               <td>Result title</td>
@@ -690,7 +769,14 @@
             <tr>
               <td><code>favicon_url</code></td>
               <td>string</td>
-              <td>Proxied favicon</td>
+              <td>
+                Proxied favicon (first candidate; fallback chain runs in JS)
+              </td>
+            </tr>
+            <tr>
+              <td><code>favicon_host</code></td>
+              <td>string</td>
+              <td>Hostname used by the favicon fallback chain</td>
             </tr>
             <tr>
               <td><code>thumbnail_url</code></td>
@@ -716,6 +802,30 @@
               <td><code>link_rel</code></td>
               <td>string</td>
               <td><code>noopener</code> or empty</td>
+            </tr>
+            <tr>
+              <td><code>show_actions</code></td>
+              <td>bool</td>
+              <td>
+                Truthy when the per-result block/replace/score menu should
+                render (authenticated, non-public instance, at least one action
+                enabled in settings).
+              </td>
+            </tr>
+            <tr>
+              <td><code>action_block</code></td>
+              <td>bool</td>
+              <td>Show the &ldquo;Block domain&rdquo; menu item</td>
+            </tr>
+            <tr>
+              <td><code>action_replace</code></td>
+              <td>bool</td>
+              <td>Show the &ldquo;Replace domain&rdquo; menu item</td>
+            </tr>
+            <tr>
+              <td><code>action_score</code></td>
+              <td>bool</td>
+              <td>Show the &ldquo;Score domain&rdquo; menu item</td>
             </tr>
           </tbody>
         </table>
@@ -864,12 +974,15 @@
     "result": "templates/result.html"
   }
 }</code></pre>
-      </main>
+        </main>
+      </div>
+      <div id="ade-backdrop" class="ade-backdrop"></div>
     </div>
     <script
       src="https://code.jquery.com/jquery-4.0.0.min.js"
       crossorigin="anonymous"
     ></script>
     <script src="docs.js"></script>
+    <script src="docs-ui.js"></script>
   </body>
 </html>

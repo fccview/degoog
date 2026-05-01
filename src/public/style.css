@@ -11,7 +11,10 @@
   font-family: arial, sans-serif;
   font-size: 13px;
   padding: 8px 14px;
-  transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
 }
 .btn:hover:not(:disabled) {
   background: var(--bg-light);
@@ -26,18 +29,19 @@
   cursor: default;
 }
 .btn--secondary {
-  background: transparent;
+  background: var(--bg-hover);
   color: var(--text-secondary);
-  border: 1px solid var(--border);
+  border: none;
   border-radius: 4px;
   padding: 8px 16px;
   font-size: 13px;
   cursor: pointer;
   font-family: arial, sans-serif;
 }
+
 .btn--secondary:hover {
   color: var(--text-primary);
-  border-color: var(--border);
+  background: var(--bg-light);
 }
 .btn--primary {
   background: var(--primary);
@@ -158,9 +162,14 @@
   border-radius: 24px;
   height: 44px;
   padding: 0 14px;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
-.search-bar:hover, .search-bar:focus-within,
+.search-bar:hover,
+.search-bar:focus-within,
 .results-search-bar:hover,
 .results-search-bar:focus-within {
   background: var(--search-bar-bg-hover);
@@ -215,8 +224,12 @@
   padding: 0 16px;
   height: 36px;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
 .search-btn:hover {
   border-color: var(--border);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -300,7 +313,8 @@
   color: var(--text-primary);
   cursor: pointer;
 }
-.ac-item:hover, .ac-item.ac-active {
+.ac-item:hover,
+.ac-item.ac-active {
   background: var(--bg-hover);
 }
 
@@ -434,7 +448,9 @@
   color: var(--text-secondary);
   cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 .results-tab.active {
   color: var(--text-primary);
@@ -465,7 +481,8 @@
   border-bottom: 3px solid transparent;
   transition: color 0.2s ease;
 }
-.tools-toggle:hover, .tools-toggle.active {
+.tools-toggle:hover,
+.tools-toggle.active {
   color: var(--text-primary);
 }
 
@@ -848,7 +865,9 @@
 }
 
 @keyframes dot-pulse {
-  0%, 80%, 100% {
+  0%,
+  80%,
+  100% {
     opacity: 0.3;
     transform: scale(0.8);
   }
@@ -1068,8 +1087,15 @@
     background-position: -200% 0;
   }
 }
-.skeleton-media-thumb, .skeleton-media-card, .skeleton-line {
-  background: linear-gradient(90deg, var(--bg-light) 25%, var(--bg-hover) 50%, var(--bg-light) 75%);
+.skeleton-media-thumb,
+.skeleton-media-card,
+.skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--bg-light) 25%,
+    var(--bg-hover) 50%,
+    var(--bg-light) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
   border-radius: 4px;
@@ -1280,7 +1306,9 @@
   font-size: 14px;
   margin-bottom: -1px;
   padding: 10px 16px;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 .settings-tab-btn:hover {
   color: var(--text-primary);
@@ -1349,8 +1377,8 @@
 }
 
 .toggle-slider {
-  width: 40px;
-  height: 20px;
+  width: 2.5rem;
+  height: 0.8rem;
   background: var(--border);
   border-radius: 10px;
   position: relative;
@@ -1360,19 +1388,20 @@
 .toggle-slider::after {
   content: "";
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
+  top: 50%;
+  left: 0;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: 50%;
   background: var(--white);
   transition: transform 0.2s ease;
+  transform: translate(0, -48%);
 }
 input:checked + .toggle-slider {
   background: var(--primary);
 }
 input:checked + .toggle-slider::after {
-  transform: translateX(20px);
+  transform: translate(100%, -48%);
 }
 
 .toggle-label {
@@ -1382,6 +1411,7 @@ input:checked + .toggle-slider::after {
 
 .theme-select-wrap {
   margin-top: 4px;
+  flex: 1;
 }
 
 .theme-select {
@@ -1636,10 +1666,12 @@ input:checked + .toggle-slider::after {
 
 .ext-card {
   background: var(--bg-light);
-  border: 1px solid var(--border-light);
   border-radius: 8px;
   padding: 14px 16px;
+  box-shadow: $box-shadow;
+  border: 1px solid transparent;
 }
+
 .ext-card-main {
   display: flex;
   align-items: center;
@@ -1675,7 +1707,8 @@ input:checked + .toggle-slider::after {
   gap: 10px;
   flex-shrink: 0;
 }
-.ext-card-configure, .ext-card-apply {
+.ext-card-configure,
+.ext-card-apply {
   background: none;
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -1684,10 +1717,13 @@ input:checked + .toggle-slider::after {
   font-family: arial, sans-serif;
   font-size: 13px;
   padding: 5px 12px;
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
   white-space: nowrap;
 }
-.ext-card-configure:hover, .ext-card-apply:hover {
+.ext-card-configure:hover,
+.ext-card-apply:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -2280,7 +2316,9 @@ select.ext-field-input.ext-field-select {
     right: auto;
     top: 0;
     transform: none;
-    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      width 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      min-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     width: 0;
     z-index: auto;
   }
@@ -2334,7 +2372,9 @@ select.ext-field-input.ext-field-select {
   justify-content: center;
   cursor: pointer;
   opacity: 1;
-  transition: opacity 0.2s ease, background 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
 }
 .media-preview-nav:hover {
   background: rgba(0, 0, 0, 0.7);
@@ -2349,7 +2389,8 @@ select.ext-field-input.ext-field-select {
     height: 40px;
     opacity: 0;
   }
-  .media-preview-panel.open:hover .media-preview-nav, .media-preview-panel.open .media-preview-nav:focus-visible {
+  .media-preview-panel.open:hover .media-preview-nav,
+  .media-preview-panel.open .media-preview-nav:focus-visible {
     opacity: 1;
   }
 }
@@ -2538,7 +2579,8 @@ select.ext-field-input.ext-field-select {
   width: 100%;
   border-collapse: collapse;
 }
-.command-help-table th, .command-help-table td {
+.command-help-table th,
+.command-help-table td {
   text-align: left;
   padding: 0.5em 1em;
   border-bottom: 1px solid var(--border-light);
@@ -2633,7 +2675,9 @@ select.ext-field-input.ext-field-select {
   border-right: 1px solid var(--border-light);
   cursor: pointer;
   text-align: left;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3112,7 +3156,9 @@ select.ext-field-input.ext-field-select {
   font-family: arial, sans-serif;
   font-size: 13px;
   padding: 8px 12px;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -3313,7 +3359,9 @@ select.ext-field-input.ext-field-select {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 .store-lightbox.store-lightbox--open {
   opacity: 1;
@@ -3350,7 +3398,9 @@ select.ext-field-input.ext-field-select {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 .store-lightbox-close:hover {
   background: rgba(255, 255, 255, 0.12);
@@ -3379,7 +3429,9 @@ select.ext-field-input.ext-field-select {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 .store-lightbox-prev:hover,
 .store-lightbox-next:hover {
@@ -3463,7 +3515,7 @@ select.ext-field-input.ext-field-select {
 }
 
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme=dark]) {
+  :root:not([data-theme="dark"]) {
     --primary: #4285f4;
     --primary-hover: #5a95f5;
     --primary-rgb: 66, 133, 244;
@@ -3489,7 +3541,7 @@ select.ext-field-input.ext-field-select {
     --white: #fff;
   }
 }
-[data-theme=light] {
+[data-theme="light"] {
   --primary: #4285f4;
   --primary-hover: #5a95f5;
   --primary-rgb: 66, 133, 244;
@@ -3515,9 +3567,9 @@ select.ext-field-input.ext-field-select {
   --white: #fff;
 }
 
-[data-theme=dark] {
-  --primary: #4285f4;
-  --primary-hover: #5a95f5;
+[data-theme="dark"] {
+  --primary: #5673ac;
+  --primary-hover: #3b547c;
   --primary-rgb: 66, 133, 244;
   --danger: #ea4335;
   --warning: #fbbc05;
@@ -3527,7 +3579,7 @@ select.ext-field-input.ext-field-select {
   --bg-hover: #3c4043;
   --border: #5f6368;
   --border-light: #303134;
-  --text-primary: #e8eaed;
+  --text-primary: #dddddd;
   --text-secondary: #9aa0a6;
   --text-link: #8ab4f8;
   --text-link-visited: #c58af9;
@@ -3536,12 +3588,13 @@ select.ext-field-input.ext-field-select {
   --search-bar-bg: #303134;
   --search-bar-bg-hover: #303134;
   --btn-bg: #303134;
-  --btn-text: #e8eaed;
+  --btn-text: var(--text-primary);
   --overlay-bg: rgba(0, 0, 0, 0.6);
   --white: #fff;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   font-family: arial, sans-serif;

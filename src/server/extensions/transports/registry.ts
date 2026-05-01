@@ -1,11 +1,11 @@
-import type { Transport } from "../../types";
-import { ExtensionStoreType, type ExtensionMeta } from "../../types";
+import { Transport, ExtensionMeta, ExtensionStoreType } from "../../types";
 import { FetchTransport } from "./builtins/fetch";
 import { CurlTransport } from "./builtins/curl";
 import { AutoTransport } from "./builtins/auto";
 import { getSettings, maskSecrets } from "../../utils/plugin-settings";
 import { transportsDir } from "../../utils/paths";
 import { createRegistry } from "../registry-factory";
+import { extensionReadmeExists } from "../../utils/extension-docs";
 
 const _builtins: Transport[] = [
   new FetchTransport(),
@@ -31,7 +31,9 @@ const registry = createRegistry<Transport>({
   match: (mod) => {
     const Export = mod.default ?? mod.transport ?? mod.Transport;
     const instance: Transport =
-      typeof Export === "function" ? new (Export as new () => Transport)() : (Export as Transport);
+      typeof Export === "function"
+        ? new (Export as new () => Transport)()
+        : (Export as Transport);
     if (!_isTransport(instance)) return null;
     if (_builtins.some((t) => t.name === instance.name)) return null;
     if (registry.items().some((t) => t.name === instance.name)) return null;
@@ -84,6 +86,7 @@ export async function getTransportExtensionMeta(): Promise<ExtensionMeta[]> {
     const rawSettings = await getSettings(id);
     const settings = maskSecrets(rawSettings, schema);
     if (rawSettings["disabled"]) settings["disabled"] = rawSettings["disabled"];
+    const { exists } = await extensionReadmeExists(id);
 
     results.push({
       id,
@@ -93,6 +96,7 @@ export async function getTransportExtensionMeta(): Promise<ExtensionMeta[]> {
       configurable: schema.length > 0,
       settingsSchema: schema,
       settings,
+      extensionDocsAvailable: exists,
     });
   }
   return results;
@@ -105,4 +109,3 @@ export async function initTransports(): Promise<void> {
 export async function reloadTransports(): Promise<void> {
   await initTransports();
 }
-

@@ -43,6 +43,8 @@ import {
   getTransport,
 } from "../extensions/transports/registry";
 import { outgoingFetch } from "../utils/outgoing";
+import { readFile } from "fs/promises";
+import { extensionReadmeExists } from "../utils/extension-docs";
 
 const router = new Hono();
 
@@ -231,6 +233,22 @@ router.post("/api/extensions/transports/:name/test", async (c) => {
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Connection failed";
     return c.json({ ok: false, message: msg });
+  }
+});
+
+router.get("/api/extensions/:id/readme", async (c) => {
+  const token = getSettingsTokenFromRequest(c);
+  if (!(await validateSettingsToken(token)))
+    return c.json({ error: "Unauthorized" }, 401);
+
+  const id = c.req.param("id");
+  const { exists, readmePath } = await extensionReadmeExists(id);
+  if (!exists || !readmePath) return c.json({ error: "Not found" }, 404);
+  try {
+    const markdown = await readFile(readmePath, "utf-8");
+    return c.json({ markdown });
+  } catch {
+    return c.json({ error: "Not found" }, 404);
   }
 });
 

@@ -1,3 +1,12 @@
+@use "../public/icons/fontawesome/scss/variables" with (
+  $font-path: "/public/icons/fontawesome/webfonts"
+);
+@use "../public/icons/fontawesome/scss/fontawesome";
+@use "../public/icons/fontawesome/scss/solid";
+@use "../public/icons/fontawesome/scss/regular";
+@use "../public/icons/fontawesome/scss/brands";
+@use "../public/icons/fontawesome/scss/v4-shims";
+
 @import "variables";
 @import "fonts";
 @import "mixins";
@@ -26,99 +35,47 @@
   font-family: $font-family;
 }
 
-:root {
-  --primary: #4285f4;
-  --primary-hover: #5a95f5;
+@mixin _themeLightVars {
+  --primary: #5673ac;
+  --primary-hover: #3b547c;
   --primary-rgb: 66, 133, 244;
+  --brand-blue: #4285f4;
   --danger: #ea4335;
   --warning: #fbbc05;
   --success: #34a853;
-  --bg: #202124;
-  --bg-light: #303134;
-  --bg-hover: #3c4043;
-  --border: #5f6368;
-  --border-light: #303134;
-  --text-primary: #e8eaed;
-  --text-secondary: #9aa0a6;
-  --text-link: #8ab4f8;
-  --text-link-visited: #c58af9;
-  --text-cite: #bdc1c6;
-  --text-snippet: #bdc1c6;
-  --search-bar-bg: #303134;
-  --search-bar-bg-hover: #303134;
-  --btn-bg: #303134;
-  --btn-text: #e8eaed;
-  --overlay-bg: rgba(0, 0, 0, 0.6);
-  --white: #fff;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --primary: #4285f4;
-    --primary-hover: #5a95f5;
-    --primary-rgb: 66, 133, 244;
-    --danger: #ea4335;
-    --warning: #fbbc05;
-    --success: #34a853;
-    --bg: #fff;
-    --bg-light: #f8f9fa;
-    --bg-hover: #e8eaed;
-    --border: #dfe1e5;
-    --border-light: #ebebeb;
-    --text-primary: #202124;
-    --text-secondary: #70757a;
-    --text-link: #1a0dab;
-    --text-link-visited: #681da8;
-    --text-cite: #202124;
-    --text-snippet: #4d5156;
-    --search-bar-bg: #ebebeb;
-    --search-bar-bg-hover: #ebebeb;
-    --btn-bg: #f8f9fa;
-    --btn-text: #3c4043;
-    --overlay-bg: rgba(0, 0, 0, 0.4);
-    --white: #fff;
-  }
-}
-
-[data-theme="light"] {
-  --primary: #4285f4;
-  --primary-hover: #5a95f5;
-  --primary-rgb: 66, 133, 244;
-  --danger: #ea4335;
-  --warning: #fbbc05;
-  --success: #34a853;
-  --bg: #fff;
-  --bg-light: #f8f9fa;
-  --bg-hover: #e8eaed;
-  --border: #dfe1e5;
-  --border-light: #ebebeb;
-  --text-primary: #202124;
-  --text-secondary: #70757a;
+  --bg: #f1f1f1;
+  --bg-light: #fafafa;
+  --bg-hover: #fafafa;
+  --border: #c8d0da;
+  --border-light: #dedede;
+  --text-primary: #343536;
+  --text-secondary: #4b5563;
   --text-link: #1a0dab;
   --text-link-visited: #681da8;
-  --text-cite: #202124;
-  --text-snippet: #4d5156;
-  --search-bar-bg: #ebebeb;
-  --search-bar-bg-hover: #ebebeb;
-  --btn-bg: #f8f9fa;
-  --btn-text: #3c4043;
+  --text-cite: #111827;
+  --text-snippet: #374151;
+  --search-bar-bg: #f7f8fb;
+  --search-bar-bg-hover: #f7f8fb;
+  --btn-bg: #f7f8fb;
+  --btn-text: var(--text-primary);
   --overlay-bg: rgba(0, 0, 0, 0.4);
   --white: #fff;
 }
 
-[data-theme="dark"] {
-  --primary: #4285f4;
-  --primary-hover: #5a95f5;
+@mixin _themeDarkVars {
+  --primary: #5673ac;
+  --primary-hover: #3b547c;
   --primary-rgb: 66, 133, 244;
+  --brand-blue: #4285f4;
   --danger: #ea4335;
   --warning: #fbbc05;
   --success: #34a853;
-  --bg: #202124;
+  --bg: #25272e;
   --bg-light: #303134;
   --bg-hover: #3c4043;
   --border: #5f6368;
   --border-light: #303134;
-  --text-primary: #e8eaed;
+  --text-primary: #dddddd;
   --text-secondary: #9aa0a6;
   --text-link: #8ab4f8;
   --text-link-visited: #c58af9;
@@ -127,9 +84,27 @@
   --search-bar-bg: #303134;
   --search-bar-bg-hover: #303134;
   --btn-bg: #303134;
-  --btn-text: #e8eaed;
+  --btn-text: var(--text-primary);
   --overlay-bg: rgba(0, 0, 0, 0.6);
-  --white: #fff;
+  --white: #fff3f3;
+}
+
+:root {
+  @include _themeLightVars;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    @include _themeLightVars;
+  }
+}
+
+[data-theme="light"] {
+  @include _themeLightVars;
+}
+
+[data-theme="dark"] {
+  @include _themeDarkVars;
 }
 
 html {
@@ -201,6 +176,10 @@ body.has-results #app {
       text-decoration: underline;
     }
   }
+}
+
+.fa-solid {
+  line-height: 1.2rem;
 }
 
 body.has-results #home-footer {

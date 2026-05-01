@@ -22,7 +22,7 @@ const _renderThemeCard = (
         ? '<span class="ext-needs-config-badge"></span>'
         : "";
   const configureBtn = themeExt.configurable
-    ? `<button class="ext-card-configure" data-id="${escapeHtml(themeExt.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+    ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(themeExt.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
     : "";
   const activeLabel = isActive
     ? `<span class="ext-card-active">${escapeHtml(t("settings-page.extensions.active"))}</span>`
@@ -38,7 +38,7 @@ const _renderThemeCard = (
         <div class="ext-card-actions">
           ${badge}
           ${configureBtn}
-          <button class="ext-card-apply" data-theme-id="${escapeHtml(themeId)}" type="button" ${isActive ? "disabled" : ""}>${escapeHtml(themeT("search-templates.tabs.apply"))}</button>
+          <button class="ext-card-apply btn btn--secondary" data-theme-id="${escapeHtml(themeId)}" type="button" ${isActive ? "disabled" : ""}>${escapeHtml(themeT("search-templates.tabs.apply"))}</button>
         </div>
       </div>
     </div>`;
@@ -55,7 +55,7 @@ const _renderBuiltInCard = (activeId: string | null): string => {
           ${isActive ? `<span class="ext-card-active">${escapeHtml(t("settings-page.extensions.active"))}</span>` : ""}
         </div>
         <div class="ext-card-actions">
-          <button class="ext-card-apply" data-theme-id="built-in" type="button" ${isActive ? "disabled" : ""}>${escapeHtml(themeT("search-templates.tabs.apply"))}</button>
+          <button class="ext-card-apply btn btn--secondary" data-theme-id="built-in" type="button" ${isActive ? "disabled" : ""}>${escapeHtml(themeT("search-templates.tabs.apply"))}</button>
         </div>
       </div>
     </div>`;

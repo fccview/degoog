@@ -47,95 +47,89 @@
     <div class="settings-page">
       <header class="settings-page-header">
         <a href="/" class="settings-page-back">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
+          <i class="fa-solid fa-arrow-left fa-xl"></i>
           {{t:settings-page.back}}
         </a>
         <h1 class="settings-page-title">{{t:settings-page.page-title}}</h1>
       </header>
 
       <main class="settings-page-main">
-        <section class="settings-section">
+        <section class="settings-section ext-card">
           <h2 class="settings-section-heading">
             {{t:settings-page.appearance.heading}}
           </h2>
           <p class="settings-desc">{{t:settings-page.appearance.desc}}</p>
-          <div class="theme-select-wrap">
-            <select id="theme-select" class="theme-select">
-              <option value="system">{{t:settings-page.theme.system}}</option>
-              <option value="light">{{t:settings-page.theme.light}}</option>
-              <option value="dark">{{t:settings-page.theme.dark}}</option>
-            </select>
-          </div>
+          <fieldset class="settings-fieldset">
+            <div class="theme-select-wrap">
+              <select id="theme-select" class="theme-select">
+                <option value="system">{{t:settings-page.theme.system}}</option>
+                <option value="light">{{t:settings-page.theme.light}}</option>
+                <option value="dark">{{t:settings-page.theme.dark}}</option>
+              </select>
+            </div>
+          </fieldset>
         </section>
 
-        <section class="settings-section">
+        <section class="settings-section ext-card">
           <h2 class="settings-section-heading">
             {{t:settings-page.search-options.heading}}
           </h2>
-          <label class="settings-toggle-wrap" style="margin-top: 1rem">
-            <input
-              type="checkbox"
-              id="settings-open-new-tab"
-              class="settings-toggle"
-              aria-label="{{t:settings-page.search-options.open-new-tab-aria}}"
-            />
-            <span class="toggle-slider"></span>
-            <span class="settings-toggle-label"
-              >{{t:settings-page.search-options.open-new-tab}}</span
-            >
-          </label>
+          <fieldset class="settings-fieldset">
+            <label class="settings-toggle-wrap">
+              <input
+                type="checkbox"
+                id="settings-open-new-tab"
+                class="settings-toggle"
+                aria-label="{{t:settings-page.search-options.open-new-tab-aria}}"
+              />
+              <span class="toggle-slider"></span>
+              <span class="settings-toggle-label"
+                >{{t:settings-page.search-options.open-new-tab}}</span
+              >
+            </label>
 
-          <label class="settings-toggle-wrap" style="margin-top: 1rem">
-            <input
-              type="checkbox"
-              id="display-engine-performance"
-              class="settings-toggle"
-              aria-label="{{t:settings-page.search-options.engine-performance-aria}}"
-            />
-            <span class="toggle-slider"></span>
-            <span class="settings-toggle-label"
-              >{{t:settings-page.search-options.engine-performance}}</span
-            >
-          </label>
+            <label class="settings-toggle-wrap">
+              <input
+                type="checkbox"
+                id="display-engine-performance"
+                class="settings-toggle"
+                aria-label="{{t:settings-page.search-options.engine-performance-aria}}"
+              />
+              <span class="toggle-slider"></span>
+              <span class="settings-toggle-label"
+                >{{t:settings-page.search-options.engine-performance}}</span
+              >
+            </label>
 
-          <label class="settings-toggle-wrap" style="margin-top: 1rem">
-            <input
-              type="checkbox"
-              id="display-related-queries"
-              class="settings-toggle"
-              aria-label="{{t:settings-page.search-options.related-queries-aria}}"
-            />
-            <span class="toggle-slider"></span>
-            <span class="settings-toggle-label"
-              >{{t:settings-page.search-options.related-queries}}</span
-            >
-          </label>
+            <label class="settings-toggle-wrap">
+              <input
+                type="checkbox"
+                id="display-related-queries"
+                class="settings-toggle"
+                aria-label="{{t:settings-page.search-options.related-queries-aria}}"
+              />
+              <span class="toggle-slider"></span>
+              <span class="settings-toggle-label"
+                >{{t:settings-page.search-options.related-queries}}</span
+              >
+            </label>
 
-          <label
-            class="settings-toggle-wrap"
-            style="margin-top: 1rem"
-            title="{{t:settings-page.search-options.post-method-tooltip}}"
-          >
-            <input
-              type="checkbox"
-              id="settings-post-method-enabled"
-              class="settings-toggle"
-              aria-label="{{t:settings-page.search-options.post-method-aria}}"
-            />
-            <span class="toggle-slider"></span>
-            <span class="settings-toggle-label"
-              >{{t:settings-page.search-options.post-method}}</span
+            <label
+              class="settings-toggle-wrap"
+              title="{{t:settings-page.search-options.post-method-tooltip}}"
             >
-          </label>
+              <input
+                type="checkbox"
+                id="settings-post-method-enabled"
+                class="settings-toggle"
+                aria-label="{{t:settings-page.search-options.post-method-aria}}"
+              />
+              <span class="toggle-slider"></span>
+              <span class="settings-toggle-label"
+                >{{t:settings-page.search-options.post-method}}</span
+              >
+            </label>
+          </fieldset>
         </section>
 
         <section class="settings-section">

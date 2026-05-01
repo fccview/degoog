@@ -2,6 +2,7 @@ import { renderField, initUrlList } from "./modal-fields";
 import { getStoredToken } from "../../settings/settings";
 import { jsonHeaders } from "../../../utils/request";
 import type { ExtensionMeta, SettingField } from "../../../types";
+import { openExtensionDocs } from "../docs-modal/docs";
 
 const t = window.scopedT("core");
 
@@ -13,8 +14,29 @@ const saveBtn = document.getElementById(
 ) as HTMLButtonElement | null;
 const closeBtn = document.getElementById("ext-modal-close");
 const statusEl = document.getElementById("ext-modal-status");
+const footerEl = document.querySelector<HTMLElement>(".ext-modal-footer");
 
 let currentExt: ExtensionMeta | null = null;
+let docsBtn: HTMLButtonElement | null = null;
+
+function _ensureDocsButton(): HTMLButtonElement | null {
+  if (!footerEl) return null;
+  if (docsBtn) return docsBtn;
+  docsBtn = document.createElement("button");
+  docsBtn.type = "button";
+  docsBtn.className = "btn btn--secondary ext-docs-btn";
+  docsBtn.textContent = "Docs";
+  docsBtn.style.display = "none";
+  footerEl.insertBefore(docsBtn, footerEl.firstChild);
+  docsBtn.addEventListener("click", () => {
+    if (!currentExt) return;
+    void openExtensionDocs({
+      id: currentExt.id,
+      title: `${currentExt.displayName} docs`,
+    });
+  });
+  return docsBtn;
+}
 
 const _initTestButton = (container: HTMLElement): void => {
   const btn = container.querySelector<HTMLButtonElement>(".ext-test-btn");
@@ -135,6 +157,10 @@ const _advancedFieldDiffersFromDefault = (
 
 export function openModal(ext: ExtensionMeta): void {
   currentExt = ext;
+  const docs = _ensureDocsButton();
+  if (docs) {
+    docs.style.display = ext.extensionDocsAvailable ? "" : "none";
+  }
   if (titleEl)
     titleEl.textContent = t("settings-page.modal.configure-title", {
       name: ext.displayName,

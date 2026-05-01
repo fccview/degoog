@@ -19,9 +19,10 @@
 
 .ext-card {
   background: var(--bg-light);
-  border: 1px solid var(--border-light);
+  border: 1px solid transparent;
   border-radius: $radius-lg;
-  padding: $space-3 $space-4;
+  padding: $space-4;
+  box-shadow: $box-shadow;
 
   &-main {
     display: flex;
@@ -41,6 +42,12 @@
     font-size: $font-size-base;
     font-weight: 500;
     color: var(--text-primary);
+
+    &.engine-toggle-label,
+    &.plugin-toggle-label,
+    &.transport-toggle-label {
+      cursor: pointer;
+    }
   }
 
   &-trigger {
@@ -64,23 +71,23 @@
     flex-shrink: 0;
   }
 
-  &-configure,
-  &-apply {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: $radius-sm;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: $font-size-small;
-    padding: $space-1 $space-3;
-    transition: color $transition-fast, border-color $transition-fast;
-    white-space: nowrap;
+  // &-configure,
+  // &-apply {
+  //   background: none;
+  //   border: 1px solid var(--border);
+  //   border-radius: $radius-sm;
+  //   color: var(--text-secondary);
+  //   cursor: pointer;
+  //   font-size: $font-size-small;
+  //   padding: $space-1 $space-3;
+  //   transition: color $transition-fast, border-color $transition-fast;
+  //   white-space: nowrap;
 
-    &:hover {
-      border-color: $primary;
-      color: $primary;
-    }
-  }
+  //   &:hover {
+  //     border-color: $primary;
+  //     color: $primary;
+  //   }
+  // }
 
   &-apply {
     &:disabled {
@@ -161,15 +168,67 @@
   }
 }
 
+.ext-docs-modal {
+  width: min(60rem, 92vw);
+}
+
+.ext-docs-body {
+  overflow-y: auto;
+  max-width: 100%;
+  display: block;
+  color: var(--text-secondary);
+
+  a {
+    color: var(--text-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  code {
+    font-family: monospace;
+    background: var(--bg-hover);
+    padding: 0.1rem 0.25rem;
+    border-radius: $radius-sm;
+    color: var(--text-primary);
+  }
+
+  pre {
+    background: var(--bg-hover);
+    border-radius: $radius-md;
+    padding: $space-3;
+    box-shadow: inset 0 0 0 1px var(--border-light);
+    max-width: 100%;
+    margin: 0 0 $space-4;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+
+    code {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      color: var(--text-primary);
+    }
+  }
+}
+
+.ext-docs-error {
+  color: $danger;
+  margin: 0;
+}
+
 .ext-field {
   display: flex;
   flex-direction: column;
   gap: $space-2;
 
   &-label {
-    color: var(--text-primary);
-    font-size: $font-size-base;
+    color: var(--text-secondary);
+    font-size: $font-size-small;
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   &-toggle-row {
@@ -180,18 +239,16 @@
   }
 
   &-input {
-    background: var(--bg-light);
-    border: 1px solid var(--border);
+    background: var(--bg-hover);
+    border: none;
     border-radius: $radius-md;
+    box-sizing: border-box;
+    box-shadow: inset 0 0 0 1px var(--border-light);
     color: var(--text-primary);
     font-size: $font-size-base;
     outline: none;
     padding: $space-2 $space-3;
     width: 100%;
-
-    &:focus {
-      border-color: $primary;
-    }
 
     &::placeholder {
       color: var(--text-secondary);
@@ -272,16 +329,16 @@
 
     &-input {
       flex: 1;
-      background: var(--bg-input, var(--bg-light));
-      border: 1px solid var(--border);
+      background: var(--bg-hover);
+      border: none;
       border-radius: $radius-md;
       color: var(--text-primary);
       font-size: $font-size-base;
       padding: $space-2 $space-3;
 
       &:focus {
-        outline: 2px solid $primary;
-        outline-offset: 0;
+        box-shadow: inset 0 0 0 1px var(--border-light), 0 0 0 3px rgba($primary, 0.5);
+        outline: none;
       }
     }
 
@@ -367,7 +424,25 @@ textarea.ext-field-input {
 
 select.ext-field-input.ext-field-select {
   cursor: pointer;
-  appearance: auto;
+  appearance: none;
+  padding-right: $space-8;
+}
+
+.ext-field-select-wrap {
+  position: relative;
+
+  &::after {
+    content: '\f0d7';
+    font-family: 'Font Awesome 7 Free';
+    font-weight: 900;
+    font-size: $font-size-base;
+    color: var(--text-secondary);
+    position: absolute;
+    right: $space-4;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
 }
 
 .ext-configured-badge,

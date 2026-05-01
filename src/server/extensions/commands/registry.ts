@@ -20,6 +20,7 @@ import { createTranslatorFromPath } from "../../utils/translation";
 import { getEngineMap as getSearchEngineMap } from "../engines/registry";
 import { pluginsDir } from "../../utils/paths";
 import { createRegistry } from "../registry-factory";
+import { extensionReadmeExists } from "../../utils/extension-docs";
 
 const builtinsDir = join(
   process.cwd(),
@@ -364,6 +365,8 @@ export async function getPluginExtensionMeta(
       settings: maskedSettings,
       source: commandSourceMap.get(entry.id) ?? "plugin",
     };
+    const { exists } = await extensionReadmeExists(entry.id);
+    meta.extensionDocsAvailable = exists;
     const inst = entry.instance as unknown as Record<string, unknown>;
     if (Array.isArray(inst.defaultFeedUrls)) {
       meta.defaultFeedUrls = inst.defaultFeedUrls as string[];

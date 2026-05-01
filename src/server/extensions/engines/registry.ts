@@ -18,6 +18,7 @@ import { getTransportNames } from "../transports/registry";
 import { enginesDir, defaultEnginesFile } from "../../utils/paths";
 import { readFileSync } from "fs";
 import { createRegistry } from "../registry-factory";
+import { extensionReadmeExists } from "../../utils/extension-docs";
 import { BingEngine } from "./bing";
 import { BingImagesEngine } from "./bing-images";
 import { BingNewsEngine } from "./bing-news";
@@ -98,8 +99,9 @@ const BUILTIN_DEFINITIONS: EngineDefinition[] = [
     displayName: "Google Images",
     searchType: "images",
     EngineClass: GoogleImagesEngine,
+    disabledByDefault: true,
     outgoingHosts: ["www.google.com", "google.com"],
-    defaultTransport: "curl",
+    defaultTransport: "fplay",
   },
   {
     id: "bing-images",
@@ -194,7 +196,7 @@ const engineRegistry = createRegistry<PluginEntry>({
       instance,
       outgoingHosts:
         Array.isArray(mod.outgoingHosts) &&
-        (mod.outgoingHosts as unknown[]).length > 0
+          (mod.outgoingHosts as unknown[]).length > 0
           ? (mod.outgoingHosts as string[])
           : undefined,
     };
@@ -389,6 +391,16 @@ const OUTGOING_TRANSPORT_FIELD: SettingField = {
   advanced: true,
 };
 
+const CUSTOM_USER_AGENTS_FIELD: SettingField = {
+  key: "customUserAgents",
+  label: "Custom user agents",
+  type: "textarea",
+  default: "",
+  description:
+    "One user agent per line. A random one will be used per request for this engine.",
+  advanced: true,
+};
+
 export function getEngineIdByInstance(
   instance: SearchEngine,
 ): string | undefined {
@@ -433,24 +445,24 @@ export async function getEngineExtensionMeta(
 
   const baseScoreField = coreT
     ? {
-        ...SCORE_FIELD,
-        label: coreT("settings-page.schema.score.label") || SCORE_FIELD.label,
-        description:
-          coreT("settings-page.schema.score.description") ||
-          SCORE_FIELD.description,
-      }
+      ...SCORE_FIELD,
+      label: coreT("settings-page.schema.score.label") || SCORE_FIELD.label,
+      description:
+        coreT("settings-page.schema.score.description") ||
+        SCORE_FIELD.description,
+    }
     : SCORE_FIELD;
 
   const baseTransportField = coreT
     ? {
-        ...OUTGOING_TRANSPORT_FIELD,
-        label:
-          coreT("settings-page.schema.outgoing-transport.label") ||
-          OUTGOING_TRANSPORT_FIELD.label,
-        description:
-          coreT("settings-page.schema.outgoing-transport.description") ||
-          OUTGOING_TRANSPORT_FIELD.description,
-      }
+      ...OUTGOING_TRANSPORT_FIELD,
+      label:
+        coreT("settings-page.schema.outgoing-transport.label") ||
+        OUTGOING_TRANSPORT_FIELD.label,
+      description:
+        coreT("settings-page.schema.outgoing-transport.description") ||
+        OUTGOING_TRANSPORT_FIELD.description,
+    }
     : OUTGOING_TRANSPORT_FIELD;
 
   const defaults = getDefaultEngineConfig();
@@ -477,9 +489,9 @@ export async function getEngineExtensionMeta(
 
     const scoreField: SettingField = engineScoreField
       ? {
-          ...baseScoreField,
-          default: engineScoreField.default ?? baseScoreField.default,
-        }
+        ...baseScoreField,
+        default: engineScoreField.default ?? baseScoreField.default,
+      }
       : baseScoreField;
 
     const pluginEntry = pluginItems.find((e) => e.id === def.id);
@@ -490,37 +502,39 @@ export async function getEngineExtensionMeta(
     );
     const translatedEngineSchema = pluginT
       ? engineSchemaFiltered.map((field) => {
-          const base = `${def.id}.settings.${field.key}`;
-          const label = pluginT(`${base}.label`);
-          const desc =
-            field.description !== undefined
-              ? pluginT(`${base}.description`)
-              : undefined;
-          const placeholder =
-            field.placeholder !== undefined
-              ? pluginT(`${base}.placeholder`)
-              : undefined;
-          return {
-            ...field,
-            label: label !== `${base}.label` ? label : field.label,
-            ...(desc !== undefined && desc !== `${base}.description`
-              ? { description: desc }
-              : {}),
-            ...(placeholder !== undefined &&
+        const base = `${def.id}.settings.${field.key}`;
+        const label = pluginT(`${base}.label`);
+        const desc =
+          field.description !== undefined
+            ? pluginT(`${base}.description`)
+            : undefined;
+        const placeholder =
+          field.placeholder !== undefined
+            ? pluginT(`${base}.placeholder`)
+            : undefined;
+        return {
+          ...field,
+          label: label !== `${base}.label` ? label : field.label,
+          ...(desc !== undefined && desc !== `${base}.description`
+            ? { description: desc }
+            : {}),
+          ...(placeholder !== undefined &&
             placeholder !== `${base}.placeholder`
-              ? { placeholder }
-              : {}),
-          };
-        })
+            ? { placeholder }
+            : {}),
+        };
+      })
       : engineSchemaFiltered;
 
     const schema: SettingField[] = [
       scoreField,
       transportField,
+      CUSTOM_USER_AGENTS_FIELD,
       ...translatedEngineSchema,
     ];
     const rawSettings = await getSettings(def.id);
     const maskedSettings = maskSecrets(rawSettings, schema);
+    const { exists } = await extensionReadmeExists(def.id);
 
     results.push({
       id: def.id,
@@ -530,6 +544,7 @@ export async function getEngineExtensionMeta(
       configurable: true,
       settingsSchema: schema,
       settings: maskedSettings,
+      extensionDocsAvailable: exists,
       defaultEnabled: defaults[def.id],
     });
   }

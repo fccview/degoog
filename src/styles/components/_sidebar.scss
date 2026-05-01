@@ -3,6 +3,8 @@
   border-radius: $radius-lg;
   margin-bottom: $space-4;
   overflow: hidden;
+  box-shadow: $box-shadow;
+  border: 1px solid transparent;
 }
 
 .sidebar-accordion-toggle {

@@ -66,10 +66,14 @@
   display: flex;
   gap: $space-3;
   align-items: center;
-  background: var(--bg-light);
+  background: var(--bg-hover);
   border-radius: $radius-lg;
   padding: $space-3 $space-4;
   margin-bottom: $space-3;
+
+  .store-repo-img {
+    background: var(--bg-light);
+  }
 }
 
 .store-repo-detail-body {
@@ -269,12 +273,13 @@
   flex: 1;
   min-width: 0;
   background: var(--search-bar-bg);
-  border: 0;
   border-radius: $search-bar-radius;
   color: var(--text-primary);
   font-size: $font-size-base;
   padding: $space-3;
   outline: none;
+  border: 1px solid transparent;
+  box-shadow: $box-shadow;
 
   &:focus {
     outline: 2px solid $primary;
@@ -290,7 +295,8 @@
   appearance: none;
   -webkit-appearance: none;
   background: var(--bg-light);
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
+  box-shadow: $box-shadow;
   border-radius: $radius-lg;
   color: var(--text-primary);
   font-size: $font-size-small;
