@@ -21,7 +21,7 @@ function parseProxyUrl(proxyUrl: string): {
 
   return {
     host: url.hostname,
-    port: Number(url.port) || url.protocol == "http:" ? 80 : 443,
+    port: Number(url.port) || (url.protocol === "http:" ? 80 : 443),
     auth,
   };
 }
