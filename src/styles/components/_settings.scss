@@ -576,7 +576,7 @@
 
 .settings-auth-submit {
   background: $primary;
-  color: #fff;
+  color: var(--white);
   border: none;
   border-radius: $radius-xl;
   padding: $space-4 $space-6;
@@ -591,7 +591,7 @@
 
 .settings-save {
   background: $primary;
-  color: #fff;
+  color: var(--white);
   border: none;
   border-radius: $radius-sm;
   padding: $space-2 $space-6;
