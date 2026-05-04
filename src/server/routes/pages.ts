@@ -265,34 +265,19 @@ async function buildThemedLayoutPage(
   return applyPagePlaceholders(html, t);
 }
 
-const _apiKeySectionFull = `<p class="settings-desc">{{t:settings-page.server.api-key-desc}}</p>
-<div class="settings-toggle-wrap settings-desc">
-  <code id="settings-api-key-value" class="settings-toggle-label"></code>
+const _apiKeySection = `<code id="settings-api-key-value" class="settings-toggle-label"></code>
   <div>
     <button type="button" id="settings-api-key-reveal" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-reveal}}"><i class="fa-solid fa-eye fa-lg"></i></button>
     <button type="button" id="settings-api-key-copy" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-copy}}"><i class="fa-solid fa-copy fa-lg"></i></button>
     <button type="button" id="settings-api-key-regenerate" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-regenerate}}"><i class="fa-solid fa-rotate-right fa-lg"></i></button>
-  </div>
-</div>
-<fieldset class="settings-fieldset">
-  <label class="settings-toggle-wrap" title="{{t:settings-page.server.api-key-search-tooltip}}">
-    <input type="checkbox" id="settings-api-key-search-enabled" class="settings-toggle" aria-label="{{t:settings-page.server.api-key-search-aria}}" />
-    <span class="toggle-slider"></span>
-    <span class="settings-toggle-label">{{t:settings-page.server.api-key-search-enable}}</span>
-  </label>
-  <label class="settings-toggle-wrap" title="{{t:settings-page.server.api-key-suggest-tooltip}}">
-    <input type="checkbox" id="settings-api-key-suggest-enabled" class="settings-toggle" aria-label="{{t:settings-page.server.api-key-suggest-aria}}" />
-    <span class="toggle-slider"></span>
-    <span class="settings-toggle-label">{{t:settings-page.server.api-key-suggest-enable}}</span>
-  </label>
-</fieldset>`;
+  </div>`;
 
 const _apiKeySectionLocked = `<p class="settings-desc">{{t:settings-page.server.api-key-no-password}}</p>`;
 
 async function buildPage(filename: string, locale?: string): Promise<string> {
   let html = await Bun.file(`src/public/${filename}`).text();
   if (html.includes("__API_KEY_SECTION__")) {
-    const content = isPasswordRequired() ? _apiKeySectionFull : _apiKeySectionLocked;
+    const content = isPasswordRequired() ? _apiKeySection : _apiKeySectionLocked;
     html = html.replace("__API_KEY_SECTION__", content);
   }
   const t = await getTranslator(locale);
