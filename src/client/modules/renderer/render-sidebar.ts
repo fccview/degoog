@@ -65,10 +65,10 @@ export function renderSidebar(
       statsContent += `
         <div class="engine-stat-row${statusClass}">
           <div class="engine-stat-info">
-            <div class="engine-stat-label">${escapeHtml(et.name)}</div>
-            <div class="engine-stat-meta">${et.resultCount} results · ${et.time}ms</div>
+            <div class="engine-stat-label degoog-text">${escapeHtml(et.name)}</div>
+            <div class="engine-stat-meta degoog-text degoog-text--sm degoog-text--secondary">${et.resultCount} results · ${et.time}ms</div>
           </div>
-          <a class="engine-retry-link" data-engine="${escapeHtml(et.name)}">retry</a>
+          <a class="engine-retry-link degoog-link" data-engine="${escapeHtml(et.name)}">retry</a>
         </div>`;
       void barWidth;
     });
@@ -82,7 +82,7 @@ export function renderSidebar(
   ) {
     let relContent = "";
     data.relatedSearches.forEach((term) => {
-      relContent += `<a class="related-search-link" data-query="${escapeHtml(term)}">${escapeHtml(term)}</a>`;
+      relContent += `<a class="related-search-link degoog-link" data-query="${escapeHtml(term)}">${escapeHtml(term)}</a>`;
     });
     html += _sidebarAccordion("People also search for", relContent);
   }

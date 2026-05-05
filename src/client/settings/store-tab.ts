@@ -235,7 +235,7 @@ export async function initStoreTab(
                   <span class="store-updates-row-name">${escapeHtml(i.name)}</span>
                   <span class="store-updates-row-meta">${escapeHtml(i.repoName)} · <span class="store-card-version-old">v${escapeHtml(i.installedVersion || "?")}</span> → v${escapeHtml(i.version)}</span>
                 </div>
-                <button class="btn btn--primary store-btn-update" type="button" data-repo-url="${escapeHtml(i.repoUrl)}" data-item-path="${escapeHtml(i.path)}" data-type="${escapeHtml(i.type)}">Update</button>
+                <button class="btn btn--primary degoog-btn degoog-btn--primary store-btn-update" type="button" data-repo-url="${escapeHtml(i.repoUrl)}" data-item-path="${escapeHtml(i.path)}" data-type="${escapeHtml(i.type)}">Update</button>
               </div>`,
           )
           .join("");
@@ -245,7 +245,7 @@ export async function initStoreTab(
               <span>Updates available (${updatable.length})</span>
               <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-            <button class="btn btn--primary store-btn-update-all" type="button">Update all</button>
+            <button class="btn btn--primary degoog-btn degoog-btn--primary store-btn-update-all" type="button">Update all</button>
           </div>
           <div class="store-updates-body">${rows}</div>`;
         updatesPanel

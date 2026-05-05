@@ -281,9 +281,9 @@ async function buildThemedLayoutPage(
 
 const _apiKeySection = `<code id="settings-api-key-value" class="settings-toggle-label"></code>
   <div>
-    <button type="button" id="settings-api-key-reveal" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-reveal}}"><i class="fa-solid fa-eye fa-lg"></i></button>
-    <button type="button" id="settings-api-key-copy" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-copy}}"><i class="fa-solid fa-copy fa-lg"></i></button>
-    <button type="button" id="settings-api-key-regenerate" class="btn btn--secondary" aria-label="{{t:settings-page.server.api-key-regenerate}}"><i class="fa-solid fa-rotate-right fa-lg"></i></button>
+    <button type="button" id="settings-api-key-reveal" class="btn btn--secondary degoog-btn degoog-btn--secondary" aria-label="{{t:settings-page.server.api-key-reveal}}"><i class="fa-solid fa-eye fa-lg"></i></button>
+    <button type="button" id="settings-api-key-copy" class="btn btn--secondary degoog-btn degoog-btn--secondary" aria-label="{{t:settings-page.server.api-key-copy}}"><i class="fa-solid fa-copy fa-lg"></i></button>
+    <button type="button" id="settings-api-key-regenerate" class="btn btn--secondary degoog-btn degoog-btn--secondary" aria-label="{{t:settings-page.server.api-key-regenerate}}"><i class="fa-solid fa-rotate-right fa-lg"></i></button>
   </div>`;
 
 const _apiKeySectionLocked = `<p class="settings-desc">{{t:settings-page.server.api-key-no-password}}</p>`;

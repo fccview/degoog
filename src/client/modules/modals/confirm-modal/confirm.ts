@@ -42,12 +42,12 @@ function _ensureMounted(): void {
   const footer = document.createElement("div");
   footer.className="ext-modal-footer";
   cancelBtn = document.createElement("button");
-  cancelBtn.className="btn btn--secondary";
+  cancelBtn.className="btn btn--secondary degoog-btn degoog-btn--secondary";
   cancelBtn.id = "confirm-modal-cancel";
   cancelBtn.type = "button";
   cancelBtn.textContent = t("search-templates.result.actions.modal-cancel");
   confirmBtn = document.createElement("button");
-  confirmBtn.className="btn btn--primary";
+  confirmBtn.className="btn btn--primary degoog-btn degoog-btn--primary";
   confirmBtn.id = "confirm-modal-confirm";
   confirmBtn.type = "button";
   confirmBtn.textContent = t("search-templates.result.actions.modal-confirm");

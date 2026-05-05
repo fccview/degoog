@@ -25,7 +25,7 @@ function _ensureDocsButton(): HTMLButtonElement | null {
   if (docsBtn) return docsBtn;
   docsBtn = document.createElement("button");
   docsBtn.type = "button";
-  docsBtn.className="btn btn--secondary ext-docs-btn";
+  docsBtn.className="btn btn--secondary degoog-btn degoog-btn--secondary ext-docs-btn";
   docsBtn.textContent = "Docs";
   docsBtn.style.display = "none";
   footerEl.insertBefore(docsBtn, footerEl.firstChild);

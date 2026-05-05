@@ -237,18 +237,18 @@ const aiSummarySlot: SlotPlugin = {
     }
     return {
       html:
-        '<div class="glance-ai">' +
+        '<div class="glance-ai degoog-panel degoog-panel--slot degoog-panel--slot-body-padded">' +
         '<div class="glance-ai-messages">' +
-        '<div class="glance-snippet">' +
+        '<div class="glance-snippet degoog-text degoog-text--md">' +
         escapeHtml(summary) +
         "</div>" +
         "</div>" +
         '<div class="glance-ai-footer">' +
         `<span class="glance-ai-badge degoog-badge">${this.t!("ai-summary.badge")}</span>` +
-        `<button class="glance-ai-dive" type="button">${this.t!("ai-summary.dive-deeper")}</button>` +
+        `<button class="glance-ai-dive degoog-link-btn" type="button">${this.t!("ai-summary.dive-deeper")}</button>` +
         "</div>" +
         '<div class="glance-ai-chat" hidden>' +
-        `<textarea class="glance-ai-input" placeholder="${this.t!("ai-summary.follow-up-placeholder")}" rows="1"></textarea>` +
+        `<textarea class="glance-ai-input degoog-input" placeholder="${this.t!("ai-summary.follow-up-placeholder")}" rows="1"></textarea>` +
         "</div>" +
         "</div>",
     };

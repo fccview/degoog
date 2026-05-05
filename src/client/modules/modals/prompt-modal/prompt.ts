@@ -68,11 +68,11 @@ function _ensureMounted(): void {
   const footer = document.createElement("div");
   footer.className="ext-modal-footer";
   cancelBtn = document.createElement("button");
-  cancelBtn.className="btn btn--secondary";
+  cancelBtn.className="btn btn--secondary degoog-btn degoog-btn--secondary";
   cancelBtn.id = "result-prompt-cancel";
   cancelBtn.type = "button";
   confirmBtn = document.createElement("button");
-  confirmBtn.className="btn btn--primary";
+  confirmBtn.className="btn btn--primary degoog-btn degoog-btn--primary";
   confirmBtn.id = "result-prompt-confirm";
   confirmBtn.type = "button";
   footer.append(cancelBtn, confirmBtn);

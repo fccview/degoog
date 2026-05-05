@@ -47,7 +47,7 @@ const _renderEngineCard = (
         : "";
   const configureBtn =
     allowConfigure && engine.configurable
-      ? `<button class="ext-card-configure btn btn--secondary" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
+      ? `<button class="ext-card-configure btn btn--secondary degoog-btn degoog-btn--secondary" data-id="${escapeHtml(engine.id)}" type="button">${escapeHtml(t("settings-page.extensions.configure"))}</button>`
       : "";
   return `
     <div class="ext-card degoog-panel degoog-panel--ext-card" data-id="${escapeHtml(engine.id)}">
@@ -96,7 +96,7 @@ export async function initEnginesTab(
     html += `</div></div>`;
   }
   if (allowConfigure) {
-    html += `<div class="settings-page-actions"><button class="btn btn--secondary" id="save-default-engines" type="button">${t("settings-page.extensions.save-defaults")}</button></div>`;
+    html += `<div class="settings-page-actions"><button class="btn btn--secondary degoog-btn degoog-btn--secondary" id="save-default-engines" type="button">${t("settings-page.extensions.save-defaults")}</button></div>`;
   }
   container.innerHTML = html;
 

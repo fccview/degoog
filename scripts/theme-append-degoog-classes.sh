@@ -68,6 +68,32 @@ declare -A MAP=(
   ["img-lightbox-close"]="degoog-icon-btn degoog-icon-btn--lightbox-close"
   ["ext-modal-close"]="degoog-icon-btn"
   ["media-preview-close"]="degoog-icon-btn degoog-icon-btn--media-preview-close"
+
+  ["btn"]="degoog-btn"
+  ["btn--primary"]="degoog-btn--primary"
+  ["btn--secondary"]="degoog-btn--secondary"
+  ["btn--danger"]="degoog-btn--danger"
+
+  ["result-item"]="degoog-result"
+  ["result-item-inner"]="degoog-result--inner"
+  ["result-body"]="degoog-result--body"
+  ["result-thumbnail-wrap"]="degoog-result--thumb"
+  ["result-url-row"]="degoog-result--url-row"
+  ["result-favicon"]="degoog-result--favicon"
+  ["result-cite"]="degoog-result--cite"
+  ["result-actions"]="degoog-result--actions"
+  ["result-actions-toggle"]="degoog-result--actions-toggle"
+  ["result-title"]="degoog-result--title"
+  ["result-snippet"]="degoog-result--snippet"
+  ["result-engines"]="degoog-result--engines"
+
+  ["glance-box"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded"
+  ["glance-ai"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded"
+  ["glance-snippet"]="degoog-text degoog-text--md"
+  ["glance-link"]="degoog-link"
+  ["glance-sources"]="degoog-text degoog-text--sm degoog-text--secondary degoog-text--spaced"
+  ["glance-ai-dive"]="degoog-link-btn"
+  ["glance-ai-input"]="degoog-input"
 )
 
 append_for_file() {

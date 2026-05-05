@@ -1,107 +1,19 @@
-#at-a-glance:not(:empty) {
+ #at-a-glance:not(:empty) {
   margin-bottom: $space-4;
 }
 
-.glance-box {
-  background: var(--bg-light);
-  border-radius: $radius-lg;
-  max-width: $results-max-width;
-}
-
-.glance-snippet {
-  font-size: $font-size-md;
-  color: var(--text-primary);
-  line-height: 1.5;
-  margin-bottom: $space-2;
-}
-
-.glance-link {
-  font-size: $font-size-base;
-  color: var(--text-link);
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.glance-sources {
-  margin-top: $space-2;
-  font-size: $font-size-small;
-  color: var(--text-secondary);
-}
-
-.glance-source {
-  color: var(--text-cite);
-}
-
+.glance-box,
 .glance-ai {
-  position: relative;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
-.glance-ai-footer {
-  display: flex;
-  align-items: center;
-  gap: $space-3;
-  margin-top: $space-3;
-}
-
-.glance-ai-badge {
-  background: var(--bg-hover);
-}
-
-.glance-ai-dive {
-  border: none;
-  background: none;
-  color: var(--text-link);
-  font-size: $font-size-small;
-  cursor: pointer;
-  padding: 2px $space-2;
-  border-radius: $radius-sm;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.glance-ai-chat {
-  margin-top: $space-3;
-}
-
-.glance-ai-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--bg);
-  color: var(--text-primary);
-  border: none;
-  border-radius: $radius-lg;
-  padding: $space-3;
-  font-size: $font-size-base;
-  font-family: inherit;
-  line-height: 1.5;
-  resize: none;
-  outline: none;
-  overflow: hidden;
-
-  &::placeholder {
-    color: var(--text-secondary);
-  }
-}
-
-.glance-ai-reply {
-  margin-top: $space-3;
-  font-size: 0.9375rem;
-  color: var(--text-primary);
-  line-height: 1.5;
-}
-
-.glance-ai-user {
-  color: var(--text-secondary);
-  font-size: $font-size-base;
-}
-
-.glance-ai-typing {
-  margin-top: $space-3;
-  font-size: $font-size-small;
-  color: var(--text-secondary);
+.glance-snippet,
+.glance-sources {
+  margin: 0;
+  padding: 0;
 }

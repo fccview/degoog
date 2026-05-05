@@ -187,7 +187,7 @@ export function openMediaPreview(
 
     let actions: string;
     if (isVideo) {
-      actions = `<a class="btn btn--primary media-preview-visit" href="${escapeHtml(item.url)}"${target}>Watch video</a>`;
+      actions = `<a class="btn btn--primary degoog-btn degoog-btn--primary media-preview-visit" href="${escapeHtml(item.url)}"${target}>Watch video</a>`;
     } else {
       const downloadUrl = previewSrc ? proxyImageUrl(previewSrc) : "";
       const downloadFilename = (() => {
@@ -199,8 +199,8 @@ export function openMediaPreview(
         }
       })();
       actions = `
-        <a class="btn btn--primary media-preview-visit" href="${escapeHtml(item.url)}"${target}>Visit page</a>
-        ${downloadUrl ? `<a class="btn btn--secondary media-preview-download" href="${escapeHtml(downloadUrl)}" download="${escapeHtml(downloadFilename)}">Download</a>` : ""}
+        <a class="btn btn--primary degoog-btn degoog-btn--primary media-preview-visit" href="${escapeHtml(item.url)}"${target}>Visit page</a>
+        ${downloadUrl ? `<a class="btn btn--secondary degoog-btn degoog-btn--secondary media-preview-download" href="${escapeHtml(downloadUrl)}" download="${escapeHtml(downloadFilename)}">Download</a>` : ""}
       `;
     }
 

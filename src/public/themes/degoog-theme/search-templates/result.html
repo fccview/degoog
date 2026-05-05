@@ -1,7 +1,7 @@
-<div class="result-item">
-  <div class="result-item-inner">
+<div class="result-item degoog-result">
+  <div class="result-item-inner degoog-result--inner">
     {{#if thumbnail_url}}
-    <div class="result-thumbnail-wrap">
+    <div class="result-thumbnail-wrap degoog-result--thumb">
       <img
         class="result-thumbnail-img"
         src="{{ thumbnail_url }}"
@@ -12,18 +12,18 @@
     </div>
     {{/if thumbnail_url}}
 
-    <div class="result-body">
-      <div class="result-url-row">
+    <div class="result-body degoog-result--body">
+      <div class="result-url-row degoog-result--url-row">
         <img
           id="result-favicon-{{ index }}"
-          class="result-favicon"
+          class="result-favicon degoog-result--favicon"
           src="{{ favicon_url }}"
           data-favicon-host="{{ favicon_host }}"
           alt=""
           width="26"
           height="26"
         />
-        <cite class="result-cite">{{ cite_url }}</cite>
+        <cite class="result-cite degoog-result--cite">{{ cite_url }}</cite>
         {{#if insecure}}
         <span
           class="result-insecure-badge"
@@ -34,13 +34,13 @@
         {{#if show_actions}}
         <div
           id="result-actions-{{ index }}"
-          class="result-actions"
+          class="result-actions degoog-result--actions"
           data-host="{{ favicon_host }}"
         >
           <button
             id="result-actions-toggle-{{ index }}"
             type="button"
-            class="result-actions-toggle"
+            class="result-actions-toggle degoog-result--actions-toggle"
             aria-label="{{t:search-templates.result.actions.menu-aria}}"
             aria-haspopup="menu"
             aria-expanded="false"
@@ -88,14 +88,14 @@
         {{/if show_actions}}
       </div>
       <a
-        class="result-title"
+        class="result-title degoog-result--title"
         href="{{ url }}"
         target="{{ link_target }}"
         rel="{{ link_rel }}"
         >{{ title }}</a
       >
-      <p class="result-snippet">{{ snippet }}</p>
-      <div class="result-engines">
+      <p class="result-snippet degoog-result--snippet">{{ snippet }}</p>
+      <div class="result-engines degoog-result--engines">
         {{#each sources}}
         <span class="result-engine-tag degoog-badge degoog-badge--engine-tag">{{ . }}</span>
         {{/each sources}}
