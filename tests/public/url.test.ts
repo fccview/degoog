@@ -1,8 +1,14 @@
-import { describe, test, expect } from "bun:test";
+import { describe, test, expect, beforeAll } from "bun:test";
 import { buildSearchUrl, proxyImageUrl, faviconUrl } from "../../src/client/utils/url";
 import { state } from "../../src/client/state";
 
 describe("public/url", () => {
+  beforeAll(() => {
+    const g = globalThis as unknown as { window?: { __DEGOOG_BASE_URL__?: string } };
+    if (!g.window) g.window = {};
+    g.window.__DEGOOG_BASE_URL__ = "";
+  });
+
   test("proxyImageUrl returns empty for empty url", () => {
     expect(proxyImageUrl("")).toBe("");
   });
