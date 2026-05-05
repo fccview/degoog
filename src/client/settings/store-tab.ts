@@ -241,7 +241,7 @@ export async function initStoreTab(
           .join("");
         updatesPanel.innerHTML = `
           <div class="store-updates-header">
-            <button class="store-updates-toggle" type="button">
+            <button class="store-updates-toggle degoog-accordion-toggle" type="button">
               <span>Updates available (${updatable.length})</span>
               <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>

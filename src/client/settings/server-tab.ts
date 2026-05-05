@@ -37,11 +37,11 @@ const _scoreT = window.scopedT("core");
 
 const _scoreRowTemplate = (domain: string, score: string): HTMLDivElement => {
   const row = document.createElement("div");
-  row.className = "settings-score-row";
+  row.className="settings-score-row";
 
   const domainInput = document.createElement("input");
   domainInput.type = "text";
-  domainInput.className = "settings-score-domain";
+  domainInput.className="settings-score-domain degoog-input";
   domainInput.placeholder = _scoreT(
     "settings-page.server.domain-score-domain-placeholder",
   );
@@ -49,7 +49,7 @@ const _scoreRowTemplate = (domain: string, score: string): HTMLDivElement => {
 
   const scoreInput = document.createElement("input");
   scoreInput.type = "number";
-  scoreInput.className = "settings-score-value";
+  scoreInput.className="settings-score-value degoog-input";
   scoreInput.placeholder = _scoreT(
     "settings-page.server.domain-score-value-placeholder",
   );
@@ -57,7 +57,7 @@ const _scoreRowTemplate = (domain: string, score: string): HTMLDivElement => {
 
   const remove = document.createElement("button");
   remove.type = "button";
-  remove.className = "settings-score-remove";
+  remove.className="settings-score-remove";
   remove.setAttribute(
     "aria-label",
     _scoreT("settings-page.server.domain-score-remove-aria"),

@@ -41,13 +41,13 @@ export const skeletonGlance = (): string =>
 
 export const skeletonSidebar = (): string =>
   `<div class="skeleton-sidebar" aria-hidden="true">
-    <div class="sidebar-panel skeleton-sidebar-panel">
+    <div class="sidebar-panel skeleton-sidebar-panel degoog-panel">
       <div class="skeleton-line skeleton-line--title"></div>
       <div class="skeleton-line skeleton-line--snippet"></div>
       <div class="skeleton-line skeleton-line--snippet"></div>
       <div class="skeleton-line skeleton-line--snippet-short"></div>
     </div>
-    <div class="sidebar-panel skeleton-sidebar-panel">
+    <div class="sidebar-panel skeleton-sidebar-panel degoog-panel">
       <div class="skeleton-line skeleton-line--title"></div>
       <div class="skeleton-line skeleton-line--snippet"></div>
       <div class="skeleton-line skeleton-line--snippet-short"></div>

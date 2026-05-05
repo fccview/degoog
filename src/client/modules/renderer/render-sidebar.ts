@@ -24,8 +24,8 @@ export const setupRetryLinks = (container: HTMLElement): void => {
 };
 
 const _sidebarAccordion = (title: string, content: string): string =>
-  `<div class="sidebar-panel sidebar-accordion">
-    <button class="sidebar-accordion-toggle" type="button">
+  `<div class="sidebar-panel sidebar-accordion degoog-panel">
+    <button class="sidebar-accordion-toggle degoog-accordion-toggle" type="button">
       <span>${escapeHtml(title)}</span>
       <svg class="accordion-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </button>

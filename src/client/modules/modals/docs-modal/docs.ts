@@ -10,30 +10,30 @@ function _ensureMounted(): void {
   if (overlay) return;
 
   overlay = document.createElement("div");
-  overlay.className = "ext-modal-overlay";
+  overlay.className="ext-modal-overlay";
   overlay.id = "ext-docs-overlay";
   overlay.style.display = "none";
 
   const modal = document.createElement("div");
-  modal.className = "ext-modal ext-docs-modal";
+  modal.className="ext-modal ext-docs-modal";
   modal.id = "ext-docs-modal";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-labelledby", "ext-docs-title");
 
   const header = document.createElement("div");
-  header.className = "ext-modal-header";
+  header.className="ext-modal-header";
   titleEl = document.createElement("h2");
-  titleEl.className = "ext-modal-title";
+  titleEl.className="ext-modal-title";
   titleEl.id = "ext-docs-title";
   closeBtn = document.createElement("button");
-  closeBtn.className = "ext-modal-close";
+  closeBtn.className="ext-modal-close degoog-icon-btn";
   closeBtn.type = "button";
   closeBtn.innerHTML = "&times;";
   header.append(titleEl, closeBtn);
 
   bodyEl = document.createElement("div");
-  bodyEl.className = "ext-modal-body ext-docs-body";
+  bodyEl.className="ext-modal-body ext-docs-body";
   bodyEl.id = "ext-docs-body";
 
   modal.append(header, bodyEl);

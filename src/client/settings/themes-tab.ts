@@ -32,7 +32,7 @@ const _renderThemeCard = (
     ? `<span class="ext-version-warning">Requires a newer version of Degoog</span>`
     : "";
   return `
-    <div class="ext-card" data-theme-id="${escapeHtml(themeId)}">
+    <div class="ext-card degoog-panel" data-theme-id="${escapeHtml(themeId)}">
       <div class="ext-card-main">
         <div class="ext-card-info">
           <span class="ext-card-name">${escapeHtml(themeExt.displayName)}</span>
@@ -52,7 +52,7 @@ const _renderThemeCard = (
 const _renderBuiltInCard = (activeId: string | null): string => {
   const isActive = activeId === null;
   return `
-    <div class="ext-card" data-theme-id="built-in">
+    <div class="ext-card degoog-panel" data-theme-id="built-in">
       <div class="ext-card-main">
         <div class="ext-card-info">
           <span class="ext-card-name">${escapeHtml(t("settings-page.extensions.built-in-theme-name"))}</span>

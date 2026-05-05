@@ -73,7 +73,7 @@ function _renderPluginTabs(): void {
 
   for (const tab of pluginTabs) {
     const el = document.createElement("div");
-    el.className = "results-tab";
+    el.className="results-tab degoog-tab";
     el.dataset.type = `tab:${tab.id}`;
     el.dataset.pluginTab = "true";
     el.textContent = tab.name;

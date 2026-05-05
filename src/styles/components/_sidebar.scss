@@ -1,26 +1,8 @@
 .sidebar-panel {
-  background: var(--bg-light);
-  border-radius: $radius-lg;
   margin-bottom: $space-4;
-  overflow: hidden;
-  box-shadow: $box-shadow;
-  border: 1px solid transparent;
 }
 
 .sidebar-accordion-toggle {
-  @include button-reset;
-  @include flex-between;
-  width: 100%;
-  padding: $space-3 $space-4;
-  font-size: $font-size-base;
-  font-weight: 500;
-  color: var(--text-primary);
-
-  .accordion-chevron {
-    transition: transform $transition-fast;
-    flex-shrink: 0;
-  }
-
   @media (min-width: 768px) {
     display: none;
   }

@@ -244,7 +244,7 @@ const aiSummarySlot: SlotPlugin = {
         "</div>" +
         "</div>" +
         '<div class="glance-ai-footer">' +
-        `<span class="glance-ai-badge">${this.t!("ai-summary.badge")}</span>` +
+        `<span class="glance-ai-badge degoog-badge">${this.t!("ai-summary.badge")}</span>` +
         `<button class="glance-ai-dive" type="button">${this.t!("ai-summary.dive-deeper")}</button>` +
         "</div>" +
         '<div class="glance-ai-chat" hidden>' +

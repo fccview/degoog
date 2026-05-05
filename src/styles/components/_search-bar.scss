@@ -12,12 +12,6 @@
 
 .search-bar,
 .results-search-bar {
-  @include search-bar-base;
-  width: 100%;
-  position: relative;
-  border: 1px solid transparent;
-  box-shadow: $box-shadow;
-
   .search-icon {
     flex-shrink: 0;
     margin-right: $space-3;
@@ -37,6 +31,17 @@
     margin: 0;
     -webkit-appearance: none;
     appearance: none;
+  }
+}
+
+.results-search-bar {
+  flex: none;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    flex: 1;
+    max-width: 43.25rem;
+    width: auto;
   }
 }
 
@@ -105,13 +110,8 @@
   }
 
   &.hovering {
-    .lucky-default {
-      opacity: 0;
-    }
-
-    .lucky-slot {
-      opacity: 1;
-    }
+    .lucky-default { opacity: 0; }
+    .lucky-slot { opacity: 1; }
   }
 }
 

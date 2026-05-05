@@ -48,7 +48,7 @@ const _renderUrlListField = (
       <label class="ext-field-label">${escapeHtml(field.label)}</label>
       <ul class="ext-field-urllist">${listItems}</ul>
       <div class="ext-field-urllist-add">
-        <input type="url" class="ext-field-input ext-field-urllist-input" placeholder="${escapeHtml(field.placeholder || "https://example.com/feed.xml")}" autocomplete="off">
+        <input type="url" class="ext-field-input ext-field-urllist-input degoog-input" placeholder="${escapeHtml(field.placeholder || "https://example.com/feed.xml")}" autocomplete="off">
         <button type="button" class="ext-field-urllist-add-btn">${escapeHtml(t("settings-page.modal.field-add"))}</button>
       </div>
       <input type="hidden" id="field-${escapeHtml(field.key)}" class="ext-field-urllist-value">
@@ -108,7 +108,7 @@ export function initUrlList(container: HTMLElement): void {
     urls.push(trimmed);
     setUrls(urls);
     const li = document.createElement("li");
-    li.className = "ext-field-urllist-item";
+    li.className="ext-field-urllist-item";
     li.dataset.url = trimmed;
     li.innerHTML = `<span class="ext-field-urllist-url">${escapeHtml(trimmed)}</span><button type="button" class="ext-field-urllist-remove" aria-label="${escapeHtml(t("settings-page.modal.field-remove-aria"))}">×</button>`;
     li.querySelector(".ext-field-urllist-remove")?.addEventListener(
@@ -175,9 +175,9 @@ export const renderField = (
       <div class="ext-field" data-key="${escapeHtml(field.key)}" data-type="toggle">
         <label class="ext-field-toggle-row">
           <span class="ext-field-label">${escapeHtml(field.label)}</span>
-          <label class="engine-toggle">
+          <label class="engine-toggle degoog-toggle-wrap">
             <input type="checkbox" id="field-${escapeHtml(field.key)}" ${checked}>
-            <span class="toggle-slider"></span>
+            <span class="toggle-slider degoog-toggle"></span>
           </label>
         </label>
         ${descHtml}
@@ -188,7 +188,7 @@ export const renderField = (
     return `
       <div class="ext-field" data-key="${escapeHtml(field.key)}" data-type="textarea" data-secret="${isSecret}" data-was-set="${isSet}">
         <label class="ext-field-label" for="field-${escapeHtml(field.key)}">${escapeHtml(field.label)}${field.required ? " <span class='ext-required'>*</span>" : ""}</label>
-        <textarea class="ext-field-input ext-field-textarea${configuredClass}" id="field-${escapeHtml(field.key)}" placeholder="${escapeHtml(placeholder)}" rows="6" autocomplete="off">${escapeHtml(displayValue)}</textarea>
+        <textarea class="ext-field-input ext-field-textarea${configuredClass} degoog-input" id="field-${escapeHtml(field.key)}" placeholder="${escapeHtml(placeholder)}" rows="6" autocomplete="off">${escapeHtml(displayValue)}</textarea>
         ${descHtml}
       </div>`;
   }
@@ -210,8 +210,8 @@ export const renderField = (
     return `
       <div class="ext-field" data-key="${escapeHtml(field.key)}" data-type="select">
         <label class="ext-field-label" for="field-${escapeHtml(field.key)}">${escapeHtml(field.label)}</label>
-        <div class="ext-field-select-wrap">
-          <select id="field-${escapeHtml(field.key)}" class="ext-field-input ext-field-select">${opts}</select>
+        <div class="ext-field-select-wrap degoog-select-wrap">
+          <select id="field-${escapeHtml(field.key)}" class="ext-field-input ext-field-select degoog-input">${opts}</select>
         </div>
         ${descHtml}
       </div>`;

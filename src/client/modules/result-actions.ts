@@ -46,7 +46,7 @@ function _showToast(anchor: HTMLElement, message: string): void {
   const existing = anchor.querySelector(".result-actions-toast");
   if (existing) existing.remove();
   const toast = document.createElement("div");
-  toast.className = "result-actions-toast";
+  toast.className="result-actions-toast";
   toast.textContent = message;
   anchor.appendChild(toast);
   setTimeout(() => toast.remove(), 1700);

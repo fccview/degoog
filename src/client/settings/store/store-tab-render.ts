@@ -196,8 +196,8 @@ export function renderItemCard(
           ${item.requiresNewerVersion ? `<div class="store-card-version-warning">Requires a newer version of Degoog</div>` : ""}
         </div>
         <div class="store-card-footer">
-          <span class="store-type-badge store-type-${item.type}">${typeLabel}</span>
-          ${subLabel ? `<span class="store-subtype-badge">${escapeHtml(subLabel)}</span>` : ""}
+          <span class="store-type-badge store-type-${item.type} degoog-badge">${typeLabel}</span>
+          ${subLabel ? `<span class="store-subtype-badge degoog-badge">${escapeHtml(subLabel)}</span>` : ""}
           <div class="store-card-actions">${btn}</div>
         </div>
       </div>

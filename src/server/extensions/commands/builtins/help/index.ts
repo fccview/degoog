@@ -51,7 +51,7 @@ export const helpCommand: BangCommand = {
     const tabButtons = sortedCategories
       .map(
         (cat, i) =>
-          `<button class="help-tab${i === 0 ? " active" : ""}" data-help-cat="${_escapeHtml(cat)}">${_escapeHtml(cat)} <span class="help-tab-count">${groups[cat].length}</span></button>`,
+          `<button class="help-tab${i === 0 ?" active" : ""}" data-help-cat="${_escapeHtml(cat)}">${_escapeHtml(cat)} <span class="help-tab-count">${groups[cat].length}</span></button>`,
       )
       .join("");
 
@@ -75,7 +75,7 @@ export const helpCommand: BangCommand = {
           </div>`;
         })
         .join("");
-      panels += `<div class="help-panel${i === 0 ? " active" : ""}" data-help-panel="${_escapeHtml(cat)}">${rows}</div>`;
+      panels += `<div class="help-panel${i === 0 ?" active" : ""}" data-help-panel="${_escapeHtml(cat)}">${rows}</div>`;
     }
 
     const prefixHint =

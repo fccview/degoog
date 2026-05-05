@@ -1,19 +1,19 @@
-<div class="results-tab active" data-type="web">
+<div class="results-tab active degoog-tab" data-type="web">
   {{t:search-templates.tabs.web}}
 </div>
-<div class="results-tab" data-type="images">
+<div class="results-tab degoog-tab" data-type="images">
   {{t:search-templates.tabs.images}}
 </div>
-<div class="results-tab" data-type="videos">
+<div class="results-tab degoog-tab" data-type="videos">
   {{t:search-templates.tabs.videos}}
 </div>
-<div class="results-tab" data-type="news">{{t:search-templates.tabs.news}}</div>
+<div class="results-tab degoog-tab" data-type="news">{{t:search-templates.tabs.news}}</div>
 <div class="tools-wrap" id="tools-bar">
-  <button class="tools-toggle" id="tools-toggle" type="button">
+  <button class="tools-toggle degoog-tab" id="tools-toggle" type="button">
     {{t:search-templates.tabs.options}}
   </button>
-  <div class="tools-dropdown" id="tools-dropdown" style="display: none">
-    <button class="tools-menu-item" data-menu="time" type="button">
+  <div class="tools-dropdown degoog-dropdown" id="tools-dropdown" style="display: none">
+    <button class="tools-menu-item degoog-menu-item" data-menu="time" type="button">
       <span class="tools-menu-label">{{t:search-templates.tabs.time}}</span>
       <span class="tools-menu-value" id="tools-time-val"
         >{{t:search-templates.tabs.any-time}}</span
@@ -30,7 +30,7 @@
         <polyline points="9 18 15 12 9 6" />
       </svg>
     </button>
-    <button class="tools-menu-item" data-menu="lang" type="button">
+    <button class="tools-menu-item degoog-menu-item" data-menu="lang" type="button">
       <span class="tools-menu-label">{{t:search-templates.tabs.language}}</span>
       <span class="tools-menu-value" id="tools-lang-val"
         >{{t:search-templates.tabs.any}}</span
@@ -48,41 +48,41 @@
       </svg>
     </button>
   </div>
-  <div class="tools-submenu" id="tools-submenu-time" style="display: none">
-    <button class="tools-option active" data-time="any">
+  <div class="tools-submenu degoog-dropdown" id="tools-submenu-time" style="display: none">
+    <button class="tools-option active degoog-menu-item" data-time="any">
       {{t:search-templates.tabs.any-time}}
     </button>
-    <button class="tools-option" data-time="hour">
+    <button class="tools-option degoog-menu-item" data-time="hour">
       {{t:search-templates.tabs.hour}}
     </button>
-    <button class="tools-option" data-time="day">
+    <button class="tools-option degoog-menu-item" data-time="day">
       {{t:search-templates.tabs.day}}
     </button>
-    <button class="tools-option" data-time="week">
+    <button class="tools-option degoog-menu-item" data-time="week">
       {{t:search-templates.tabs.week}}
     </button>
-    <button class="tools-option" data-time="month">
+    <button class="tools-option degoog-menu-item" data-time="month">
       {{t:search-templates.tabs.month}}
     </button>
-    <button class="tools-option" data-time="year">
+    <button class="tools-option degoog-menu-item" data-time="year">
       {{t:search-templates.tabs.year}}
     </button>
-    <button class="tools-option" data-time="custom">
+    <button class="tools-option degoog-menu-item" data-time="custom">
       {{t:search-templates.tabs.custom}}
     </button>
     <div class="tools-custom-date" id="tools-custom-date" style="display: none">
-      <input type="date" id="tools-date-from" class="tools-date-input" />
+      <input type="date" id="tools-date-from" class="tools-date-input degoog-input" />
       <span class="tools-date-sep">{{t:search-templates.tabs.date-to}}</span>
-      <input type="date" id="tools-date-to" class="tools-date-input" />
+      <input type="date" id="tools-date-to" class="tools-date-input degoog-input" />
       <button type="button" class="tools-date-apply" id="tools-date-apply">
         {{t:search-templates.tabs.apply}}
       </button>
     </div>
   </div>
-  <div class="tools-submenu" id="tools-submenu-lang" style="display: none">
+  <div class="tools-submenu degoog-dropdown" id="tools-submenu-lang" style="display: none">
     <input
       type="text"
-      class="tools-lang-filter"
+      class="tools-lang-filter degoog-input"
       id="tools-lang-filter"
       placeholder="{{t:search-templates.tabs.filter-languages}}"
       autocomplete="off"

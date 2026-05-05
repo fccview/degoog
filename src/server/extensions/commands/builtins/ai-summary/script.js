@@ -112,7 +112,7 @@
     if (!text) return;
 
     const userDiv = document.createElement("div");
-    userDiv.className = "glance-ai-reply glance-ai-user";
+    userDiv.className="glance-ai-reply glance-ai-user";
     userDiv.textContent = text;
     messagesEl.appendChild(userDiv);
 
@@ -121,7 +121,7 @@
     autoResize(input);
 
     const typingDiv = document.createElement("div");
-    typingDiv.className = "glance-ai-typing";
+    typingDiv.className="glance-ai-typing";
     typingDiv.textContent = t("ai-summary.thinking");
     messagesEl.appendChild(typingDiv);
 
@@ -137,19 +137,19 @@
       if (data.reply) {
         history.push({ role: "assistant", content: data.reply });
         const replyDiv = document.createElement("div");
-        replyDiv.className = "glance-ai-reply";
+        replyDiv.className="glance-ai-reply";
         replyDiv.innerHTML = _renderMarkdown(data.reply);
         messagesEl.appendChild(replyDiv);
       } else {
         const errDiv = document.createElement("div");
-        errDiv.className = "glance-ai-typing";
+        errDiv.className="glance-ai-typing";
         errDiv.textContent = t("ai-summary.no-response");
         messagesEl.appendChild(errDiv);
       }
     } catch {
       typingDiv.remove();
       const errDiv = document.createElement("div");
-      errDiv.className = "glance-ai-typing";
+      errDiv.className="glance-ai-typing";
       errDiv.textContent = t("ai-summary.request-failed");
       messagesEl.appendChild(errDiv);
     }

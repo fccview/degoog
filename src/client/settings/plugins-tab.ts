@@ -31,14 +31,14 @@ const _renderPluginCard = (plugin: ExtensionMeta): string => {
     plugin.id.startsWith("plugin-") ||
     plugin.id.startsWith("slot-");
   const toggle = canDisable
-    ? `<label class="engine-toggle">
+    ? `<label class="engine-toggle degoog-toggle-wrap">
         <input type="checkbox" class="plugin-toggle-input" id="plugin-toggle-${escapeHtml(plugin.id)}" data-id="${escapeHtml(plugin.id)}" ${isEnabled ? "checked" : ""}>
-        <span class="toggle-slider"></span>
+        <span class="toggle-slider degoog-toggle"></span>
       </label>`
     : "";
 
   return `
-    <div class="ext-card" data-id="${escapeHtml(plugin.id)}">
+    <div class="ext-card degoog-panel" data-id="${escapeHtml(plugin.id)}">
       <div class="ext-card-main">
         <div class="ext-card-info">
           <label for="plugin-toggle-${escapeHtml(plugin.id)}" class="ext-card-name plugin-toggle-label">${escapeHtml(plugin.displayName)}</label>

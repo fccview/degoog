@@ -30,7 +30,7 @@ function _ensureImageColumns(grid: HTMLElement): void {
   grid.innerHTML = "";
   for (let i = 0; i < count; i++) {
     const col = document.createElement("div");
-    col.className = "image-column";
+    col.className="image-column";
     grid.appendChild(col);
   }
 
@@ -152,11 +152,11 @@ export function renderMediaEngineBar(timings: EngineTiming[]): void {
   const tags = timings
     .map((et) => {
       const hit = et.resultCount > 0;
-      return `<span class="result-engine-tag${hit ? "" : " media-engine-tag--miss"}">${escapeHtml(et.name)} · ${et.resultCount} <a class="engine-retry-link" data-engine="${escapeHtml(et.name)}">retry</a></span>`;
+      return `<span class="result-engine-tag${hit ?"" : " media-engine-tag--miss"}">${escapeHtml(et.name)} · ${et.resultCount} <a class="engine-retry-link" data-engine="${escapeHtml(et.name)}">retry</a></span>`;
     })
     .join("");
   const bar = document.createElement("div");
-  bar.className = "media-engine-bar";
+  bar.className="media-engine-bar";
   bar.innerHTML = tags;
   el.appendChild(bar);
   setupRetryLinks(bar);

@@ -13,19 +13,19 @@ interface ProxyTestResult {
 
 function renderResult(el: HTMLElement, data: ProxyTestResult): void {
   if (!data.enabled) {
-    el.className = "proxy-test-result proxy-test-result--warn";
+    el.className="proxy-test-result proxy-test-result--warn";
     el.textContent = t("settings-page.proxy-test.not-enabled");
     return;
   }
 
   if (!data.directIp && !data.proxyIp) {
-    el.className = "proxy-test-result proxy-test-result--error";
+    el.className="proxy-test-result proxy-test-result--error";
     el.textContent = t("settings-page.proxy-test.ip-unreachable");
     return;
   }
 
   if (!data.proxyIp) {
-    el.className = "proxy-test-result proxy-test-result--error";
+    el.className="proxy-test-result proxy-test-result--error";
     const dip = data.directIp ?? "";
     el.innerHTML =
       `<strong>${escapeHtml(t("settings-page.proxy-test.unreachable-title"))}</strong> ` +
@@ -39,7 +39,7 @@ function renderResult(el: HTMLElement, data: ProxyTestResult): void {
   }
 
   if (data.match) {
-    el.className = "proxy-test-result proxy-test-result--warn";
+    el.className="proxy-test-result proxy-test-result--warn";
     const dip = data.directIp ?? "";
     const pip = data.proxyIp ?? "";
     el.innerHTML =
@@ -54,7 +54,7 @@ function renderResult(el: HTMLElement, data: ProxyTestResult): void {
     return;
   }
 
-  el.className = "proxy-test-result proxy-test-result--ok";
+  el.className="proxy-test-result proxy-test-result--ok";
   const dip = data.directIp ?? "";
   const pip = data.proxyIp ?? "";
   el.innerHTML =
@@ -87,7 +87,7 @@ export function initProxyTest(getToken: () => string | null): void {
         headers: authHeaders(getToken),
       });
       if (!res.ok) {
-        resultEl.className = "proxy-test-result proxy-test-result--error";
+        resultEl.className="proxy-test-result proxy-test-result--error";
         resultEl.textContent = t("settings-page.proxy-test.server-error", {
           status: String(res.status),
         });
@@ -98,7 +98,7 @@ export function initProxyTest(getToken: () => string | null): void {
       renderResult(resultEl, data);
       resultEl.hidden = false;
     } catch {
-      resultEl.className = "proxy-test-result proxy-test-result--error";
+      resultEl.className="proxy-test-result proxy-test-result--error";
       resultEl.textContent = t("settings-page.proxy-test.request-failed");
       resultEl.hidden = false;
     } finally {

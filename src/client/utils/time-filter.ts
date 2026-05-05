@@ -190,7 +190,7 @@ export function initOptionsDropdown(): void {
       langList.innerHTML = items
         .map(
           ({ code, label }) =>
-            `<button type="button" class="tools-option tools-lang-option${code === state.currentLanguage ? " active" : ""}" data-lang="${code}">${label}${code ? ` <span class="tools-lang-code">${code}</span>` : ""}</button>`,
+            `<button type="button" class="tools-option tools-lang-option degoog-menu-item${code === state.currentLanguage ? " active" : ""}" data-lang="${code}">${label}${code ? ` <span class="tools-lang-code">${code}</span>` : ""}</button>`,
         )
         .join("");
 

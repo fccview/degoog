@@ -1,6 +1,6 @@
 export function getStoreTabHtml(): string {
   return `
-    <section class="store-repos-section settings-section ext-card">
+    <section class="store-repos-section settings-section ext-card degoog-panel">
       <div class="store-repos-header">
         <h2 class="settings-section-heading">Repositories</h2>
         <div class="header-actions">
@@ -11,7 +11,7 @@ export function getStoreTabHtml(): string {
         </div>
       </div>
       <div class="store-add-repo-wrap" style="display:none">
-        <input type="text" class="store-input-url" placeholder="https://github.com/user/repo.git">
+        <input type="text" class="store-input-url degoog-input" placeholder="https://github.com/user/repo.git">
         <button class="btn btn--primary store-btn-add-confirm" type="button">Add</button>
         <span class="store-inline-error"></span>
       </div>
@@ -24,7 +24,7 @@ export function getStoreTabHtml(): string {
       </div>
       <div class="store-updates-panel" style="display:none"></div>
       <div class="store-filter-bar">
-        <input type="text" class="store-search-input" placeholder="Search…" id="store-search-input">
+        <input type="text" class="store-search-input degoog-input" placeholder="Search…" id="store-search-input">
         <select class="store-filter-select store-filter-type" aria-label="Filter by type"></select>
         <select class="store-filter-select store-filter-subtype" aria-label="Filter by sub-type" style="display:none"></select>
       </div>

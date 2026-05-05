@@ -6,7 +6,7 @@ function _spawnDrop(container) {
   const img = document.createElement("img");
   img.src = AVATAR_URL;
   img.alt = "";
-  img.className = "egg-fccview-drop";
+  img.className="egg-fccview-drop";
   const left = Math.random() * 100;
   const size = 32 + Math.random() * 56;
   const duration = 2.5 + Math.random() * 2;
@@ -23,7 +23,7 @@ function _spawnDrop(container) {
 
 export function run() {
   const container = document.createElement("div");
-  container.className = "egg-fccview-rain";
+  container.className="egg-fccview-rain";
   document.body.appendChild(container);
   for (let i = 0; i < DROP_COUNT; i++) _spawnDrop(container);
   window.setTimeout(() => container.remove(), RAIN_DURATION_MS + 2500);

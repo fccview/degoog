@@ -158,7 +158,7 @@ export function openMediaPreview(
       img.style.cursor = "";
       img.onclick = null;
       const iframe = document.createElement("iframe");
-      iframe.className = "media-preview-embed";
+      iframe.className="media-preview-embed";
       iframe.src = embedUrl;
       iframe.setAttribute("allowfullscreen", "");
       iframe.setAttribute("allow", "encrypted-media");
@@ -182,7 +182,7 @@ export function openMediaPreview(
   if (info) {
     const target = state.openInNewTab ? ' target="_blank" rel="noopener"' : "";
     const engines = item.sources?.length
-      ? `<div class="media-preview-engines">${item.sources.map((s) => `<span class="result-engine-tag">${escapeHtml(s)}</span>`).join("")}</div>`
+      ? `<div class="media-preview-engines">${item.sources.map((s) => `<span class="result-engine-tag degoog-badge">${escapeHtml(s)}</span>`).join("")}</div>`
       : "";
 
     let actions: string;

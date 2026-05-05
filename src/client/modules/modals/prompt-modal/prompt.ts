@@ -25,54 +25,54 @@ function _ensureMounted(): void {
   if (overlay) return;
 
   overlay = document.createElement("div");
-  overlay.className = "ext-modal-overlay";
+  overlay.className="ext-modal-overlay";
   overlay.id = "result-prompt-overlay";
   overlay.style.display = "none";
 
   const modal = document.createElement("div");
-  modal.className = "ext-modal";
+  modal.className="ext-modal";
   modal.id = "result-prompt-modal";
   modal.setAttribute("role", "dialog");
   modal.setAttribute("aria-modal", "true");
   modal.setAttribute("aria-labelledby", "result-prompt-title");
 
   const header = document.createElement("div");
-  header.className = "ext-modal-header";
+  header.className="ext-modal-header";
   titleEl = document.createElement("h2");
-  titleEl.className = "ext-modal-title";
+  titleEl.className="ext-modal-title";
   titleEl.id = "result-prompt-title";
   closeBtn = document.createElement("button");
-  closeBtn.className = "ext-modal-close";
+  closeBtn.className="ext-modal-close degoog-icon-btn";
   closeBtn.id = "result-prompt-close";
   closeBtn.type = "button";
   closeBtn.innerHTML = "&times;";
   header.append(titleEl, closeBtn);
 
   const body = document.createElement("div");
-  body.className = "ext-modal-body";
+  body.className="ext-modal-body";
   descEl = document.createElement("p");
   descEl.id = "result-prompt-desc";
-  descEl.className = "ext-modal-desc";
+  descEl.className="ext-modal-desc";
   const field = document.createElement("div");
-  field.className = "ext-field";
+  field.className="ext-field";
   labelEl = document.createElement("label");
-  labelEl.className = "ext-field-label";
+  labelEl.className="ext-field-label";
   labelEl.id = "result-prompt-label";
   labelEl.htmlFor = "result-prompt-input";
   inputEl = document.createElement("input");
-  inputEl.className = "ext-field-input";
+  inputEl.className="ext-field-input degoog-input";
   inputEl.id = "result-prompt-input";
   field.append(labelEl, inputEl);
   body.append(descEl, field);
 
   const footer = document.createElement("div");
-  footer.className = "ext-modal-footer";
+  footer.className="ext-modal-footer";
   cancelBtn = document.createElement("button");
-  cancelBtn.className = "btn btn--secondary";
+  cancelBtn.className="btn btn--secondary";
   cancelBtn.id = "result-prompt-cancel";
   cancelBtn.type = "button";
   confirmBtn = document.createElement("button");
-  confirmBtn.className = "btn btn--primary";
+  confirmBtn.className="btn btn--primary";
   confirmBtn.id = "result-prompt-confirm";
   confirmBtn.type = "button";
   footer.append(cancelBtn, confirmBtn);

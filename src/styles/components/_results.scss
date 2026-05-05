@@ -65,26 +65,6 @@
   }
 }
 
-.results-tab {
-  display: flex;
-  align-items: center;
-  gap: $space-2;
-  padding: $space-3 $space-4;
-  font-size: $font-size-small;
-  color: var(--text-secondary);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: color $transition-fast, border-color $transition-fast;
-  
-  &.active {
-    color: var(--text-primary);
-    border-bottom-color: var(--text-primary);
-  }
-
-  &:hover:not(.active) {
-    color: var(--text-primary);
-  }
-}
 
 .tools-wrap {
   display: flex;
@@ -93,44 +73,16 @@
   position: relative;
 }
 
-.tools-toggle {
-  @include button-reset;
-  font-size: $font-size-small;
-  color: var(--text-secondary);
-  padding: $space-3 $space-4;
-  white-space: nowrap;
-  border-bottom: 3px solid transparent;
-  transition: color $transition-fast;
-
-  &:hover, &.active {
-    color: var(--text-primary);
-  }
-}
 
 .tools-dropdown {
   z-index: 200;
-  background: var(--bg-light);
-  border-radius: $radius-lg;
-  border: 1px solid transparent;
-  box-shadow: $box-shadow;
   min-width: 11.25rem;
   padding: $space-1 0;
 }
 
 .tools-menu-item {
-  @include button-reset;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: $space-3 $space-3;
   gap: $space-2;
-  font-size: $font-size-small;
-  color: var(--text-primary);
-  text-align: left;
-
-  &:hover {
-    background: var(--bg-hover);
-  }
+  padding: $space-3 $space-3;
 }
 
 .tools-menu-label {
@@ -156,10 +108,6 @@
 
 .tools-submenu {
   z-index: 201;
-  background: var(--bg-light);
-  border-radius: $radius-lg;
-  box-shadow: $box-shadow;
-  border: 1px solid transparent;
   min-width: 12.5rem;
   padding: $space-2 0;
   overflow: hidden;
@@ -239,18 +187,7 @@
 }
 
 .tools-option {
-  @include button-reset;
-  display: flex;
-  align-items: center;
-  width: 100%;
   padding: $space-2 $space-4;
-  font-size: $font-size-small;
-  color: var(--text-primary);
-  text-align: left;
-
-  &:hover {
-    background: var(--bg-hover);
-  }
 
   &.active {
     font-weight: 500;
@@ -366,9 +303,6 @@
   top: calc(100% + #{$space-1});
   right: 0;
   z-index: 50;
-  background: var(--bg-light);
-  border-radius: $radius-lg;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   min-width: 11.25rem;
   padding: $space-1 0;
 
@@ -378,15 +312,8 @@
 }
 
 .result-actions-item {
-  @include button-reset;
   display: block;
-  width: 100%;
-  padding: $space-2 $space-3;
-  font-size: $font-size-small;
-  color: var(--text-primary);
-  text-align: left;
 
-  &:hover,
   &:focus {
     background: var(--bg-hover);
   }
@@ -533,11 +460,7 @@
 }
 
 .result-engine-tag {
-  font-size: $font-size-xs;
-  color: var(--text-secondary);
-  background: var(--bg-light);
   border-radius: $radius-xs;
-  padding: 2px $space-2;
   box-shadow: $box-shadow;
   border: 1px solid transparent;
 }
@@ -651,14 +574,9 @@
 }
 
 .results-slot-panel {
-  background: var(--bg-light);
-  border-radius: $radius-lg;
-  overflow: hidden;
   flex: 1 1 100%;
   min-width: 0;
   margin-bottom: $space-4;
-  box-shadow: $box-shadow;
-  border: 1px solid transparent;  
 
   &:last-child {
     margin-bottom: 0;

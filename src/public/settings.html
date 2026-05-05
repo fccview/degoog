@@ -53,11 +53,11 @@
 
       <div class="settings-layout">
         <div class="settings-sidebar">
-          <div class="settings-nav-search">
+          <div class="settings-nav-search degoog-search-bar">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="settings-global-search" class="settings-nav-search-input" placeholder="{{t:settings-page.tab-search.placeholder}}" autocomplete="off" />
           </div>
-          <div class="settings-nav-mobile">
+          <div class="settings-nav-mobile degoog-select-wrap">
           <select
             id="settings-tab-select"
             class="settings-tab-select"
@@ -117,7 +117,7 @@
 
         <main class="settings-page-main">
           <div class="settings-tab-panel active" id="tab-general">
-<section class="settings-section ext-card">
+<section class="settings-section ext-card degoog-panel">
               <div class="setting-section-heading-wrapper">
                 <h2 class="settings-section-heading">
                   {{t:settings-page.appearance.heading}}
@@ -128,7 +128,7 @@
               </div>
               <p class="settings-desc">{{t:settings-page.appearance.desc}}</p>
               <fieldset class="settings-fieldset ext-card-main">
-                <div class="theme-select-wrap">
+                <div class="theme-select-wrap degoog-select-wrap">
                   <select id="theme-select" class="theme-select">
                     <option value="system">
                       {{t:settings-page.theme.system}}
@@ -149,7 +149,7 @@
               </fieldset>
             </section>
 
-            <section class="settings-section ext-card">
+            <section class="settings-section ext-card degoog-panel">
               <div class="setting-section-heading-wrapper">
                 <h2 class="settings-section-heading">
                   {{t:settings-page.search-options.heading}}
@@ -160,47 +160,47 @@
               </div>
 
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-open-new-tab"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.search-options.open-new-tab-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.search-options.open-new-tab}}</span
                   >
                 </label>
 
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="display-engine-performance"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.search-options.engine-performance-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.search-options.engine-performance}}</span
                   >
                 </label>
 
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="display-related-queries"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.search-options.related-queries-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.search-options.related-queries}}</span
                   >
                 </label>
 
                 <label
-                  class="settings-toggle-wrap"
+                  class="settings-toggle-wrap degoog-toggle-wrap"
                   title="{{t:settings-page.search-options.post-method-tooltip}}"
                 >
                   <input
@@ -209,7 +209,7 @@
                     class="settings-toggle"
                     aria-label="{{t:settings-page.search-options.post-method-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.search-options.post-method}}</span
                   >
@@ -217,7 +217,7 @@
               </fieldset>
             </section>
 
-            <section class="settings-section ext-card">
+            <section class="settings-section ext-card degoog-panel">
               <div class="setting-section-heading-wrapper">
                 <h2 class="settings-section-heading">
                   {{t:settings-page.install.heading}}
@@ -254,7 +254,7 @@
           </div>
 
           <div class="settings-tab-panel" id="tab-server">
-<section class="settings-section ext-card">
+<section class="settings-section ext-card degoog-panel">
               <div class="setting-section-heading-wrapper">
                 <h2 class="settings-section-heading">
                   {{t:settings-page.server.cache-heading}}
@@ -274,7 +274,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-api-key"
             >
               <div class="setting-section-heading-wrapper">
@@ -289,12 +289,12 @@
               <p class="settings-desc">
                 {{t:settings-page.server.api-key-desc}}
               </p>
-              <div class="settings-toggle-wrap settings-desc">
+              <div class="settings-toggle-wrap settings-desc degoog-toggle-wrap">
                 __API_KEY_SECTION__
               </div>
               <fieldset class="settings-fieldset">
                 <label
-                  class="settings-toggle-wrap"
+                  class="settings-toggle-wrap degoog-toggle-wrap"
                   title="{{t:settings-page.server.api-key-search-tooltip}}"
                 >
                   <input
@@ -303,13 +303,13 @@
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.api-key-search-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.api-key-search-enable}}</span
                   >
                 </label>
                 <label
-                  class="settings-toggle-wrap"
+                  class="settings-toggle-wrap degoog-toggle-wrap"
                   title="{{t:settings-page.server.api-key-suggest-tooltip}}"
                 >
                   <input
@@ -318,7 +318,7 @@
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.api-key-suggest-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.api-key-suggest-enable}}</span
                   >
@@ -327,7 +327,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-streaming"
             >
               <div class="setting-section-heading-wrapper">
@@ -343,7 +343,7 @@
               </p>
               <fieldset class="settings-fieldset">
                 <label
-                  class="settings-toggle-wrap"
+                  class="settings-toggle-wrap degoog-toggle-wrap"
                   title="{{t:settings-page.server.streaming-enable-tooltip}}"
                 >
                   <input
@@ -352,7 +352,7 @@
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.streaming-enable-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.streaming-enable}}</span
                   >
@@ -365,14 +365,14 @@
                   <fieldset
                     class="settings-fieldset settings-fieldset--compact"
                   >
-                    <label class="settings-toggle-wrap">
+                    <label class="settings-toggle-wrap degoog-toggle-wrap">
                       <input
                         type="checkbox"
                         id="settings-streaming-auto-retry"
                         class="settings-toggle"
                         aria-label="{{t:settings-page.server.streaming-auto-retry-aria}}"
                       />
-                      <span class="toggle-slider"></span>
+                      <span class="toggle-slider degoog-toggle"></span>
                       <span class="settings-toggle-label"
                         >{{t:settings-page.server.streaming-auto-retry}}</span
                       >
@@ -390,7 +390,7 @@
                       <input
                         type="number"
                         id="settings-streaming-max-retries"
-                        class="settings-rate-limit-input"
+                        class="settings-rate-limit-input degoog-input"
                         min="1"
                         max="5"
                         placeholder="2"
@@ -401,7 +401,7 @@
               </fieldset>
             </section>
 
-            <section class="settings-section ext-card">
+            <section class="settings-section ext-card degoog-panel">
               <div class="setting-section-heading-wrapper">
                 <h2 class="settings-section-heading">
                   {{t:settings-page.server.languages-heading}}
@@ -414,14 +414,14 @@
                 {{t:settings-page.server.languages-desc}}
               </p>
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-languages-enabled"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.languages-toggle-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.languages-toggle}}</span
                   >
@@ -438,7 +438,7 @@
                   >
                   <textarea
                     id="settings-languages"
-                    class="settings-proxy-urls"
+                    class="settings-proxy-urls degoog-input"
                     rows="5"
                     placeholder="en&#10;it&#10;de&#10;fr&#10;es"
                   ></textarea>
@@ -447,7 +447,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-domain-block"
             >
               <div class="setting-section-heading-wrapper">
@@ -462,14 +462,14 @@
                 {{t:settings-page.server.domain-block-desc}}
               </p>
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-domain-block-enabled"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.domain-block-enable-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.domain-block-enable}}</span
                   >
@@ -492,17 +492,17 @@
                     </p>
                     <textarea
                       id="settings-domain-block-list"
-                      class="settings-proxy-urls"
+                      class="settings-proxy-urls degoog-input"
                       rows="5"
                       placeholder="quora.com&#10;tiktok.com&#10;/.*\.spam\.net/"
                     ></textarea>
-                    <label class="settings-toggle-wrap">
+                    <label class="settings-toggle-wrap degoog-toggle-wrap">
                       <input
                         type="checkbox"
                         id="settings-domain-block-ui-enabled"
                         class="settings-toggle"
                       />
-                      <span class="toggle-slider"></span>
+                      <span class="toggle-slider degoog-toggle"></span>
                       <span class="settings-toggle-label"
                         >{{t:settings-page.server.domain-block-ui-enable}}</span
                       >
@@ -516,7 +516,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-domain-replace"
             >
               <div class="setting-section-heading-wrapper">
@@ -531,14 +531,14 @@
                 {{t:settings-page.server.domain-replace-desc}}
               </p>
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-domain-replace-enabled"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.domain-replace-enable-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.domain-replace-enable}}</span
                   >
@@ -558,17 +558,17 @@
                     >
                     <textarea
                       id="settings-domain-replace-list"
-                      class="settings-proxy-urls"
+                      class="settings-proxy-urls degoog-input"
                       rows="5"
                       placeholder="reddit.com -> teddit.example.com&#10;twitter.com -> nitter.example.com"
                     ></textarea>
-                    <label class="settings-toggle-wrap">
+                    <label class="settings-toggle-wrap degoog-toggle-wrap">
                       <input
                         type="checkbox"
                         id="settings-domain-replace-ui-enabled"
                         class="settings-toggle"
                       />
-                      <span class="toggle-slider"></span>
+                      <span class="toggle-slider degoog-toggle"></span>
                       <span class="settings-toggle-label"
                         >{{t:settings-page.server.domain-replace-ui-enable}}</span
                       >
@@ -582,7 +582,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-domain-score"
             >
               <div class="setting-section-heading-wrapper">
@@ -597,13 +597,13 @@
                 {{t:settings-page.server.domain-score-desc}}
               </p>
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-domain-score-enabled"
                     class="settings-toggle"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.domain-score-enable}}</span
                   >
@@ -630,13 +630,13 @@
                     >
                       {{t:settings-page.server.domain-score-add-row}}
                     </button>
-                    <label class="settings-toggle-wrap">
+                    <label class="settings-toggle-wrap degoog-toggle-wrap">
                       <input
                         type="checkbox"
                         id="settings-domain-score-ui-enabled"
                         class="settings-toggle"
                       />
-                      <span class="toggle-slider"></span>
+                      <span class="toggle-slider degoog-toggle"></span>
                       <span class="settings-toggle-label"
                         >{{t:settings-page.server.domain-score-ui-enable}}</span
                       >
@@ -650,7 +650,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-proxy"
             >
               <div class="setting-section-heading-wrapper">
@@ -663,14 +663,14 @@
               </div>
               <p class="settings-desc">{{t:settings-page.server.proxy-desc}}</p>
               <fieldset class="settings-fieldset">
-                <label class="settings-toggle-wrap">
+                <label class="settings-toggle-wrap degoog-toggle-wrap">
                   <input
                     type="checkbox"
                     id="settings-proxy-enabled"
                     class="settings-toggle"
                     aria-label="{{t:settings-page.server.proxy-enable-aria}}"
                   />
-                  <span class="toggle-slider"></span>
+                  <span class="toggle-slider degoog-toggle"></span>
                   <span class="settings-toggle-label"
                     >{{t:settings-page.server.proxy-enable}}</span
                   >
@@ -690,7 +690,7 @@
                     >
                     <textarea
                       id="settings-proxy-urls"
-                      class="settings-proxy-urls"
+                      class="settings-proxy-urls degoog-input"
                       rows="4"
                       placeholder="http://proxy1:8080&#10;http://user:pass@proxy2:8080&#10;socks5://proxy3:1080"
                     ></textarea>
@@ -712,7 +712,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-rate-limit"
             >
               <div class="setting-section-heading-wrapper">
@@ -731,14 +731,14 @@
                 id="settings-rate-limit-wrap"
               >
                 <fieldset class="settings-fieldset">
-                  <label class="settings-toggle-wrap">
+                  <label class="settings-toggle-wrap degoog-toggle-wrap">
                     <input
                       type="checkbox"
                       id="settings-rate-limit-enabled"
                       class="settings-toggle"
                       aria-label="{{t:settings-page.server.rate-limit-enable-aria}}"
                     />
-                    <span class="toggle-slider"></span>
+                    <span class="toggle-slider degoog-toggle"></span>
                     <span class="settings-toggle-label"
                       >{{t:settings-page.server.rate-limit-enable}}</span
                     >
@@ -762,7 +762,7 @@
                       <input
                         type="number"
                         id="settings-rate-limit-burst-window"
-                        class="settings-rate-limit-input"
+                        class="settings-rate-limit-input degoog-input"
                         min="1"
                         max="3600"
                         placeholder="20"
@@ -775,7 +775,7 @@
                       <input
                         type="number"
                         id="settings-rate-limit-burst-max"
-                        class="settings-rate-limit-input"
+                        class="settings-rate-limit-input degoog-input"
                         min="1"
                         max="1000"
                         placeholder="15"
@@ -788,7 +788,7 @@
                       <input
                         type="number"
                         id="settings-rate-limit-long-window"
-                        class="settings-rate-limit-input"
+                        class="settings-rate-limit-input degoog-input"
                         min="1"
                         max="3600"
                         placeholder="600"
@@ -801,7 +801,7 @@
                       <input
                         type="number"
                         id="settings-rate-limit-long-max"
-                        class="settings-rate-limit-input"
+                        class="settings-rate-limit-input degoog-input"
                         min="1"
                         max="1000"
                         placeholder="150"
@@ -813,7 +813,7 @@
             </section>
 
             <section
-              class="settings-section ext-card"
+              class="settings-section ext-card degoog-panel"
               id="settings-section-custom-css"
             >
               <div class="setting-section-heading-wrapper">
@@ -837,7 +837,7 @@
                 >
                 <textarea
                   id="settings-custom-css"
-                  class="settings-proxy-urls settings-custom-css"
+                  class="settings-proxy-urls settings-custom-css degoog-input"
                   rows="12"
                   spellcheck="false"
                   placeholder=".result-title { color: hotpink !important; }"
@@ -864,7 +864,7 @@
         <div class="ext-modal-header">
           <h2 class="ext-modal-title" id="ext-modal-title"></h2>
           <button
-            class="ext-modal-close"
+            class="ext-modal-close degoog-icon-btn"
             id="ext-modal-close"
             type="button"
             aria-label="{{t:settings-page.modal.close-aria}}"

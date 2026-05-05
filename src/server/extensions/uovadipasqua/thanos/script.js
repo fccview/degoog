@@ -4,7 +4,7 @@ const MAX_PARTICLES = 300;
 
 function _spawnParticle(container, x, y, color, sweepProgress) {
   const p = document.createElement("div");
-  p.className = "egg-thanos-particle";
+  p.className="egg-thanos-particle";
   p.style.left = `${x}px`;
   p.style.top = `${y}px`;
   p.style.width = `${PARTICLE_SIZE}px`;
@@ -36,7 +36,7 @@ export function run() {
   const color = window.getComputedStyle(target).color || "#888";
 
   const container = document.createElement("div");
-  container.className = "egg-thanos-rain";
+  container.className="egg-thanos-rain";
   document.body.appendChild(container);
 
   const fragment = document.createDocumentFragment();

@@ -59,7 +59,7 @@ export async function fetchGlancePanels(
           ? `<div class="results-slot-panel-title">${escapeHtml(panel.title)}</div>`
           : "";
         parts.push(
-          `<div class="results-slot-panel">${titleHtml}<div class="results-slot-panel-body">${panel.html}</div></div>`,
+          `<div class="results-slot-panel degoog-panel">${titleHtml}<div class="results-slot-panel-body">${panel.html}</div></div>`,
         );
       }
       glanceEl.innerHTML = parts.join("");

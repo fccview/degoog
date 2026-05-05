@@ -11,7 +11,7 @@ const _renderActionButton = (
 ): HTMLButtonElement => {
   const btn = document.createElement("button");
   btn.type = "button";
-  btn.className = "search-bar-action-btn";
+  btn.className="search-bar-action-btn";
   btn.dataset.actionId = action.id;
   btn.dataset.actionType = action.type;
   btn.dataset.inputId = inputId;
@@ -22,11 +22,11 @@ const _renderActionButton = (
     const img = document.createElement("img");
     img.src = escapeHtml(action.icon);
     img.alt = "";
-    img.className = "search-bar-action-icon";
+    img.className="search-bar-action-icon";
     btn.appendChild(img);
   }
   const label = document.createElement("span");
-  label.className = "search-bar-action-label";
+  label.className="search-bar-action-label";
   label.textContent = action.label;
   btn.appendChild(label);
   return btn;

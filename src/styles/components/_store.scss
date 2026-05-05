@@ -134,26 +134,8 @@
 }
 
 .store-input-url {
-  appearance: none;
-  -webkit-appearance: none;
   flex: 1;
   min-width: 12.5rem;
-  background: var(--bg-light);
-  border: 0;
-  border-radius: $radius-md;
-  color: var(--text-primary);
-  font-size: $font-size-base;
-  padding: $space-2 $space-3;
-  outline: none;
-
-  &:focus {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  &::placeholder {
-    color: var(--text-secondary);
-  }
 }
 
 .store-inline-error {
@@ -195,23 +177,8 @@
 }
 
 .store-updates-toggle {
-  @include button-reset;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: $space-3;
   flex: 1;
   min-width: 0;
-  padding: $space-3 $space-4;
-  font-size: $font-size-base;
-  font-weight: 500;
-  color: var(--text-primary);
-  cursor: pointer;
-
-  .accordion-chevron {
-    transition: transform $transition-fast;
-    flex-shrink: 0;
-  }
 }
 
 .store-updates-body {
@@ -268,27 +235,13 @@
 }
 
 .store-search-input {
-  appearance: none;
-  -webkit-appearance: none;
   flex: 1;
   min-width: 0;
   background: var(--bg-hover);
   border-radius: $radius-lg;
-  color: var(--text-primary);
-  font-size: $font-size-base;
   padding: $space-3;
-  outline: none;
   border: 1px solid transparent;
   box-shadow: $box-shadow;
-
-  &:focus {
-    outline: 2px solid $primary;
-    outline-offset: 2px;
-  }
-
-  &::placeholder {
-    color: var(--text-secondary);
-  }
 }
 
 .store-filter-select {
@@ -434,23 +387,9 @@
 }
 
 .store-type-badge {
-  display: inline-block;
-  font-size: $font-size-xs;
   font-weight: 500;
-  padding: $radius-xs $space-2;
-  border-radius: $radius-md;
   background: var(--bg-hover);
-  color: var(--text-secondary);
   text-transform: capitalize;
-}
-
-.store-subtype-badge {
-  display: inline-block;
-  font-size: $font-size-xs;
-  color: var(--text-secondary);
-  padding: 2px $space-2;
-  border-radius: $radius-sm;
-  background: var(--bg-light);
 }
 
 .store-card-actions {
