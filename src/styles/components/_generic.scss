@@ -308,6 +308,20 @@
   }
 }
 
+.degoog-vstack {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+
+  &--sm {
+    gap: $space-1;
+  }
+
+  &--lg {
+    gap: $space-3;
+  }
+}
+
 .degoog-dropdown {
   background: var(--bg-light);
   border: 1px solid transparent;
@@ -349,6 +363,8 @@
   font-size: $font-size-base;
   outline: none;
   padding: $space-2 $space-3;
+  width: 100%;
+  box-sizing: border-box;
 
   &::placeholder {
     color: var(--text-secondary);
@@ -380,6 +396,16 @@
   &--tools-date {
     flex: 1;
     min-width: 0;
+  }
+
+  &--chat {
+    background: var(--bg);
+    border-radius: $radius-lg;
+    padding: $space-3 $space-4;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.5;
+    font-family: inherit;
   }
 }
 

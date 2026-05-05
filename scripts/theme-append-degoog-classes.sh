@@ -87,13 +87,13 @@ declare -A MAP=(
   ["result-snippet"]="degoog-result--snippet"
   ["result-engines"]="degoog-result--engines"
 
-  ["glance-box"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded"
-  ["glance-ai"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded"
+  ["glance-box"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded degoog-vstack"
+  ["glance-ai"]="degoog-panel degoog-panel--slot degoog-panel--slot-body-padded degoog-vstack"
   ["glance-snippet"]="degoog-text degoog-text--md"
   ["glance-link"]="degoog-link"
   ["glance-sources"]="degoog-text degoog-text--sm degoog-text--secondary degoog-text--spaced"
   ["glance-ai-dive"]="degoog-link-btn"
-  ["glance-ai-input"]="degoog-input"
+  ["glance-ai-input"]="degoog-input degoog-input--chat"
 )
 
 append_for_file() {

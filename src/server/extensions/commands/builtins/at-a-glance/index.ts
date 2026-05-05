@@ -328,7 +328,7 @@ const atAGlanceSlot: SlotPlugin = {
 
     return {
       html:
-        '<div class="glance-box degoog-panel degoog-panel--slot degoog-panel--slot-body-padded">' +
+        '<div class="glance-box degoog-panel degoog-panel--slot degoog-panel--slot-body-padded degoog-vstack">' +
         `<div class="glance-snippet degoog-text degoog-text--md">${_escapeHtml(snippet)}</div>` +
         `<a class="glance-link degoog-link" href="${_escapeHtml(best.url)}" target="_blank">${_escapeHtml(best.title)}</a>` +
         `<div class="glance-sources degoog-text degoog-text--sm degoog-text--secondary degoog-text--spaced">${_escapeHtml(foundOn)}</div>` +
